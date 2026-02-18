@@ -936,3 +936,429 @@ dialog > *{
   background: rgba(255,255,255,.10);
   margin: 18px 0;
 }
+
+/* ---------------------------
+   15. PUBLIC PAGES POLISH
+--------------------------- */
+.public-page-stack{
+  display: grid;
+  gap: 22px;
+}
+
+.hero-grid{
+  display: grid;
+  grid-template-columns: minmax(0, 1.28fr) minmax(320px, .72fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.hero-primary::after{
+  content: "";
+  position: absolute;
+  inset: auto -24% -36% auto;
+  width: 360px;
+  height: 360px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 50%, rgba(250,204,21,.22), rgba(250,204,21,0) 62%);
+  pointer-events: none;
+}
+
+.mt-8{ margin-top: 8px; }
+.mt-10{ margin-top: 10px; }
+.mt-12{ margin-top: 12px; }
+.mt-14{ margin-top: 14px; }
+.mt-16{ margin-top: 16px; }
+
+.chips{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.section-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.steps,
+.features,
+.faq{
+  display: grid;
+  gap: 12px;
+}
+
+.steps{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 16px;
+}
+
+.features,
+.faq{
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.faq-item{
+  border-radius: var(--r-md);
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.035);
+  padding: 16px;
+}
+
+.step-num{
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #132313;
+  background: linear-gradient(135deg, var(--yellow), rgba(250,204,21,.74));
+}
+
+.faq-q{
+  margin: 0;
+  font-weight: 760;
+  color: rgba(234,246,238,.93);
+}
+
+.faq-a{
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.cta{
+  background:
+    radial-gradient(640px 240px at 0% 100%, rgba(34,197,94,.16), transparent 72%),
+    radial-gradient(520px 220px at 92% 18%, rgba(250,204,21,.14), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.045));
+}
+
+.service-hero,
+.about-page{
+  max-width: 960px;
+}
+
+.services-grid .service-card,
+.about-facts .card{
+  min-height: 220px;
+}
+
+.about-facts{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.contact-grid{
+  align-items: start;
+}
+
+.contact-form{
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.contact-form-card .btn{
+  margin-top: 4px;
+}
+
+@media (max-width: 980px){
+  .hero-grid,
+  .steps,
+  .features,
+  .faq,
+  .about-facts{
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------
+   16. WARM PRODUCT THEME
+--------------------------- */
+:root{
+  --yellow: #f6d646;
+}
+
+body{
+  background:
+    radial-gradient(980px 720px at 12% 8%, rgba(67,188,88,.19), transparent 60%),
+    radial-gradient(900px 620px at 82% 0%, rgba(246,214,70,.19), transparent 56%),
+    radial-gradient(960px 700px at 72% 88%, rgba(149,214,55,.13), transparent 62%),
+    radial-gradient(1200px 760px at 50% 40%, rgba(0,0,0,0), rgba(0,0,0,.42)),
+    linear-gradient(180deg, #07110b, #132012 58%, #0d180f);
+}
+
+.product-home .hero-main,
+.warm-card{
+  background:
+    radial-gradient(520px 220px at 92% 10%, rgba(246,214,70,.15), transparent 72%),
+    radial-gradient(460px 200px at 0% 100%, rgba(67,188,88,.15), transparent 72%),
+    linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.045));
+  border-color: rgba(246,214,70,.18);
+}
+
+.warm-side{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.035));
+  border-color: rgba(67,188,88,.25);
+}
+
+.glow-card{
+  border-color: rgba(246,214,70,.2);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.04) inset,
+    0 12px 34px rgba(0,0,0,.22),
+    0 0 0 1px rgba(246,214,70,.08);
+}
+
+.step-card{
+  background:
+    radial-gradient(280px 160px at 100% 0%, rgba(246,214,70,.12), transparent 70%),
+    rgba(255,255,255,.035);
+}
+
+.warm-cta{
+  background:
+    radial-gradient(720px 270px at 0% 100%, rgba(67,188,88,.21), transparent 70%),
+    radial-gradient(620px 260px at 100% 0%, rgba(246,214,70,.21), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.045));
+  border-color: rgba(246,214,70,.26);
+}
+
+.public-header,
+.topbar{
+  background: rgba(9, 18, 11, .78);
+}
+
+.btn-primary{
+  color: #13210d;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,0)),
+    linear-gradient(135deg, #83db44, #f6d646);
+  border-color: rgba(255,255,255,.24);
+  box-shadow:
+    0 16px 40px rgba(131,219,68,.2),
+    0 12px 36px rgba(246,214,70,.16);
+}
+
+.navlink.active,
+.sidebar-nav .navlink.active{
+  background: rgba(246,214,70,.15);
+  border-color: rgba(246,214,70,.3);
+  box-shadow: 0 12px 30px rgba(246,214,70,.14);
+}
+
+/* ---------------------------
+   17. PRODUCT UX REWORK
+--------------------------- */
+.header-actions{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.footer-links{
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.product-page .section{ margin-top: 0; }
+
+.product-hero{
+  border-color: rgba(246,214,70,.24);
+  background:
+    radial-gradient(680px 280px at 0% 100%, rgba(97,211,90,.2), transparent 72%),
+    radial-gradient(560px 240px at 100% 0%, rgba(246,214,70,.2), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.05));
+}
+
+.product-kpis{
+  margin-top: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.product-steps{
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.process-card,
+.value-card{
+  border-color: rgba(255,255,255,.14);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.03));
+}
+
+.product-cta{
+  border-color: rgba(246,214,70,.26);
+  background:
+    radial-gradient(700px 260px at 0% 100%, rgba(97,211,90,.24), transparent 70%),
+    radial-gradient(620px 240px at 100% 0%, rgba(246,214,70,.23), transparent 68%),
+    linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.05));
+}
+
+.pricing-hero{
+  border-color: rgba(246,214,70,.22);
+}
+
+.plan-grid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.plan-card{
+  display: grid;
+  align-content: start;
+}
+
+.plan-card-primary{
+  border-color: rgba(246,214,70,.35);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.06) inset,
+    0 18px 44px rgba(246,214,70,.12),
+    0 40px 100px rgba(0,0,0,.18);
+}
+
+.plan-price-wrap{ margin-top: 10px; }
+.plan-price{
+  font-size: clamp(32px, 3.4vw, 42px);
+  font-weight: 920;
+  letter-spacing: -.03em;
+}
+
+.plan-list{
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.topstrip{
+  background: linear-gradient(90deg, rgba(97,211,90,.16), rgba(246,214,70,.14));
+}
+
+.public-header{
+  border-bottom-color: rgba(246,214,70,.18);
+}
+
+@media (max-width: 1100px){
+  .product-steps{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .plan-grid{ grid-template-columns: 1fr; }
+}
+
+@media (max-width: 980px){
+  .product-kpis,
+  .product-steps{ grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px){
+  .header-actions{
+    width: 100%;
+  }
+  .header-actions > *{
+    flex: 1 1 auto;
+  }
+}
+
+/* ---------------------------
+   18. PRODUCT XL POLISH
+--------------------------- */
+.product-page-xl,
+.pricing-page-xl,
+.services-page-xl,
+.start-page-xl,
+.about-page-xl,
+.contact-page-xl{
+  display: grid;
+  gap: 24px;
+}
+
+.product-hero-xl,
+.pricing-hero-xl,
+.service-hero-xl{
+  border-radius: 26px;
+  border-color: rgba(246,214,70,.25);
+}
+
+.product-hero-xl{
+  background:
+    radial-gradient(780px 290px at 0% 100%, rgba(96,214,88,.23), transparent 72%),
+    radial-gradient(620px 260px at 100% 0%, rgba(246,214,70,.22), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.05));
+}
+
+.product-kpis-xl{
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.product-steps-xl{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.features-4{
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.features-3{
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.value-card-xl,
+.process-card{
+  min-height: 190px;
+}
+
+.product-cta-xl{
+  border-color: rgba(246,214,70,.28);
+}
+
+.plan-grid-xl{
+  gap: 16px;
+}
+
+.compare-wrap{
+  overflow: hidden;
+}
+
+.compare-table-wrap{
+  overflow-x: auto;
+}
+
+.compare-table td:first-child,
+.compare-table th:first-child{
+  min-width: 180px;
+}
+
+.services-grid-xl{
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.start-page-xl .card,
+.contact-page-xl .card,
+.about-page-xl .card{
+  border-color: rgba(255,255,255,.14);
+}
+
+@media (max-width: 1260px){
+  .features-4{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .services-grid-xl{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 980px){
+  .product-kpis-xl,
+  .product-steps-xl,
+  .features-4,
+  .features-3,
+  .services-grid-xl{
+    grid-template-columns: 1fr;
+  }
+}
