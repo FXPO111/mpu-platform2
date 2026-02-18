@@ -194,11 +194,12 @@ export default function HomePage() {
   }, []);
 
   const selectPlanEvent = useMemo(
-    () => ({
-      start: "select_plan_start",
-      pro: "select_plan_pro",
-      intensive: "select_plan_intensive",
-    }),
+    () =>
+      ({
+        start: "select_plan_start",
+        pro: "select_plan_pro",
+        intensive: "select_plan_intensive",
+      }) as const,
     [],
   );
 
@@ -217,18 +218,21 @@ export default function HomePage() {
 
           <div className="chips mt-16">
             {HERO_CHIPS.map((chip) => (
-              <span className="chip" key={chip}>{chip}</span>
+              <span className="chip" key={chip}>
+                {chip}
+              </span>
             ))}
           </div>
 
           <div className="hero-actions">
-            <Link
-              href="/diagnostic"
-              onClick={() => track("cta_start_diagnostic_click", { place: "hero" })}
-            >
+            <Link href="/diagnostic" onClick={() => track("cta_start_diagnostic_click", { place: "hero" })}>
               <Button size="lg">Начать диагностику (5 минут)</Button>
             </Link>
-            <Link href="#pricing"><Button size="lg" variant="secondary">Посмотреть тарифы</Button></Link>
+            <Link href="#pricing">
+              <Button size="lg" variant="secondary">
+                Посмотреть тарифы
+              </Button>
+            </Link>
           </div>
 
           <p className="small mt-12">Диагностика бесплатная. На выходе — карта рисков и план подготовки.</p>
@@ -320,7 +324,10 @@ export default function HomePage() {
 
         <div className="plan-grid clean-grid mt-16">
           {PLANS.map((plan) => (
-            <article className={`clean-plan card pad ${plan.featured ? "clean-plan-featured" : ""}`} key={plan.title}>
+            <article
+              className={`clean-plan card pad ${plan.featured ? "clean-plan-featured" : ""}`}
+              key={plan.title}
+            >
               <div className="badge">{plan.title}</div>
               {plan.badge ? <p className="small mt-8">{plan.badge}</p> : null}
               <ul className="plan-list mt-12">
@@ -384,13 +391,14 @@ export default function HomePage() {
             Ответьте на ключевые вопросы по кейсу. На выходе получите карту рисков и план подготовки.
           </p>
           <div className="hero-actions">
-            <Link
-              href="/diagnostic"
-              onClick={() => track("cta_start_diagnostic_click", { place: "bottom" })}
-            >
+            <Link href="/diagnostic" onClick={() => track("cta_start_diagnostic_click", { place: "bottom" })}>
               <Button size="lg">Начать диагностику</Button>
             </Link>
-            <Link href="#pricing"><Button size="lg" variant="secondary">Посмотреть тарифы</Button></Link>
+            <Link href="#pricing">
+              <Button size="lg" variant="secondary">
+                Посмотреть тарифы
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

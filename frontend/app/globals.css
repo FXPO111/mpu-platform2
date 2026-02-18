@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MPU Praxis — Production CSS (globals.css)
+   MPU AI — Production CSS (globals.css)
    - современный dark, глубина, сетка, типографика
    - аккуратный бренд (зелёный основной, жёлтый как акцент)
    - нормальные модалки / оверлеи / z-index / скролл
@@ -612,8 +612,6 @@ textarea.input{
 
 /* ---------------------------
    09. APP SHELL (dashboard/admin)
-   из твоего AppLayout.tsx:
-   .app-shell .sidebar .topbar .content
 --------------------------- */
 .app-shell{
   min-height: 100vh;
@@ -699,7 +697,7 @@ textarea.input{
 }
 
 /* ---------------------------
-   10. TABLES / LISTS (на будущее)
+   10. TABLES / LISTS
 --------------------------- */
 .table{
   width:100%;
@@ -724,12 +722,6 @@ textarea.input{
 
 /* ---------------------------
    11. MODALS / DIALOGS
-   (фикс “кривых модалок”)
-   Поддержка:
-   - .modal-overlay/.modal-content
-   - .dialog-overlay/.dialog-content
-   - атрибуты data-modal-overlay / data-modal-content
-   - нативный <dialog>
 --------------------------- */
 body.modal-open{ overflow: hidden; }
 
@@ -880,7 +872,6 @@ dialog > *{
 
 /* =========================
    FIX: ритм + “фон рвётся”
-   вставь в конец globals.css
 ========================= */
 
 /* 1) фон: фиксируем и убираем ощущение “обрыва” при скролле */
@@ -897,7 +888,7 @@ dialog > *{
   .page > * + *{ margin-top: 18px; }
 }
 
-/* 3) отступы внутри крупных карточек (чтобы не было “всё слиплось”) */
+/* 3) отступы внутри крупных карточек */
 .card.pad > .badge{ margin-bottom: 12px; }
 .card.pad > .badge + .h1,
 .card.pad > .badge + .h2{ margin-top: 10px; }
@@ -909,21 +900,16 @@ dialog > *{
 .cards3{ margin-top: 16px; }
 .grid2{ gap: 18px; }
 
-/* 4) главная причина “полосы” — тень.
-      Делаем shadow более “воздушным”, без жёсткой горизонтальной линии. */
+/* 4) главная причина “полосы” — тень */
 .card{
-  /* чуть плотнее фон, чтобы не просвечивало “пятнами” */
   background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
   border-color: rgba(255,255,255,.13);
-
-  /* мягкая глубина без “полосы” */
   box-shadow:
     0 1px 0 rgba(255,255,255,.04) inset,
     0 10px 26px rgba(0,0,0,.18),
     0 40px 110px rgba(0,0,0,.16);
 }
 
-/* hero — можно чуть “дороже” */
 .hero-main{
   box-shadow:
     0 1px 0 rgba(255,255,255,.05) inset,
@@ -931,7 +917,6 @@ dialog > *{
     0 90px 190px rgba(0,0,0,.58);
 }
 
-/* 5) чтобы разделитель не выглядел как “обрыв” */
 .hr{
   background: rgba(255,255,255,.10);
   margin: 18px 0;
