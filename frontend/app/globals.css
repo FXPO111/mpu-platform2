@@ -1068,94 +1068,45 @@ dialog > *{
   margin-top: 4px;
 }
 
+/* =========================
+   FIX: ритм + “фон рвётся”
+========================= */
+@media (min-width: 768px){
+  body{ background-attachment: fixed; }
+}
+
+.page{ padding: 34px 0 76px; }
+.page > * + *{ margin-top: 22px; }
+
 @media (max-width: 980px){
-  .hero-grid,
-  .steps,
-  .features,
-  .faq,
-  .about-facts{
-    grid-template-columns: 1fr;
-  }
+  .page{ padding: 26px 0 64px; }
+  .page > * + *{ margin-top: 18px; }
 }
 
-/* ---------------------------
-   16. WARM PRODUCT THEME
---------------------------- */
-:root{
-  --yellow: #f6d646;
-}
-
-body{
-  background:
-    radial-gradient(980px 720px at 12% 8%, rgba(67,188,88,.19), transparent 60%),
-    radial-gradient(900px 620px at 82% 0%, rgba(246,214,70,.19), transparent 56%),
-    radial-gradient(960px 700px at 72% 88%, rgba(149,214,55,.13), transparent 62%),
-    radial-gradient(1200px 760px at 50% 40%, rgba(0,0,0,0), rgba(0,0,0,.42)),
-    linear-gradient(180deg, #07110b, #132012 58%, #0d180f);
-}
-
-.product-home .hero-main,
-.warm-card{
-  background:
-    radial-gradient(520px 220px at 92% 10%, rgba(246,214,70,.15), transparent 72%),
-    radial-gradient(460px 200px at 0% 100%, rgba(67,188,88,.15), transparent 72%),
-    linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.045));
-  border-color: rgba(246,214,70,.18);
-}
-
-.warm-side{
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.035));
-  border-color: rgba(67,188,88,.25);
-}
-
-.glow-card{
-  border-color: rgba(246,214,70,.2);
+/* мягче тени — убирает “полосу” */
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+  border-color: rgba(255,255,255,.13);
   box-shadow:
     0 1px 0 rgba(255,255,255,.04) inset,
-    0 12px 34px rgba(0,0,0,.22),
-    0 0 0 1px rgba(246,214,70,.08);
+    0 10px 26px rgba(0,0,0,.18),
+    0 40px 110px rgba(0,0,0,.16);
 }
 
-.step-card{
-  background:
-    radial-gradient(280px 160px at 100% 0%, rgba(246,214,70,.12), transparent 70%),
-    rgba(255,255,255,.035);
-}
-
-.warm-cta{
-  background:
-    radial-gradient(720px 270px at 0% 100%, rgba(67,188,88,.21), transparent 70%),
-    radial-gradient(620px 260px at 100% 0%, rgba(246,214,70,.21), transparent 70%),
-    linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.045));
-  border-color: rgba(246,214,70,.26);
-}
-
-.public-header,
-.topbar{
-  background: rgba(9, 18, 11, .78);
-}
-
-.btn-primary{
-  color: #13210d;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,0)),
-    linear-gradient(135deg, #83db44, #f6d646);
-  border-color: rgba(255,255,255,.24);
+.hero-main{
   box-shadow:
-    0 16px 40px rgba(131,219,68,.2),
-    0 12px 36px rgba(246,214,70,.16);
+    0 1px 0 rgba(255,255,255,.05) inset,
+    0 16px 44px rgba(0,0,0,.22),
+    0 90px 190px rgba(0,0,0,.58);
 }
 
-.navlink.active,
-.sidebar-nav .navlink.active{
-  background: rgba(246,214,70,.15);
-  border-color: rgba(246,214,70,.3);
-  box-shadow: 0 12px 30px rgba(246,214,70,.14);
+.hr{
+  background: rgba(255,255,255,.10);
+  margin: 18px 0;
 }
 
 /* ---------------------------
-   17. PRODUCT UX REWORK
+   16. PRODUCT / PRICING (ТОЛЬКО локально, без правок body/:root)
 --------------------------- */
 .header-actions{
   display: flex;
@@ -1170,14 +1121,15 @@ body{
   margin-top: 10px;
 }
 
+/* если у тебя есть отдельный product-лендинг */
 .product-page .section{ margin-top: 0; }
 
 .product-hero{
-  border-color: rgba(246,214,70,.24);
+  border-color: rgba(250,204,21,.22);
   background:
-    radial-gradient(680px 280px at 0% 100%, rgba(97,211,90,.2), transparent 72%),
-    radial-gradient(560px 240px at 100% 0%, rgba(246,214,70,.2), transparent 70%),
-    linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.05));
+    radial-gradient(680px 280px at 0% 100%, rgba(34,197,94,.18), transparent 72%),
+    radial-gradient(560px 240px at 100% 0%, rgba(250,204,21,.18), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
 }
 
 .product-kpis{
@@ -1192,20 +1144,20 @@ body{
 .process-card,
 .value-card{
   border-color: rgba(255,255,255,.14);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.03));
+  background: linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.03));
 }
 
 .product-cta{
-  border-color: rgba(246,214,70,.26);
+  border-color: rgba(250,204,21,.24);
   background:
-    radial-gradient(700px 260px at 0% 100%, rgba(97,211,90,.24), transparent 70%),
-    radial-gradient(620px 240px at 100% 0%, rgba(246,214,70,.23), transparent 68%),
-    linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.05));
+    radial-gradient(700px 260px at 0% 100%, rgba(34,197,94,.20), transparent 70%),
+    radial-gradient(620px 240px at 100% 0%, rgba(250,204,21,.20), transparent 68%),
+    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
 }
 
+/* pricing */
 .pricing-hero{
-  border-color: rgba(246,214,70,.22);
+  border-color: rgba(250,204,21,.18);
 }
 
 .plan-grid{
@@ -1220,10 +1172,10 @@ body{
 }
 
 .plan-card-primary{
-  border-color: rgba(246,214,70,.35);
+  border-color: rgba(250,204,21,.30);
   box-shadow:
     0 1px 0 rgba(255,255,255,.06) inset,
-    0 18px 44px rgba(246,214,70,.12),
+    0 18px 44px rgba(250,204,21,.10),
     0 40px 100px rgba(0,0,0,.18);
 }
 
@@ -1241,29 +1193,26 @@ body{
   line-height: 1.75;
 }
 
-.topstrip{
-  background: linear-gradient(90deg, rgba(97,211,90,.16), rgba(246,214,70,.14));
-}
-
-.public-header{
-  border-bottom-color: rgba(246,214,70,.18);
-}
-
 @media (max-width: 1100px){
   .product-steps{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .plan-grid{ grid-template-columns: 1fr; }
 }
 
 @media (max-width: 980px){
+  .hero-grid,
+  .steps,
+  .features,
+  .faq,
+  .about-facts{
+    grid-template-columns: 1fr;
+  }
+
   .product-kpis,
   .product-steps{ grid-template-columns: 1fr; }
 }
 
 @media (max-width: 620px){
-  .header-actions{
-    width: 100%;
-  }
-  .header-actions > *{
-    flex: 1 1 auto;
-  }
+  .header-actions{ width: 100%; }
+  .header-actions > *{ flex: 1 1 auto; }
 }
+

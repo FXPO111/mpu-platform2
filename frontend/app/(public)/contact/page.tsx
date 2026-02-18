@@ -11,10 +11,12 @@ export default function ContactPage() {
     <div className="grid2 contact-grid">
       <section className="card pad">
         <div className="badge">Контакты</div>
-        <h1 className="h2 mt-10">Поможем выбрать пакет перед оплатой</h1>
+        <h1 className="h2 mt-10">Свяжитесь со мной</h1>
         <p className="p mt-12">
-          Телефон: <a href="tel:+491752730963">+49 175 27 30 963</a><br />
-          Email: <a href="mailto:info@mpu-praxis-dp.de">info@mpu-praxis-dp.de</a><br />
+          Телефон: <a href="tel:+491752730963">+49 175 27 30 963</a>
+          <br />
+          Email: <a href="mailto:info@mpu-praxis-dp.de">info@mpu-praxis-dp.de</a>
+          <br />
           Адрес: Viktoriastraße 32-36, 56068 Koblenz
         </p>
       </section>

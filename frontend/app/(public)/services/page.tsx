@@ -5,12 +5,20 @@ export default function ServicesPage() {
   return (
     <div className="public-page-stack">
       <section className="card pad service-hero">
-        <div className="badge">Как устроена программа</div>
-        <h1 className="h2 mt-10">Не разовые консультации, а последовательная система подготовки</h1>
+        <div className="badge">Услуги</div>
+        <h1 className="h2 mt-10">Форматы подготовки</h1>
         <p className="lead mt-12">
-          Программа построена вокруг результата: клиент шаг за шагом закрывает риски,
-          отрабатывает ответы и выходит к финальному интервью в устойчивом состоянии.
+          Старт — информационная консультация (30€ / 30 минут), дальше выбираем формат под вашу ситуацию,
+          опыт предыдущих попыток и уровень готовности.
         </p>
+        <div className="hero-actions">
+          <Link href="/contact">
+            <Button>Записаться</Button>
+          </Link>
+          <Link href="/pricing">
+            <Button variant="secondary">Посмотреть тарифы</Button>
+          </Link>
+        </div>
       </section>
 
       <section className="cards3 services-grid">
@@ -27,9 +35,9 @@ export default function ServicesPage() {
         </article>
 
         <article className="card pad soft service-card">
-          <div className="badge">Контроль прогресса</div>
-          <h3 className="h3 mt-10">Понимание готовности в цифрах</h3>
-          <p className="p mt-8">Видно, какие блоки закрыты, где есть риски и что нужно завершить перед MPU.</p>
+          <div className="badge">Подготовка к MPU</div>
+          <h3 className="h3 mt-10">Полная стратегия кейса</h3>
+          <p className="p mt-8">Пошаговая работа: история изменений, документы, тренировка интервью и поддержка до сдачи.</p>
         </article>
       </section>
 
@@ -37,9 +45,11 @@ export default function ServicesPage() {
         <div className="section-head">
           <div>
             <div className="badge">Следующий шаг</div>
-            <h2 className="h2 mt-10">Определите пакет и сразу запустите подготовку</h2>
+            <h2 className="h2 mt-10">Определите пакет и запустите подготовку</h2>
           </div>
-          <Link href="/pricing"><Button>К пакетам</Button></Link>
+          <Link href="/pricing">
+            <Button>К пакетам</Button>
+          </Link>
         </div>
       </section>
     </div>
