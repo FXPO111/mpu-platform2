@@ -26,10 +26,7 @@ export default function StartPage() {
   return (
     <div className="public-page-stack start-page-xl">
       <section className="card pad">
-        <div className="badge">
-          Стартовая диагностика • шаг {i + 1}/{STEPS.length} • {progress}%
-        </div>
-
+        <div className="badge">Стартовая диагностика • шаг {i + 1}/{STEPS.length} • {progress}%</div>
         <h1 className="h2 mt-10">{step.title}</h1>
         <p className="p mt-8">{step.hint}</p>
 

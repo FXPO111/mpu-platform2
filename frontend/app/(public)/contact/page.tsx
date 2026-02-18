@@ -38,7 +38,9 @@ export default function ContactPage() {
           {ok ? (
             <div className="card pad soft mt-12">
               <div className="badge">Готово</div>
-              <p className="p mt-8">Спасибо! Мы свяжемся с вами и предложим оптимальный формат запуска.</p>
+              <p className="p mt-8">
+                Спасибо! Мы свяжемся с вами и предложим оптимальный формат запуска.
+              </p>
             </div>
           ) : (
             <form

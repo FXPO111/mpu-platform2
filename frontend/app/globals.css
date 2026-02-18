@@ -612,8 +612,6 @@ textarea.input{
 
 /* ---------------------------
    09. APP SHELL (dashboard/admin)
-   из твоего AppLayout.tsx:
-   .app-shell .sidebar .topbar .content
 --------------------------- */
 .app-shell{
   min-height: 100vh;
@@ -699,7 +697,7 @@ textarea.input{
 }
 
 /* ---------------------------
-   10. TABLES / LISTS (на будущее)
+   10. TABLES / LISTS
 --------------------------- */
 .table{
   width:100%;
@@ -724,12 +722,6 @@ textarea.input{
 
 /* ---------------------------
    11. MODALS / DIALOGS
-   (фикс “кривых модалок”)
-   Поддержка:
-   - .modal-overlay/.modal-content
-   - .dialog-overlay/.dialog-content
-   - атрибуты data-modal-overlay / data-modal-content
-   - нативный <dialog>
 --------------------------- */
 body.modal-open{ overflow: hidden; }
 
@@ -880,7 +872,6 @@ dialog > *{
 
 /* =========================
    FIX: ритм + “фон рвётся”
-   вставь в конец globals.css
 ========================= */
 
 /* 1) фон: фиксируем и убираем ощущение “обрыва” при скролле */
@@ -897,7 +888,7 @@ dialog > *{
   .page > * + *{ margin-top: 18px; }
 }
 
-/* 3) отступы внутри крупных карточек (чтобы не было “всё слиплось”) */
+/* 3) отступы внутри крупных карточек */
 .card.pad > .badge{ margin-bottom: 12px; }
 .card.pad > .badge + .h1,
 .card.pad > .badge + .h2{ margin-top: 10px; }
@@ -909,21 +900,16 @@ dialog > *{
 .cards3{ margin-top: 16px; }
 .grid2{ gap: 18px; }
 
-/* 4) главная причина “полосы” — тень.
-      Делаем shadow более “воздушным”, без жёсткой горизонтальной линии. */
+/* 4) главная причина “полосы” — тень */
 .card{
-  /* чуть плотнее фон, чтобы не просвечивало “пятнами” */
   background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
   border-color: rgba(255,255,255,.13);
-
-  /* мягкая глубина без “полосы” */
   box-shadow:
     0 1px 0 rgba(255,255,255,.04) inset,
     0 10px 26px rgba(0,0,0,.18),
     0 40px 110px rgba(0,0,0,.16);
 }
 
-/* hero — можно чуть “дороже” */
 .hero-main{
   box-shadow:
     0 1px 0 rgba(255,255,255,.05) inset,
@@ -931,7 +917,6 @@ dialog > *{
     0 90px 190px rgba(0,0,0,.58);
 }
 
-/* 5) чтобы разделитель не выглядел как “обрыв” */
 .hr{
   background: rgba(255,255,255,.10);
   margin: 18px 0;
@@ -1360,5 +1345,241 @@ body{
   .features-3,
   .services-grid-xl{
     grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------
+   19. PREMIUM RESET OVERRIDES
+--------------------------- */
+:root{
+  --green: #64d448;
+  --yellow: #f3d64c;
+  --bg0: #0d140f;
+  --bg1: #121b14;
+}
+
+body{
+  background-attachment: fixed;
+  background:
+    radial-gradient(920px 580px at 12% 6%, rgba(100,212,72,.16), transparent 62%),
+    radial-gradient(860px 520px at 86% 0%, rgba(243,214,76,.14), transparent 58%),
+    linear-gradient(180deg, #0c130f, #121b14 56%, #101813);
+}
+
+.public-header{
+  background: rgba(12,19,15,.82);
+  border-bottom: 1px solid rgba(243,214,76,.14);
+}
+
+.topstrip{
+  background: rgba(255,255,255,.03);
+}
+
+.topstrip-inner{
+  font-size: 12px;
+  color: rgba(234,246,238,.82);
+}
+
+.public-header-inner{
+  padding: 12px 0;
+}
+
+.nav{ gap: 6px; }
+
+.navlink{
+  border-radius: 12px;
+  padding: 8px 11px;
+}
+
+.navlink.active{
+  background: rgba(243,214,76,.15);
+  border-color: rgba(243,214,76,.28);
+  color: rgba(246,252,247,.96);
+  box-shadow: none;
+}
+
+.btn-primary{
+  color: #14200f;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.25), rgba(255,255,255,0)),
+    linear-gradient(135deg, #72da4f, #f3d64c);
+  box-shadow: 0 14px 34px rgba(84,168,57,.22);
+}
+
+.premium-home{
+  gap: 24px;
+}
+
+.premium-hero,
+.pricing-clean-hero{
+  border-radius: 26px;
+  border-color: rgba(243,214,76,.24);
+  background:
+    radial-gradient(660px 240px at 0% 100%, rgba(100,212,72,.2), transparent 72%),
+    radial-gradient(520px 220px at 100% 0%, rgba(243,214,76,.17), transparent 72%),
+    linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.04));
+}
+
+.premium-hero-points{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.journey-grid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.journey-grid-4{
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.journey-card{
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.03));
+  padding: 16px;
+}
+
+.journey-top{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.journey-num{
+  width: 32px;
+  height: 32px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  color: #14230f;
+  background: linear-gradient(135deg, #f3d64c, #9be052);
+}
+
+.premium-cta{
+  border-color: rgba(243,214,76,.26);
+  background:
+    radial-gradient(700px 250px at 0% 100%, rgba(100,212,72,.22), transparent 70%),
+    radial-gradient(600px 220px at 100% 0%, rgba(243,214,76,.2), transparent 68%),
+    linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.05));
+}
+
+.clean-grid{
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.clean-plan{
+  border-radius: 22px;
+}
+
+.clean-plan-featured{
+  border-color: rgba(243,214,76,.34);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.06) inset,
+    0 16px 42px rgba(243,214,76,.12),
+    0 28px 80px rgba(0,0,0,.2);
+}
+
+@media (max-width: 1180px){
+  .journey-grid,
+  .journey-grid-4,
+  .clean-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px){
+  .premium-hero-points,
+  .journey-grid,
+  .journey-grid-4,
+  .clean-grid{
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------
+   20. LANDING PROTOCOL IA
+--------------------------- */
+html{ scroll-behavior: smooth; }
+
+.compact-header .public-header-inner{
+  min-height: 56px;
+}
+
+#hero,#program,#pricing,#faq,#contacts{
+  scroll-margin-top: 90px;
+}
+
+.premium-home .cards3,
+.premium-home .journey-grid{
+  margin-top: 14px;
+}
+
+.faq-accordion{
+  display: grid;
+  gap: 10px;
+}
+
+.faq-acc-item{
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.035);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.faq-acc-btn{
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  font-weight: 700;
+  color: rgba(238,248,241,.95);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.faq-acc-btn:hover{
+  background: rgba(255,255,255,.03);
+}
+
+.faq-acc-body{
+  margin: 0;
+  padding: 0 16px 14px;
+  color: var(--muted);
+  line-height: 1.68;
+}
+
+@media (max-width: 767px){
+  .compact-header .topstrip-inner{
+    font-size: 11px;
+    padding: 8px 0;
+  }
+  .compact-header .public-header-inner{
+    padding: 9px 0;
+    gap: 8px;
+  }
+  .compact-header .brand{
+    font-size: 15px;
+  }
+  .compact-header .header-actions .btn-sm{
+    padding: 8px 10px;
+  }
+  .compact-header .nav{
+    width: 100%;
+    order: 3;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
   }
 }

@@ -1,138 +1,402 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 
-const stages = [
+type EventName =
+  | "cta_start_diagnostic_click"
+  | "view_pricing_section"
+  | "select_plan_start"
+  | "select_plan_pro"
+  | "select_plan_intensive"
+  | `faq_open_question_${number}`;
+
+function track(event: EventName, payload?: Record<string, unknown>) {
+  if (typeof window === "undefined") return;
+  const body = { event, ...payload };
+  window.dispatchEvent(new CustomEvent("analytics:event", { detail: body }));
+  const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
+  if (gtag) gtag("event", event, payload || {});
+}
+
+const HERO_CHIPS = [
+  "Alkohol",
+  "Drogen",
+  "Punkte",
+  "Verhalten",
+  "Конфиденциально",
+  "Онлайн 24/7",
+  "Старт после оплаты",
+];
+
+const HERO_CARDS = [
   {
-    title: "Онбординг и оценка кейса",
-    text: "Клиент проходит структурированный вход: причины MPU, сроки, текущий статус и документы. На выходе — карта рисков и персональный маршрут.",
+    title: "Старт после оплаты",
+    text: "До 5 минут — кабинет и программа активируются автоматически.",
   },
   {
-    title: "План по неделям",
-    text: "Система формирует последовательность шагов: какие блоки проработать, что подготовить, что подтвердить документально и в какие сроки.",
+    title: "Тренировки интервью",
+    text: "Сценарии вопросов + разбор ваших формулировок и логики истории.",
   },
   {
-    title: "Тренировочный цикл",
-    text: "Регулярные тренировки интервью и разбор формулировок. Каждая сессия повышает устойчивость ответов и снижает риск провала.",
+    title: "Контроль готовности",
+    text: "Итоговый чеклист и отчёт по рискам перед MPU.",
+  },
+];
+
+const HOW_IT_WORKS = [
+  {
+    title: "Диагностика и сбор кейса",
+    text: "Фиксируем факты, причины, изменения, контрольные точки и риски.",
+  },
+  {
+    title: "План подготовки по неделям",
+    text: "Задания, дедлайны, обязательные блоки и прогресс.",
+  },
+  {
+    title: "Тренировки интервью",
+    text: "Вопросы Gutachter + оценка ответов на риск и корректировка формулировок.",
   },
   {
     title: "Финальная готовность",
-    text: "Перед MPU клиент проходит итоговый контроль: критерии готовности, незакрытые риски и финальные рекомендации по кейсу.",
+    text: "Итоговый контроль: что закрыто, что не закрыто, что повторить перед MPU.",
   },
 ];
 
-const proof = [
-  ["Прозрачная экономика", "Пакеты, срок и объём сопровождения видны до оплаты — без скрытых условий."],
-  ["Видимый прогресс", "Клиент понимает, где он сейчас, что уже закрыто и что осталось до финальной готовности."],
-  ["Единая рабочая среда", "Диагностика, программа, документы и история подготовки находятся в одном месте."],
-  ["Фокус на результате", "Каждый этап ориентирован на успешное прохождение MPU, а не на «общие советы»."],
+const SCENARIOS = [
+  {
+    title: "Alkohol",
+    text: "Причины, изменения, контроль, типовые вопросы, документы.",
+  },
+  {
+    title: "Drogen",
+    text: "Последовательность событий, отказ/контроль, риски формулировок.",
+  },
+  {
+    title: "Punkte",
+    text: "Поведение, выводы, профилактика, устойчивость ответов.",
+  },
+  {
+    title: "Verhalten",
+    text: "Мотивация изменений, критические триггеры, доказуемость прогресса.",
+  },
 ];
 
-const kpi = [
-  { label: "Время старта после оплаты", value: "< 5 мин", note: "Клиент сразу попадает в рабочий процесс." },
-  { label: "Базовые сценарии подготовки", value: "4", note: "Алкоголь, вещества, баллы, поведенческие кейсы." },
-  { label: "Пакеты сопровождения", value: "3", note: "От стартового до интенсивного формата." },
+const PROCESS_CHECKS = [
+  "Выявляет слабые места и противоречия в истории.",
+  "Помогает собрать причинно-следственную цепочку (до → событие → выводы → изменения).",
+  "Проводит тренировки интервью и отмечает ответы с повышенным риском.",
+  "Формирует план действий по неделям и фиксирует прогресс.",
+  "Собирает чеклист документов под ваш сценарий.",
+  "Перед финалом делает контроль готовности и рекомендации по доработке.",
+];
+
+const DELIVERABLES = [
+  "Оформленная история кейса в рабочей структуре.",
+  "Рекомендуемые формулировки и “опасные формулировки” (что не говорить).",
+  "Тренировки интервью: вопросы + ваши ответы + разбор.",
+  "План по неделям и прогресс выполнения.",
+  "Чеклист документов под сценарий.",
+  "Итоговый отчёт по рискам перед MPU.",
+];
+
+const PLANS = [
+  {
+    key: "start",
+    title: "Start",
+    items: [
+      "Диагностика и карта рисков",
+      "План подготовки по неделям",
+      "Базовые модули",
+      "Тренировки интервью (лимит N сессий)",
+      "Чеклист документов",
+    ],
+  },
+  {
+    key: "pro",
+    title: "Pro",
+    featured: true,
+    badge: "Рекомендуемый",
+    items: [
+      "Всё из Start",
+      "Тренировки интервью без лимита",
+      "Расширенная проверка формулировок и логики истории",
+      "Финальный контроль готовности + отчёт",
+    ],
+  },
+  {
+    key: "intensive",
+    title: "Intensive",
+    items: [
+      "Всё из Pro",
+      "Усиленный финальный контроль (доп. итерации проверки)",
+      "Приоритетная поддержка",
+    ],
+  },
+] as const;
+
+const FAQ = [
+  {
+    q: "Сколько времени занимает подготовка?",
+    a: "Обычно от нескольких недель до нескольких месяцев — зависит от сценария и исходной готовности.",
+  },
+  {
+    q: "Подойдёт ли мне, если я не знаю, как правильно сформулировать историю?",
+    a: "Да. Диагностика и структура помогут собрать последовательную версию кейса.",
+  },
+  {
+    q: "Это консультация или кабинет подготовки?",
+    a: "Это кабинет подготовки с планом, тренировками интервью и контролем прогресса.",
+  },
+  {
+    q: "Что происходит после оплаты?",
+    a: "Активируется кабинет и программа подготовки, появляется план и задания.",
+  },
+  {
+    q: "Как защищены данные?",
+    a: "Данные используются только для подготовки и не публикуются. Юридические условия — в Datenschutz.",
+  },
+  {
+    q: "Можно ли подготовиться полностью онлайн?",
+    a: "Да. Все этапы доступны в кабинете 24/7.",
+  },
+  {
+    q: "Какие сценарии покрываются?",
+    a: "Alkohol, Drogen, Punkte, Verhalten и смежные случаи — уточняется на диагностике.",
+  },
+  {
+    q: "Если я уже проходил подготовку раньше — это поможет?",
+    a: "Да. Система выявит пробелы и соберёт план закрытия рисков.",
+  },
 ];
 
 export default function HomePage() {
+  const [openFaq, setOpenFaq] = useState(0);
+  const pricingRef = useRef<HTMLElement | null>(null);
+  const pricingViewed = useRef(false);
+
+  useEffect(() => {
+    if (!pricingRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !pricingViewed.current) {
+            pricingViewed.current = true;
+            track("view_pricing_section");
+          }
+        });
+      },
+      { threshold: 0.4 },
+    );
+    observer.observe(pricingRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const selectPlanEvent = useMemo(
+    () =>
+      ({
+        start: "select_plan_start",
+        pro: "select_plan_pro",
+        intensive: "select_plan_intensive",
+      }) as const,
+    [],
+  );
+
   return (
-    <div className="public-page-stack product-page-xl">
-      <section className="section">
-        <div className="card pad product-hero product-hero-xl">
+    <div className="public-page-stack premium-home">
+      <section className="section" id="hero">
+        <div className="premium-hero card pad">
           <div className="badge">MPU Praxis DP • Product Edition</div>
-          <h1 className="h1 mt-14">Платформа подготовки к MPU с полноценной продуктовой логикой</h1>
+          <h1 className="h1 mt-14">
+            Подготовка к MPU по протоколу: план, тренировки интервью, контроль готовности
+          </h1>
           <p className="lead mt-12">
-            Здесь пользователь не теряется в контенте: сначала выбор пакета, затем оплата,
-            после чего автоматически запускается маршрут подготовки с этапами, дедлайнами и контролем прогресса.
+            Собираем ваш кейс в последовательную историю, отрабатываем интервью по вопросам Gutachter и закрываем риски:
+            документы, формулировки, противоречия. Всё в одном кабинете.
           </p>
 
+          <div className="chips mt-16">
+            {HERO_CHIPS.map((chip) => (
+              <span className="chip" key={chip}>
+                {chip}
+              </span>
+            ))}
+          </div>
+
           <div className="hero-actions">
-            <Link href="/pricing">
-              <Button size="lg">Смотреть пакеты и оплату</Button>
+            <Link href="/diagnostic" onClick={() => track("cta_start_diagnostic_click", { place: "hero" })}>
+              <Button size="lg">Начать диагностику (5 минут)</Button>
             </Link>
-            <Link href="/start">
+            <Link href="#pricing">
               <Button size="lg" variant="secondary">
-                Пройти стартовую диагностику
-              </Button>
-            </Link>
-            <Link href="/contact">
-              <Button size="lg" variant="ghost">
-                Нужна консультация по выбору
+                Посмотреть тарифы
               </Button>
             </Link>
           </div>
 
-          <div className="kpis product-kpis product-kpis-xl">
-            {kpi.map((item) => (
-              <article className="kpi" key={item.label}>
-                <div className="kpi-label">{item.label}</div>
-                <div className="kpi-value">{item.value}</div>
-                <p className="small mt-8">{item.note}</p>
+          <p className="small mt-12">Диагностика бесплатная. На выходе — карта рисков и план подготовки.</p>
+
+          <div className="cards3 mt-16">
+            {HERO_CARDS.map((card) => (
+              <article className="card pad soft" key={card.title}>
+                <div className="badge">{card.title}</div>
+                <p className="p mt-8">{card.text}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
+      <section className="section" id="program">
+        <div className="card pad soft">
+          <div className="badge">Конфиденциальность и контроль процесса</div>
+          <ul className="list mt-12">
+            <li>Данные хранятся в рабочем кабинете и не публикуются.</li>
+            <li>Минимум личных данных: только то, что нужно для подготовки.</li>
+            <li>Прозрачный процесс: видны этапы, дедлайны и прогресс.</li>
+            <li>Без обязательных звонков: старт через диагностику.</li>
+          </ul>
+          <p className="small mt-12">Юридические страницы: Impressum и Datenschutz — доступны в футере.</p>
+        </div>
+      </section>
+
       <section className="section">
         <div className="section-head">
           <div>
-            <div className="badge">Как работает система</div>
+            <div className="badge">How it works</div>
             <h2 className="h2 mt-10">Понятная цепочка действий от входа до финальной проверки</h2>
           </div>
-          <Link href="/services">
-            <Button variant="ghost">Открыть структуру программы</Button>
-          </Link>
         </div>
-
-        <div className="steps product-steps-xl">
-          {stages.map((stage, idx) => (
-            <article className="faq-item process-card" key={stage.title}>
-              <div className="row">
-                <span className="step-num">{idx + 1}</span>
-                <p className="faq-q">{stage.title}</p>
+        <div className="journey-grid journey-grid-4 mt-16">
+          {HOW_IT_WORKS.map((step, idx) => (
+            <article className="journey-card" key={step.title}>
+              <div className="journey-top">
+                <span className="journey-num">0{idx + 1}</span>
+                <p className="faq-q">{step.title}</p>
               </div>
-              <p className="faq-a">{stage.text}</p>
+              <p className="faq-a">{step.text}</p>
             </article>
           ))}
         </div>
       </section>
 
       <section className="section">
-        <div className="section-head">
-          <div>
-            <div className="badge">Почему это уже продукт, а не сайт-визитка</div>
-            <h2 className="h2 mt-10">Логика удержания клиента построена на процессе и понятной ценности</h2>
-          </div>
-          <Link href="/pricing">
-            <Button variant="secondary">Перейти к тарифам</Button>
-          </Link>
-        </div>
-
-        <div className="features mt-16 features-4">
-          {proof.map(([title, text]) => (
-            <article className="card pad soft value-card value-card-xl" key={title}>
-              <div className="badge">{title}</div>
-              <p className="p mt-8">{text}</p>
+        <div className="badge">Сценарии подготовки</div>
+        <div className="journey-grid journey-grid-4 mt-16">
+          {SCENARIOS.map((scenario) => (
+            <article className="journey-card" key={scenario.title}>
+              <p className="faq-q">{scenario.title}</p>
+              <p className="faq-a mt-8">{scenario.text}</p>
             </article>
           ))}
         </div>
       </section>
 
       <section className="section">
-        <div className="card pad cta product-cta product-cta-xl">
-          <div className="badge">Следующий шаг</div>
-          <h2 className="h2 mt-10">Пакет выбирается за 1–2 минуты, программа запускается сразу после оплаты</h2>
+        <div className="card pad soft">
+          <div className="badge">Процесс с проверками</div>
+          <h2 className="h2 mt-10">Подготовка построена как процесс — с проверками, а не “советами”</h2>
+          <ul className="list mt-12">
+            {PROCESS_CHECKS.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="badge">Deliverables</div>
+        <h2 className="h2 mt-10">На выходе — пакет готовности к MPU</h2>
+        <div className="journey-grid mt-16">
+          {DELIVERABLES.map((item) => (
+            <article className="journey-card" key={item}>
+              <p className="faq-a">{item}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section" id="pricing" ref={pricingRef}>
+        <div className="badge">Pricing</div>
+        <h2 className="h2 mt-10">Выберите формат подготовки</h2>
+        <p className="p mt-10">Начните с диагностики — система предложит рекомендованный формат по рискам.</p>
+
+        <div className="plan-grid clean-grid mt-16">
+          {PLANS.map((plan) => (
+            <article
+              className={`clean-plan card pad ${plan.featured ? "clean-plan-featured" : ""}`}
+              key={plan.title}
+            >
+              <div className="badge">{plan.title}</div>
+              {plan.badge ? <p className="small mt-8">{plan.badge}</p> : null}
+              <ul className="plan-list mt-12">
+                {plan.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+
+              <div className="hero-actions mt-16">
+                <Link
+                  href="/diagnostic"
+                  className="w-full"
+                  onClick={() => track(selectPlanEvent[plan.key])}
+                >
+                  <Button className="w-full" variant={plan.featured ? "primary" : "secondary"}>
+                    Выбрать {plan.title}
+                  </Button>
+                </Link>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <p className="small mt-12">
+          Результат зависит от исходных данных и выполнения программы. Платформа снижает риск провала за счёт структуры,
+          тренировок и контроля.
+        </p>
+      </section>
+
+      <section className="section" id="faq">
+        <div className="badge">FAQ</div>
+        <h2 className="h2 mt-10">Частые вопросы</h2>
+        <div className="faq-accordion mt-16">
+          {FAQ.map((item, idx) => {
+            const open = openFaq === idx;
+            return (
+              <article className="faq-acc-item" key={item.q}>
+                <button
+                  className="faq-acc-btn"
+                  onClick={() => {
+                    setOpenFaq(open ? -1 : idx);
+                    if (!open) track(`faq_open_question_${idx + 1}` as const);
+                  }}
+                  type="button"
+                >
+                  <span>{item.q}</span>
+                  <span>{open ? "−" : "+"}</span>
+                </button>
+                {open ? <p className="faq-acc-body">{item.a}</p> : null}
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="card pad premium-cta">
+          <div className="badge">Bottom CTA</div>
+          <h2 className="h2 mt-10">Начните с диагностики — это 5 минут</h2>
           <p className="p mt-10">
-            Мы убрали лишние сущности и запутанные сценарии: клиент чётко видит, за что платит,
-            что именно получает и как будет выглядеть путь до финального этапа MPU.
+            Ответьте на ключевые вопросы по кейсу. На выходе получите карту рисков и план подготовки.
           </p>
           <div className="hero-actions">
-            <Link href="/pricing">
-              <Button size="lg">Выбрать пакет</Button>
+            <Link href="/diagnostic" onClick={() => track("cta_start_diagnostic_click", { place: "bottom" })}>
+              <Button size="lg">Начать диагностику</Button>
             </Link>
-            <Link href="/start">
+            <Link href="#pricing">
               <Button size="lg" variant="secondary">
-                Начать с диагностики
+                Посмотреть тарифы
               </Button>
             </Link>
           </div>
