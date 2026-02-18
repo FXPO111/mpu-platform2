@@ -21,7 +21,6 @@ const LEGAL_LINKS = [
   { href: "/privacy", label: "Datenschutz" },
 ];
 
-
 export const metadata: Metadata = {
   title: "Подготовка к MPU — план, тренировки интервью, контроль готовности",
   description:

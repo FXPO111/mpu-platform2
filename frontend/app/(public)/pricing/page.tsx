@@ -115,10 +115,12 @@ export default function PricingPage() {
             <article key={plan.key} className={`clean-plan card pad ${isRecommended ? "clean-plan-featured" : ""}`}>
               <h2 className="h3">{plan.title}</h2>
               {isRecommended ? <p className="small mt-8">Рекомендуемый формат</p> : null}
+
               <div className="plan-price-wrap">
                 <div className="plan-price">{plan.price}</div>
                 <div className="small">{plan.period}</div>
               </div>
+
               <ul className="plan-list mt-16">
                 {plan.items.map((item) => (
                   <li key={item}>{item}</li>

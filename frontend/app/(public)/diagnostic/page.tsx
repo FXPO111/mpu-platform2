@@ -40,6 +40,7 @@ export default function DiagnosticPage() {
       <section className="card pad">
         <h1 className="h2">Диагностика</h1>
         <p className="p mt-8">Шаг {i + 1} из {STEPS.length} • {progress}%</p>
+
         <h2 className="h3 mt-12">{step.title}</h2>
         <p className="small mt-8">{step.hint}</p>
 
@@ -79,7 +80,8 @@ export default function DiagnosticPage() {
         <section className="card pad soft">
           <h2 className="h3">Результат диагностики</h2>
           <p className="p mt-10">
-            Рекомендуемый формат подготовки: <strong>{recommended === "start" ? "Start" : recommended === "pro" ? "Pro" : "Intensive"}</strong>.
+            Рекомендуемый формат подготовки:{" "}
+            <strong>{recommended === "start" ? "Start" : recommended === "pro" ? "Pro" : "Intensive"}</strong>.
             Вы можете перейти к оплате или выбрать другой вариант вручную.
           </p>
           <div className="hero-actions">
