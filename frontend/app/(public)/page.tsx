@@ -17,7 +17,9 @@ type EventName =
 
 function track(event: EventName, payload?: Record<string, unknown>) {
   if (typeof window === "undefined") return;
-  window.dispatchEvent(new CustomEvent("analytics:event", { detail: { event, ...payload } }));
+  window.dispatchEvent(
+    new CustomEvent("analytics:event", { detail: { event, ...payload } })
+  );
   const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
   if (gtag) gtag("event", event, payload || {});
 }
@@ -54,10 +56,19 @@ const RESULTS = [
 ] as const;
 
 const FAQ = [
-  ["Сколько времени занимает подготовка?", "Обычно от нескольких недель до нескольких месяцев, в зависимости от исходной готовности."],
-  ["Подойдёт ли мне формат, если сложно сформулировать историю?", "Да. Диагностика и структура помогают выстроить последовательный и понятный рассказ."],
+  [
+    "Сколько времени занимает подготовка?",
+    "Обычно от нескольких недель до нескольких месяцев, в зависимости от исходной готовности.",
+  ],
+  [
+    "Подойдёт ли мне формат, если сложно сформулировать историю?",
+    "Да. Диагностика и структура помогают выстроить последовательный и понятный рассказ.",
+  ],
   ["Это разовая консультация?", "Нет. Это кабинет подготовки с планом, тренировками и контролем прогресса."],
-  ["Что происходит после оплаты?", "Активируется кабинет, появляется маршрут подготовки и список ближайших шагов."],
+  [
+    "Что происходит после оплаты?",
+    "Активируется кабинет, появляется маршрут подготовки и список ближайших шагов.",
+  ],
   ["Как защищены данные?", "Данные используются только для подготовки и не публикуются."],
   ["Можно ли пройти подготовку полностью онлайн?", "Да, все этапы доступны онлайн в любое время."],
   ["Какие ситуации покрываются?", "Alkohol, Drogen, Punkte, Verhalten и смежные случаи."],
@@ -71,17 +82,27 @@ export default function HomePage() {
     <div className="public-page-stack premium-home">
       <section className="section" id="hero">
         <div className="premium-hero card pad">
-          <h1 className="h1">Подготовка к MPU без хаоса: разбор ситуации, тренировка интервью, финальная проверка</h1>
+          <h1 className="h1">
+            Подготовка к MPU без хаоса: разбор ситуации, тренировка интервью,
+            финальная проверка
+          </h1>
           <p className="lead mt-12">
-            Помогаем пройти путь подготовки последовательно: от диагностики и плана до практики и контроля готовности.
-            Всё в одном рабочем кабинете.
+            Помогаем пройти путь подготовки последовательно: от диагностики и плана
+            до практики и контроля готовности. Всё в одном рабочем кабинете.
           </p>
 
           <div className="hero-actions">
-            <Link href="/diagnostic" onClick={() => track("cta_start_diagnostic_click", { place: "hero" })}>
+            <Link
+              href="/diagnostic"
+              onClick={() => track("cta_start_diagnostic_click", { place: "hero" })}
+            >
               <Button size="lg">Начать диагностику</Button>
             </Link>
-            <Link href="/pricing"><Button size="lg" variant="secondary">Посмотреть тарифы</Button></Link>
+            <Link href="/pricing">
+              <Button size="lg" variant="secondary">
+                Посмотреть тарифы
+              </Button>
+            </Link>
           </div>
 
           <div className="cards3 mt-16">
@@ -91,11 +112,15 @@ export default function HomePage() {
             </article>
             <article className="card pad soft">
               <h3 className="h3">Тренировки интервью</h3>
-              <p className="p mt-8">Вопросы и разбор формулировок, чтобы ответы были устойчивыми.</p>
+              <p className="p mt-8">
+                Вопросы и разбор формулировок, чтобы ответы были устойчивыми.
+              </p>
             </article>
             <article className="card pad soft">
               <h3 className="h3">Контроль готовности</h3>
-              <p className="p mt-8">Финальный чек и перечень пунктов для доработки перед MPU.</p>
+              <p className="p mt-8">
+                Финальный чек и перечень пунктов для доработки перед MPU.
+              </p>
             </article>
           </div>
         </div>

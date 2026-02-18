@@ -26,7 +26,9 @@ export default function StartPage() {
   return (
     <div className="public-page-stack start-page-xl">
       <section className="card pad">
-        <div className="badge">Стартовая диагностика • шаг {i + 1}/{STEPS.length} • {progress}%</div>
+        <div className="badge">
+          Стартовая диагностика • шаг {i + 1}/{STEPS.length} • {progress}%
+        </div>
         <h1 className="h2 mt-10">{step.title}</h1>
         <p className="p mt-8">{step.hint}</p>
 
@@ -48,7 +50,10 @@ export default function StartPage() {
           </Button>
 
           {i < STEPS.length - 1 ? (
-            <Button disabled={!canNext} onClick={() => setI((v) => Math.min(STEPS.length - 1, v + 1))}>
+            <Button
+              disabled={!canNext}
+              onClick={() => setI((v) => Math.min(STEPS.length - 1, v + 1))}
+            >
               Далее
             </Button>
           ) : (
@@ -69,12 +74,14 @@ export default function StartPage() {
         <section className="card pad soft">
           <div className="badge">Диагностика сохранена</div>
           <p className="p mt-10">
-            Следующий шаг — выбор пакета. На основе диагностики маршрут подготовки уже сформирован,
-            после оплаты активируется полный доступ к программе.
+            Следующий шаг — выбор пакета. На основе диагностики маршрут подготовки уже
+            сформирован, после оплаты активируется полный доступ к программе.
           </p>
           <div className="hero-actions">
             <Link href="/pricing"><Button>Выбрать пакет</Button></Link>
-            <Link href="/services"><Button variant="secondary">Посмотреть модули программы</Button></Link>
+            <Link href="/services">
+              <Button variant="secondary">Посмотреть модули программы</Button>
+            </Link>
           </div>
         </section>
       )}

@@ -5,86 +5,91 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
-type PlanKey = "start" | "pro" | "intensive";
-
 const STEPS = [
-  { key: "topic", title: "Тема подготовки", hint: "Alkohol / Drogen / Punkte / Verhalten" },
-  { key: "history", title: "Краткая история", hint: "Что произошло и какие выводы уже сделаны" },
-  { key: "changes", title: "Изменения", hint: "Какие шаги уже предприняты" },
-  { key: "docs", title: "Документы", hint: "Что готово сейчас" },
+  { key: "reason", title: "Причина MPU", hint: "Alkohol / Drogen / Punkte / Verhalten" },
+  { key: "timeline", title: "Хронология", hint: "Когда произошло, какие изменения уже сделаны" },
+  { key: "docs", title: "Документы", hint: "Что уже есть и что нужно подготовить" },
+  { key: "goal", title: "Цель по срокам", hint: "Когда планируете выход на финальный этап MPU" },
 ];
 
-function detectPlan(answers: Record<string, string>): PlanKey {
-  const text = Object.values(answers).join(" ").toLowerCase();
-  const intenseKeywords = ["повтор", "отказ", "сложно", "долго", "стресс", "противореч"];
-  const proKeywords = ["документ", "план", "трениров", "ошиб", "формулиров"];
-
-  if (intenseKeywords.some((k) => text.includes(k))) return "intensive";
-  if (proKeywords.some((k) => text.includes(k))) return "pro";
-  return "start";
-}
-
 export default function DiagnosticPage() {
-  const [i, setI] = useState(0);
+  const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [done, setDone] = useState(false);
+  const [saved, setSaved] = useState(false);
 
-  const step = STEPS[i];
+  const step = STEPS[stepIndex];
   const value = answers[step.key] ?? "";
-  const canNext = value.trim().length >= 8;
-  const progress = useMemo(() => Math.round(((i + 1) / STEPS.length) * 100), [i]);
-  const recommended = useMemo(() => detectPlan(answers), [answers]);
+  const canMove = value.trim().length >= 8;
+  const progress = useMemo(
+    () => Math.round(((stepIndex + 1) / STEPS.length) * 100),
+    [stepIndex]
+  );
 
   return (
     <div className="public-page-stack">
       <section className="card pad">
-        <h1 className="h2">Диагностика</h1>
-        <p className="p mt-8">Шаг {i + 1} из {STEPS.length} • {progress}%</p>
-        <h2 className="h3 mt-12">{step.title}</h2>
-        <p className="small mt-8">{step.hint}</p>
+        <div className="badge">
+          Диагностика • шаг {stepIndex + 1}/{STEPS.length} • {progress}%
+        </div>
+        <h1 className="h2 mt-10">{step.title}</h1>
+        <p className="p mt-8">{step.hint}</p>
 
         <div className="mt-12">
           <Input
-            placeholder="Ответьте коротко и по делу"
+            placeholder="Ответьте кратко и по существу"
             value={value}
-            onChange={(e) => setAnswers((prev) => ({ ...prev, [step.key]: e.target.value }))}
+            onChange={(e) =>
+              setAnswers((prev) => ({ ...prev, [step.key]: e.target.value }))
+            }
           />
         </div>
 
         <div className="hero-actions">
-          <Button variant="ghost" disabled={i === 0} onClick={() => setI((prev) => Math.max(0, prev - 1))}>
+          <Button
+            variant="ghost"
+            disabled={stepIndex === 0}
+            onClick={() => setStepIndex((prev) => Math.max(0, prev - 1))}
+          >
             Назад
           </Button>
 
-          {i < STEPS.length - 1 ? (
-            <Button disabled={!canNext} onClick={() => setI((prev) => Math.min(STEPS.length - 1, prev + 1))}>
+          {stepIndex < STEPS.length - 1 ? (
+            <Button
+              disabled={!canMove}
+              onClick={() =>
+                setStepIndex((prev) => Math.min(STEPS.length - 1, prev + 1))
+              }
+            >
               Далее
             </Button>
           ) : (
             <Button
-              disabled={!canNext}
+              disabled={!canMove}
               onClick={() => {
-                localStorage.setItem("diagnostic_answers", JSON.stringify(answers));
-                localStorage.setItem("recommended_plan", recommended);
-                setDone(true);
+                localStorage.setItem("diagnostic_result", JSON.stringify(answers));
+                setSaved(true);
               }}
             >
-              Показать результат
+              Получить результат
             </Button>
           )}
         </div>
       </section>
 
-      {done ? (
+      {saved ? (
         <section className="card pad soft">
-          <h2 className="h3">Результат диагностики</h2>
+          <div className="badge">Результат диагностики</div>
           <p className="p mt-10">
-            Рекомендуемый формат подготовки: <strong>{recommended === "start" ? "Start" : recommended === "pro" ? "Pro" : "Intensive"}</strong>.
-            Вы можете перейти к оплате или выбрать другой вариант вручную.
+            Карта рисков и рекомендации сохранены. Следующий шаг — выбрать формат
+            подготовки и запустить программу.
           </p>
           <div className="hero-actions">
-            <Link href={`/pricing?plan=${recommended}`}><Button>Выбрать формат и оплатить</Button></Link>
-            <Link href="/pricing"><Button variant="secondary">Смотреть все тарифы</Button></Link>
+            <Link href="/#pricing">
+              <Button>Выбрать тариф</Button>
+            </Link>
+            <Link href="/#program">
+              <Button variant="secondary">Посмотреть программу</Button>
+            </Link>
           </div>
         </section>
       ) : null}
