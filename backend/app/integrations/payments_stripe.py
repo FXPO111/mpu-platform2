@@ -1,0 +1,99 @@
+from __future__ import annotations
+
+from typing import Any, Dict, Optional
+
+import stripe
+
+
+class StripeError(Exception):
+    pass
+
+
+def init_stripe(secret_key: str) -> None:
+    if not secret_key or secret_key.startswith("sk_") is False:
+        # допускаем dev-ключ, но не пустоту
+        raise StripeError("Stripe secret key is not configured")
+    stripe.api_key = secret_key
+
+
+def create_checkout_session(
+    *,
+    secret_key: str,
+    order_id: str,
+    product_id: str,
+    product_name: str,
+    unit_amount_cents: int,
+    currency: str,
+    stripe_price_id: Optional[str],
+    frontend_url: str,
+    customer_email: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Creates Stripe Checkout Session.
+    We always attach metadata.order_id so webhook can link payment to our Order.
+    """
+    init_stripe(secret_key)
+
+    success_url = f"{frontend_url}/dashboard?checkout=success&order_id={order_id}"
+    cancel_url = f"{frontend_url}/pricing?checkout=cancelled"
+
+    line_item: Dict[str, Any]
+    if stripe_price_id:
+        line_item = {"price": stripe_price_id, "quantity": 1}
+    else:
+        # MVP fallback: build price_data on the fly
+        line_item = {
+            "price_data": {
+                "currency": currency.lower(),
+                "unit_amount": int(unit_amount_cents),
+                "product_data": {
+                    "name": product_name,
+                    # чтобы в Stripe можно было отличать продукты
+                    "metadata": {"product_id": product_id},
+                },
+            },
+            "quantity": 1,
+        }
+
+    try:
+        session = stripe.checkout.Session.create(
+            mode="payment",
+            line_items=[line_item],
+            success_url=success_url,
+            cancel_url=cancel_url,
+            customer_email=customer_email,
+            metadata={
+                "order_id": order_id,
+                "product_id": product_id,
+            },
+        )
+    except Exception as e:
+        raise StripeError(f"Failed to create checkout session: {e}") from e
+
+    # stripe returns a StripeObject; make it serializable for API response
+    return {"id": session["id"], "url": session.get("url")}
+
+
+def construct_event(
+    *,
+    payload: bytes,
+    signature_header: str,
+    webhook_secret: str,
+) -> Dict[str, Any]:
+    """
+    Verifies Stripe webhook signature and returns event as dict.
+    """
+    if not webhook_secret or not webhook_secret.startswith("whsec_"):
+        raise StripeError("Stripe webhook secret is not configured")
+    if not signature_header:
+        raise StripeError("Missing Stripe-Signature header")
+
+    try:
+        event = stripe.Webhook.construct_event(payload=payload, sig_header=signature_header, secret=webhook_secret)
+    except stripe.error.SignatureVerificationError as e:
+        raise StripeError("Invalid webhook signature") from e
+    except Exception as e:
+        raise StripeError(f"Webhook parse error: {e}") from e
+
+    # Convert StripeObject to plain dict
+    return event.to_dict()
