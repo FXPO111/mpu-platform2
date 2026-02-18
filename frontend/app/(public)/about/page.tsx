@@ -9,14 +9,33 @@ export default function AboutPage() {
       </p>
 
       <div className="about-facts mt-16">
-        <div className="card pad soft">
+        <article className="card pad soft">
           <p className="small">Подход</p>
-          <p className="p mt-8">Структурируем историю клиента так, чтобы она звучала правдиво, последовательно и подтверждалась фактами.</p>
-        </div>
-        <div className="card pad soft">
+          <p className="p mt-8">
+            Структурируем историю клиента так, чтобы она звучала правдиво, последовательно и подтверждалась фактами.
+          </p>
+        </article>
+
+        <article className="card pad soft">
           <p className="small">Формат</p>
-          <p className="p mt-8">Личные и онлайн-консультации, подготовка документов, репетиции интервью, сопровождение до результата.</p>
-        </div>
+          <p className="p mt-8">
+            Личные и онлайн-консультации, подготовка документов, репетиции интервью, сопровождение до результата.
+          </p>
+        </article>
+
+        <article className="card pad soft">
+          <p className="small">Продуктовый маршрут</p>
+          <p className="p mt-8">
+            Вместо хаотичных консультаций — управляемый процесс: от диагностики и оплаты до пошаговой подготовки и финальной проверки.
+          </p>
+        </article>
+
+        <article className="card pad soft">
+          <p className="small">Что получает клиент</p>
+          <p className="p mt-8">
+            Понятные этапы, контроль готовности, измеримый прогресс и ответы, которые звучат логично и доказуемо.
+          </p>
+        </article>
       </div>
     </section>
   );

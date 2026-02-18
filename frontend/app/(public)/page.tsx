@@ -1,6 +1,22 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
+const flowSteps = [
+  ["Диагностика", "Сбор фактов: причина, сроки, поведение после случая, терапия/курсы, документы."],
+  ["План", "Структура истории, чек-лист доказательств изменений, список рисков и действий."],
+  ["Тренировка", "Интервью-симуляция: вопросы, follow-up, рекомендации по формулировкам."],
+  ["Эксперт", "Если риск высокий — Zoom, запись, подготовленные системой вопросы и документы."],
+];
+
+const valueProps = [
+  ["Понятная модель оплаты", "Три пакета без скрытых условий. Понятно, что входит и какой результат вы получаете."],
+  ["Личный кабинет с прогрессом", "В одном месте: этапы, документы, история сессий, дедлайны и контроль готовности."],
+  ["Практический формат", "Разбор реального кейса: формулировки, ошибки и отработка ответов под MPU."],
+  ["Нет структуры рассказа", "Система выстраивает хронологию и смысл изменений, чтобы ответы звучали логично и доказуемо."],
+  ["Слабые доказательства", "Чек-лист документов и действий: что подтвердить, как и чем, чтобы не было дыр."],
+  ["Провал на follow-up", "Trainer давит уточняющими вопросами — так же, как на реальном интервью."],
+];
+
 export default function HomePage() {
   return (
     <div className="public-page-stack">
@@ -8,11 +24,9 @@ export default function HomePage() {
         <div className="hero-grid">
           <div className="card pad hero-main hero-primary">
             <div className="badge">MPU AI • подготовка и консультации</div>
-            <h1 className="h1 mt-14">
-              Подготовка к MPU как система: диагностика → план → тренировка интервью
-            </h1>
+            <h1 className="h1 mt-14">Подготовка к MPU как система: диагностика → план → тренировка интервью</h1>
             <p className="lead mt-12">
-              ИИ собирает факты по вашему кейсу, строит персональный план и прогоняет через симуляцию интервью.
+              Система собирает факты по вашему кейсу, строит персональный план и прогоняет через симуляцию интервью.
               Если риск высокий — предложит созвон с экспертом (Zoom).
             </p>
 
@@ -24,9 +38,19 @@ export default function HomePage() {
             </div>
 
             <div className="hero-actions">
-              <Link href="/start"><Button size="lg">Начать диагностику</Button></Link>
-              <Link href="/booking"><Button size="lg" variant="secondary">Записаться к эксперту</Button></Link>
-              <Link href="/pricing"><Button size="lg" variant="ghost">Тарифы</Button></Link>
+              <Link href="/start">
+                <Button size="lg">Начать диагностику</Button>
+              </Link>
+              <Link href="/booking">
+                <Button size="lg" variant="secondary">
+                  Записаться к эксперту
+                </Button>
+              </Link>
+              <Link href="/pricing">
+                <Button size="lg" variant="ghost">
+                  Тарифы
+                </Button>
+              </Link>
             </div>
           </div>
 
@@ -37,17 +61,23 @@ export default function HomePage() {
             <div className="stack lg">
               <div className="card pad soft feature-snippet">
                 <div className="badge">Персональный план</div>
-                <p className="p mt-8">Что говорить, что подтверждать документами, где слабые места, что подготовить заранее.</p>
+                <p className="p mt-8">
+                  Что говорить, что подтверждать документами, где слабые места, что подготовить заранее.
+                </p>
               </div>
 
               <div className="card pad soft feature-snippet">
                 <div className="badge">Trainer-интервью</div>
-                <p className="p mt-8">Симуляция вопросов, follow-up, оценка ответов, рекомендации как исправить формулировки.</p>
+                <p className="p mt-8">
+                  Симуляция вопросов, follow-up, оценка ответов, рекомендации как исправить формулировки.
+                </p>
               </div>
 
               <div className="card pad soft feature-snippet">
                 <div className="badge">Триггеры на Zoom</div>
-                <p className="p mt-8">Если кейс “красный” — система предложит консультацию и сформирует список вопросов эксперту.</p>
+                <p className="p mt-8">
+                  Если кейс “красный” — система предложит консультацию и сформирует список вопросов эксперту.
+                </p>
               </div>
             </div>
           </aside>
@@ -60,16 +90,13 @@ export default function HomePage() {
             <div className="badge">Как работает</div>
             <h2 className="h2 mt-10">Флоу, который ведёт к результату</h2>
           </div>
-          <Link href="/services"><Button variant="ghost">Подробнее</Button></Link>
+          <Link href="/services">
+            <Button variant="ghost">Подробнее</Button>
+          </Link>
         </div>
 
         <div className="steps">
-          {[
-            ["Диагностика", "Сбор фактов: причина, сроки, поведение после случая, терапия/курсы, документы."],
-            ["План", "Структура истории, чек-лист доказательств изменений, список рисков и действий."],
-            ["Тренировка", "Интервью-симуляция: вопросы, follow-up, рекомендации по формулировкам."],
-            ["Эксперт", "Если риск высокий — Zoom, запись, подготовленные системой вопросы и документы."],
-          ].map(([title, text], idx) => (
+          {flowSteps.map(([title, text], idx) => (
             <article className="faq-item" key={title}>
               <div className="row">
                 <span className="step-num">{idx + 1}</span>
@@ -86,20 +113,12 @@ export default function HomePage() {
         <h2 className="h2 mt-10">Закрываем типовые причины провала</h2>
 
         <div className="features mt-16">
-          <div className="card pad soft">
-            <div className="badge">Нет структуры рассказа</div>
-            <p className="p mt-8">ИИ выстраивает хронологию и “смысл” изменений, чтобы ответы звучали логично и доказуемо.</p>
-          </div>
-
-          <div className="card pad soft">
-            <div className="badge">Слабые доказательства</div>
-            <p className="p mt-8">Чек-лист документов/действий: что подтвердить, как и чем, чтобы не было дыр.</p>
-          </div>
-
-          <div className="card pad soft">
-            <div className="badge">Провал на follow-up</div>
-            <p className="p mt-8">Trainer давит уточняющими вопросами — так же, как на реальном интервью.</p>
-          </div>
+          {valueProps.map(([title, text]) => (
+            <article className="card pad soft" key={title}>
+              <div className="badge">{title}</div>
+              <p className="p mt-8">{text}</p>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -112,8 +131,19 @@ export default function HomePage() {
           </p>
 
           <div className="hero-actions">
-            <Link href="/start"><Button size="lg">Начать диагностику</Button></Link>
-            <Link href="/pricing"><Button size="lg" variant="secondary">Посмотреть тарифы</Button></Link>
+            <Link href="/start">
+              <Button size="lg">Начать диагностику</Button>
+            </Link>
+            <Link href="/pricing">
+              <Button size="lg" variant="secondary">
+                Посмотреть тарифы
+              </Button>
+            </Link>
+            <Link href="/contact">
+              <Button size="lg" variant="ghost">
+                Задать вопрос
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -125,12 +155,16 @@ export default function HomePage() {
         <div className="faq mt-16">
           <article className="faq-item">
             <p className="faq-q">ИИ заменяет эксперта?</p>
-            <p className="faq-a">Нет. Он систематизирует кейс, строит план и тренирует интервью. Эксперт подключается по триггерам риска.</p>
+            <p className="faq-a">
+              Нет. Он систематизирует кейс, строит план и тренирует интервью. Эксперт подключается по триггерам риска.
+            </p>
           </article>
 
           <article className="faq-item">
             <p className="faq-q">Можно начать без документов?</p>
-            <p className="faq-a">Да. Диагностика стартует с фактов, а дальше система выдаст список, что нужно собрать.</p>
+            <p className="faq-a">
+              Да. Диагностика стартует с фактов, а дальше система выдаст список, что нужно собрать.
+            </p>
           </article>
 
           <article className="faq-item">

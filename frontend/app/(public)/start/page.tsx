@@ -8,7 +8,7 @@ const STEPS = [
   { k: "reason", title: "Причина MPU", hint: "Алкоголь / наркотики / баллы / агрессия / другое" },
   { k: "timeline", title: "Хронология", hint: "Когда произошло, что было дальше, сроки" },
   { k: "changes", title: "Изменения", hint: "Что изменили: терапия, курсы, анализы, поведение" },
-  { k: "docs", title: "Документы", hint: "Что есть на руках, чего нет" },
+  { k: "docs", title: "Документы", hint: "Что есть на руках, чего не хватает" },
 ];
 
 export default function StartPage() {
@@ -17,19 +17,17 @@ export default function StartPage() {
 
   const step = STEPS[i];
   const value = data[step.k] ?? "";
-
   const canNext = value.trim().length >= 8;
-
   const progress = useMemo(() => Math.round(((i + 1) / STEPS.length) * 100), [i]);
 
   return (
-    <div style={{ display: "grid", gap: 16 }}>
-      <div className="card pad">
+    <div className="public-page-stack">
+      <section className="card pad">
         <div className="badge">Диагностика • шаг {i + 1}/{STEPS.length} • {progress}%</div>
-        <h1 className="h2" style={{ marginTop: 10 }}>{step.title}</h1>
-        <p className="p" style={{ marginTop: 8 }}>{step.hint}</p>
+        <h1 className="h2 mt-10">{step.title}</h1>
+        <p className="p mt-8">{step.hint}</p>
 
-        <div style={{ marginTop: 12 }}>
+        <div className="mt-12">
           <Input
             placeholder="Введите кратко, но по сути"
             value={value}
@@ -37,7 +35,7 @@ export default function StartPage() {
           />
         </div>
 
-        <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+        <div className="hero-actions">
           <Button
             variant="ghost"
             disabled={i === 0}
@@ -54,23 +52,23 @@ export default function StartPage() {
             <Button
               disabled={!canNext}
               onClick={() => {
-                // пока MVP: просто сохраняем локально
                 localStorage.setItem("mpu_draft", JSON.stringify(data));
-                alert("Черновик сохранён. Следующий шаг: генерация плана и создание кейса в кабинете.");
+                alert("Диагностика сохранена. Следующий шаг: выберите пакет и запустите программу подготовки.");
               }}
             >
-              Сформировать черновик
+              Сохранить и перейти к пакетам
             </Button>
           )}
         </div>
-      </div>
+      </section>
 
-      <div className="card pad soft">
-        <div className="badge">Что будет дальше</div>
-        <p className="p" style={{ marginTop: 10 }}>
-          После диагностики система построит план, предложит тренировку интервью и при необходимости — запись к эксперту (Zoom).
+      <section className="card pad soft">
+        <div className="badge">После диагностики</div>
+        <p className="p mt-10">
+          Вы получаете базовый профиль кейса, а затем выбираете пакет сопровождения. После оплаты открывается
+          полный маршрут подготовки с контролем этапов и тренировками.
         </p>
-      </div>
+      </section>
     </div>
   );
 }

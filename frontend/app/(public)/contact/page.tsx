@@ -13,8 +13,10 @@ export default function ContactPage() {
         <div className="badge">Контакты</div>
         <h1 className="h2 mt-10">Свяжитесь со мной</h1>
         <p className="p mt-12">
-          Телефон: <a href="tel:+491752730963">+49 175 27 30 963</a><br />
-          Email: <a href="mailto:info@mpu-praxis-dp.de">info@mpu-praxis-dp.de</a><br />
+          Телефон: <a href="tel:+491752730963">+49 175 27 30 963</a>
+          <br />
+          Email: <a href="mailto:info@mpu-praxis-dp.de">info@mpu-praxis-dp.de</a>
+          <br />
           Адрес: Viktoriastraße 32-36, 56068 Koblenz
         </p>
       </section>
@@ -25,7 +27,7 @@ export default function ContactPage() {
         {ok ? (
           <div className="card pad soft mt-12">
             <div className="badge">Готово</div>
-            <p className="p mt-8">Заявка сохранена (пока демо). Дальше подключим backend и отправку.</p>
+            <p className="p mt-8">Спасибо! Мы свяжемся с вами и подберём оптимальный пакет подготовки.</p>
           </div>
         ) : (
           <form
@@ -38,8 +40,8 @@ export default function ContactPage() {
             <Input placeholder="Имя и фамилия" />
             <Input placeholder="Email" type="email" />
             <Input placeholder="Телефон" />
-            <Input placeholder="Коротко: что случилось / тема" />
-            <Button type="submit">Отправить</Button>
+            <Input placeholder="Кратко: ваша ситуация и что нужно решить" />
+            <Button type="submit">Отправить заявку</Button>
           </form>
         )}
       </section>
