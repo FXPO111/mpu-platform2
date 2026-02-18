@@ -19,7 +19,7 @@ const PLANS: Plan[] = [
   {
     key: "start",
     title: "Start",
-    price: "€19.99",
+    price: "€79",
     period: "14 дней",
     items: [
       "Диагностика и карта рисков",
@@ -54,13 +54,7 @@ const PLANS: Plan[] = [
   },
 ];
 
-function track(
-  event:
-    | "view_pricing_section"
-    | "select_plan_start"
-    | "select_plan_pro"
-    | "select_plan_intensive"
-) {
+function track(event: "view_pricing_section" | "select_plan_start" | "select_plan_pro" | "select_plan_intensive") {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new CustomEvent("analytics:event", { detail: { event } }));
   const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
@@ -74,8 +68,7 @@ export default function PricingPage() {
 
   useEffect(() => {
     const fromUrl = params.get("plan");
-    const fromStorage =
-      typeof window !== "undefined" ? localStorage.getItem("recommended_plan") : null;
+    const fromStorage = typeof window !== "undefined" ? localStorage.getItem("recommended_plan") : null;
     const value = (fromUrl || fromStorage) as PlanKey | null;
     if (value === "start" || value === "pro" || value === "intensive") {
       setRecommended(value);
@@ -93,7 +86,7 @@ export default function PricingPage() {
           }
         });
       },
-      { threshold: 0.35 }
+      { threshold: 0.35 },
     );
     obs.observe(rootRef.current);
     return () => obs.disconnect();
@@ -106,34 +99,27 @@ export default function PricingPage() {
         pro: "select_plan_pro",
         intensive: "select_plan_intensive",
       }) as const,
-    []
+    [],
   );
 
   return (
     <div className="public-page-stack pricing-clean" id="pricing" ref={rootRef}>
       <section className="card pad pricing-clean-hero">
         <h1 className="h1">Выберите формат подготовки</h1>
-        <p className="lead mt-12">
-          Начните с диагностики — рекомендованный вариант уже отмечен на основе результата.
-        </p>
+        <p className="lead mt-12">Начните с диагностики — рекомендованный вариант уже отмечен на основе результата.</p>
       </section>
 
       <section className="plan-grid clean-grid">
         {PLANS.map((plan) => {
           const isRecommended = plan.key === recommended;
           return (
-            <article
-              key={plan.key}
-              className={`clean-plan card pad ${isRecommended ? "clean-plan-featured" : ""}`}
-            >
+            <article key={plan.key} className={`clean-plan card pad ${isRecommended ? "clean-plan-featured" : ""}`}>
               <h2 className="h3">{plan.title}</h2>
               {isRecommended ? <p className="small mt-8">Рекомендуемый формат</p> : null}
-
               <div className="plan-price-wrap">
                 <div className="plan-price">{plan.price}</div>
                 <div className="small">{plan.period}</div>
               </div>
-
               <ul className="plan-list mt-16">
                 {plan.items.map((item) => (
                   <li key={item}>{item}</li>
@@ -141,11 +127,7 @@ export default function PricingPage() {
               </ul>
 
               <div className="hero-actions mt-16">
-                <Link
-                  href="/dashboard"
-                  className="w-full"
-                  onClick={() => track(eventByPlan[plan.key])}
-                >
+                <Link href="/dashboard" className="w-full" onClick={() => track(eventByPlan[plan.key])}>
                   <Button className="w-full" variant={isRecommended ? "primary" : "secondary"}>
                     Выбрать {plan.title} и оплатить
                   </Button>
@@ -157,8 +139,8 @@ export default function PricingPage() {
       </section>
 
       <p className="small">
-        Результат зависит от исходных данных и выполнения программы. Подготовка снижает риск
-        провала за счёт структуры, тренировок и контроля.
+        Результат зависит от исходных данных и выполнения программы. Подготовка снижает риск провала за счёт структуры,
+        тренировок и контроля.
       </p>
     </div>
   );
