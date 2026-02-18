@@ -93,11 +93,12 @@ export default function PricingPage() {
   }, []);
 
   const eventByPlan = useMemo(
-    () => ({
-      start: "select_plan_start",
-      pro: "select_plan_pro",
-      intensive: "select_plan_intensive",
-    }) as const,
+    () =>
+      ({
+        start: "select_plan_start",
+        pro: "select_plan_pro",
+        intensive: "select_plan_intensive",
+      }) as const,
     [],
   );
 
@@ -126,11 +127,7 @@ export default function PricingPage() {
               </ul>
 
               <div className="hero-actions mt-16">
-                <Link
-                  href="/dashboard"
-                  className="w-full"
-                  onClick={() => track(eventByPlan[plan.key])}
-                >
+                <Link href="/dashboard" className="w-full" onClick={() => track(eventByPlan[plan.key])}>
                   <Button className="w-full" variant={isRecommended ? "primary" : "secondary"}>
                     Выбрать {plan.title} и оплатить
                   </Button>

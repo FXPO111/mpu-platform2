@@ -83,7 +83,9 @@ export default function HomePage() {
     <div className="public-page-stack premium-home">
       <section className="section" id="hero">
         <div className="premium-hero card pad premium-hero-compact">
-          <h1 className="h1 premium-hero-title">Подготовка к МПУ без хаоса: разбор ситуации, тренировка интервью, финальная проверка</h1>
+          <h1 className="h1 premium-hero-title">
+            Подготовка к МПУ без хаоса: разбор ситуации, тренировка интервью, финальная проверка
+          </h1>
           <p className="lead mt-12 premium-hero-sub">
             Помогаем пройти путь подготовки последовательно: от диагностики и плана до практики и контроля готовности.
             Всё в одном рабочем кабинете.
@@ -93,7 +95,9 @@ export default function HomePage() {
             <Link href="/diagnostic" onClick={() => track("cta_start_diagnostic_click", { place: "hero" })}>
               <Button size="lg">Начать диагностику</Button>
             </Link>
-            <Link href="/pricing"><Button size="lg" variant="secondary">Посмотреть тарифы</Button></Link>
+            <Link href="/pricing">
+              <Button size="lg" variant="secondary">Посмотреть тарифы</Button>
+            </Link>
           </div>
 
           <div className="cards3 mt-16">
