@@ -1,42 +1,29 @@
+const principles = [
+  ["Процесс важнее обещаний", "Каждый блок в продукте связан с конкретным этапом подготовки и измеримым результатом."],
+  ["Прозрачность для клиента", "Стоимость, наполнение и срок сопровождения понятны до оплаты."],
+  ["Фокус на применимости", "Система готовит к реальному интервью MPU, а не к абстрактной теории."],
+];
+
 export default function AboutPage() {
   return (
-    <section className="card pad about-page">
-      <div className="badge">Обо мне</div>
-      <h1 className="h2 mt-10">Дмитрий Пономаренко</h1>
-      <p className="lead mt-12">
-        Эксперт по подготовке к MPU. Работаю конфиденциально, под ваш кейс, с упором на практический результат
-        и спокойную, убедительную коммуникацию на интервью.
-      </p>
+    <div className="public-page-stack about-page-xl">
+      <section className="card pad about-page">
+        <div className="badge">О проекте</div>
+        <h1 className="h2 mt-10">MPU Praxis DP: переход от «сайта услуг» к полноценному digital-продукту</h1>
+        <p className="lead mt-12">
+          Наша задача — сделать подготовку масштабируемой и управляемой. Клиент должен видеть понятный маршрут,
+          стоимость, результат каждого этапа и реальный прогресс до финальной проверки.
+        </p>
+      </section>
 
-      <div className="about-facts mt-16">
-        <article className="card pad soft">
-          <p className="small">Подход</p>
-          <p className="p mt-8">
-            Структурируем историю клиента так, чтобы она звучала правдиво, последовательно и подтверждалась фактами.
-          </p>
-        </article>
-
-        <article className="card pad soft">
-          <p className="small">Формат</p>
-          <p className="p mt-8">
-            Личные и онлайн-консультации, подготовка документов, репетиции интервью, сопровождение до результата.
-          </p>
-        </article>
-
-        <article className="card pad soft">
-          <p className="small">Продуктовый маршрут</p>
-          <p className="p mt-8">
-            Вместо хаотичных консультаций — управляемый процесс: от диагностики и оплаты до пошаговой подготовки и финальной проверки.
-          </p>
-        </article>
-
-        <article className="card pad soft">
-          <p className="small">Что получает клиент</p>
-          <p className="p mt-8">
-            Понятные этапы, контроль готовности, измеримый прогресс и ответы, которые звучат логично и доказуемо.
-          </p>
-        </article>
-      </div>
-    </section>
+      <section className="features features-3">
+        {principles.map(([title, text]) => (
+          <article className="card pad soft" key={title}>
+            <div className="badge">{title}</div>
+            <p className="p mt-10">{text}</p>
+          </article>
+        ))}
+      </section>
+    </div>
   );
 }

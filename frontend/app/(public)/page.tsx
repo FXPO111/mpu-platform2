@@ -1,120 +1,116 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
-const flowSteps = [
-  ["Диагностика", "Сбор фактов: причина, сроки, поведение после случая, терапия/курсы, документы."],
-  ["План", "Структура истории, чек-лист доказательств изменений, список рисков и действий."],
-  ["Тренировка", "Интервью-симуляция: вопросы, follow-up, рекомендации по формулировкам."],
-  ["Эксперт", "Если риск высокий — Zoom, запись, подготовленные системой вопросы и документы."],
+const stages = [
+  {
+    title: "Онбординг и оценка кейса",
+    text: "Клиент проходит структурированный вход: причины MPU, сроки, текущий статус и документы. На выходе — карта рисков и персональный маршрут.",
+  },
+  {
+    title: "План по неделям",
+    text: "Система формирует последовательность шагов: какие блоки проработать, что подготовить, что подтвердить документально и в какие сроки.",
+  },
+  {
+    title: "Тренировочный цикл",
+    text: "Регулярные тренировки интервью и разбор формулировок. Каждая сессия повышает устойчивость ответов и снижает риск провала.",
+  },
+  {
+    title: "Финальная готовность",
+    text: "Перед MPU клиент проходит итоговый контроль: критерии готовности, незакрытые риски и финальные рекомендации по кейсу.",
+  },
 ];
 
-const valueProps = [
-  ["Понятная модель оплаты", "Три пакета без скрытых условий. Понятно, что входит и какой результат вы получаете."],
-  ["Личный кабинет с прогрессом", "В одном месте: этапы, документы, история сессий, дедлайны и контроль готовности."],
-  ["Практический формат", "Разбор реального кейса: формулировки, ошибки и отработка ответов под MPU."],
-  ["Нет структуры рассказа", "Система выстраивает хронологию и смысл изменений, чтобы ответы звучали логично и доказуемо."],
-  ["Слабые доказательства", "Чек-лист документов и действий: что подтвердить, как и чем, чтобы не было дыр."],
-  ["Провал на follow-up", "Trainer давит уточняющими вопросами — так же, как на реальном интервью."],
+const proof = [
+  ["Прозрачная экономика", "Пакеты, срок и объём сопровождения видны до оплаты — без скрытых условий."],
+  ["Видимый прогресс", "Клиент понимает, где он сейчас, что уже закрыто и что осталось до финальной готовности."],
+  ["Единая рабочая среда", "Диагностика, программа, документы и история подготовки находятся в одном месте."],
+  ["Фокус на результате", "Каждый этап ориентирован на успешное прохождение MPU, а не на «общие советы»."],
+];
+
+const kpi = [
+  { label: "Время старта после оплаты", value: "< 5 мин", note: "Клиент сразу попадает в рабочий процесс." },
+  { label: "Базовые сценарии подготовки", value: "4", note: "Алкоголь, вещества, баллы, поведенческие кейсы." },
+  { label: "Пакеты сопровождения", value: "3", note: "От стартового до интенсивного формата." },
 ];
 
 export default function HomePage() {
   return (
-    <div className="public-page-stack">
+    <div className="public-page-stack product-page-xl">
       <section className="section">
-        <div className="hero-grid">
-          <div className="card pad hero-main hero-primary">
-            <div className="badge">MPU AI • подготовка и консультации</div>
-            <h1 className="h1 mt-14">Подготовка к MPU как система: диагностика → план → тренировка интервью</h1>
-            <p className="lead mt-12">
-              Система собирает факты по вашему кейсу, строит персональный план и прогоняет через симуляцию интервью.
-              Если риск высокий — предложит созвон с экспертом (Zoom).
-            </p>
+        <div className="card pad product-hero product-hero-xl">
+          <div className="badge">MPU Praxis DP • Product Edition</div>
+          <h1 className="h1 mt-14">Платформа подготовки к MPU с полноценной продуктовой логикой</h1>
+          <p className="lead mt-12">
+            Здесь пользователь не теряется в контенте: сначала выбор пакета, затем оплата,
+            после чего автоматически запускается маршрут подготовки с этапами, дедлайнами и контролем прогресса.
+          </p>
 
-            <div className="chips mt-16">
-              <span className="chip">конфиденциально</span>
-              <span className="chip">структура реального интервью</span>
-              <span className="chip">история и прогресс в кабинете</span>
-              <span className="chip">эскалация к эксперту по триггерам</span>
-            </div>
-
-            <div className="hero-actions">
-              <Link href="/start">
-                <Button size="lg">Начать диагностику</Button>
-              </Link>
-              <Link href="/booking">
-                <Button size="lg" variant="secondary">
-                  Записаться к эксперту
-                </Button>
-              </Link>
-              <Link href="/pricing">
-                <Button size="lg" variant="ghost">
-                  Тарифы
-                </Button>
-              </Link>
-            </div>
+          <div className="hero-actions">
+            <Link href="/pricing">
+              <Button size="lg">Смотреть пакеты и оплату</Button>
+            </Link>
+            <Link href="/start">
+              <Button size="lg" variant="secondary">
+                Пройти стартовую диагностику
+              </Button>
+            </Link>
+            <Link href="/contact">
+              <Button size="lg" variant="ghost">
+                Нужна консультация по выбору
+              </Button>
+            </Link>
           </div>
 
-          <aside className="card pad hero-side">
-            <div className="badge">Что вы получите</div>
-            <div className="hr" />
-
-            <div className="stack lg">
-              <div className="card pad soft feature-snippet">
-                <div className="badge">Персональный план</div>
-                <p className="p mt-8">
-                  Что говорить, что подтверждать документами, где слабые места, что подготовить заранее.
-                </p>
-              </div>
-
-              <div className="card pad soft feature-snippet">
-                <div className="badge">Trainer-интервью</div>
-                <p className="p mt-8">
-                  Симуляция вопросов, follow-up, оценка ответов, рекомендации как исправить формулировки.
-                </p>
-              </div>
-
-              <div className="card pad soft feature-snippet">
-                <div className="badge">Триггеры на Zoom</div>
-                <p className="p mt-8">
-                  Если кейс “красный” — система предложит консультацию и сформирует список вопросов эксперту.
-                </p>
-              </div>
-            </div>
-          </aside>
+          <div className="kpis product-kpis product-kpis-xl">
+            {kpi.map((item) => (
+              <article className="kpi" key={item.label}>
+                <div className="kpi-label">{item.label}</div>
+                <div className="kpi-value">{item.value}</div>
+                <p className="small mt-8">{item.note}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="section">
         <div className="section-head">
           <div>
-            <div className="badge">Как работает</div>
-            <h2 className="h2 mt-10">Флоу, который ведёт к результату</h2>
+            <div className="badge">Как работает система</div>
+            <h2 className="h2 mt-10">Понятная цепочка действий от входа до финальной проверки</h2>
           </div>
           <Link href="/services">
-            <Button variant="ghost">Подробнее</Button>
+            <Button variant="ghost">Открыть структуру программы</Button>
           </Link>
         </div>
 
-        <div className="steps">
-          {flowSteps.map(([title, text], idx) => (
-            <article className="faq-item" key={title}>
+        <div className="steps product-steps-xl">
+          {stages.map((stage, idx) => (
+            <article className="faq-item process-card" key={stage.title}>
               <div className="row">
                 <span className="step-num">{idx + 1}</span>
-                <p className="faq-q">{title}</p>
+                <p className="faq-q">{stage.title}</p>
               </div>
-              <p className="faq-a">{text}</p>
+              <p className="faq-a">{stage.text}</p>
             </article>
           ))}
         </div>
       </section>
 
       <section className="section">
-        <div className="badge">Для чего это</div>
-        <h2 className="h2 mt-10">Закрываем типовые причины провала</h2>
+        <div className="section-head">
+          <div>
+            <div className="badge">Почему это уже продукт, а не сайт-визитка</div>
+            <h2 className="h2 mt-10">Логика удержания клиента построена на процессе и понятной ценности</h2>
+          </div>
+          <Link href="/pricing">
+            <Button variant="secondary">Перейти к тарифам</Button>
+          </Link>
+        </div>
 
-        <div className="features mt-16">
-          {valueProps.map(([title, text]) => (
-            <article className="card pad soft" key={title}>
+        <div className="features mt-16 features-4">
+          {proof.map(([title, text]) => (
+            <article className="card pad soft value-card value-card-xl" key={title}>
               <div className="badge">{title}</div>
               <p className="p mt-8">{text}</p>
             </article>
@@ -123,54 +119,23 @@ export default function HomePage() {
       </section>
 
       <section className="section">
-        <div className="card pad cta">
-          <div className="badge">Старт</div>
-          <h2 className="h2 mt-10">Начать можно сейчас — 10–15 минут на диагностику</h2>
+        <div className="card pad cta product-cta product-cta-xl">
+          <div className="badge">Следующий шаг</div>
+          <h2 className="h2 mt-10">Пакет выбирается за 1–2 минуты, программа запускается сразу после оплаты</h2>
           <p className="p mt-10">
-            Дальше система сама предложит: план, тренер, или консультацию в Zoom если кейс рискованный.
+            Мы убрали лишние сущности и запутанные сценарии: клиент чётко видит, за что платит,
+            что именно получает и как будет выглядеть путь до финального этапа MPU.
           </p>
-
           <div className="hero-actions">
-            <Link href="/start">
-              <Button size="lg">Начать диагностику</Button>
-            </Link>
             <Link href="/pricing">
-              <Button size="lg" variant="secondary">
-                Посмотреть тарифы
-              </Button>
+              <Button size="lg">Выбрать пакет</Button>
             </Link>
-            <Link href="/contact">
-              <Button size="lg" variant="ghost">
-                Задать вопрос
+            <Link href="/start">
+              <Button size="lg" variant="secondary">
+                Начать с диагностики
               </Button>
             </Link>
           </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="badge">FAQ</div>
-        <h2 className="h2 mt-10">Коротко о важном</h2>
-
-        <div className="faq mt-16">
-          <article className="faq-item">
-            <p className="faq-q">ИИ заменяет эксперта?</p>
-            <p className="faq-a">
-              Нет. Он систематизирует кейс, строит план и тренирует интервью. Эксперт подключается по триггерам риска.
-            </p>
-          </article>
-
-          <article className="faq-item">
-            <p className="faq-q">Можно начать без документов?</p>
-            <p className="faq-a">
-              Да. Диагностика стартует с фактов, а дальше система выдаст список, что нужно собрать.
-            </p>
-          </article>
-
-          <article className="faq-item">
-            <p className="faq-q">Как это выглядит в кабинете?</p>
-            <p className="faq-a">Кейсы, прогресс, план, файлы, тренировки, история. Всё по одному делу — в одном месте.</p>
-          </article>
         </div>
       </section>
     </div>

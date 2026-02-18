@@ -1,54 +1,72 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
+const modules = [
+  {
+    title: "Модуль 1 — Диагностика",
+    text: "Сбор исходных данных, аудит документов, первичная оценка рисков и постановка приоритетов.",
+  },
+  {
+    title: "Модуль 2 — План подготовки",
+    text: "Недели подготовки, обязательные действия, контрольные точки и критерии качества ответов.",
+  },
+  {
+    title: "Модуль 3 — Тренировки",
+    text: "Сценарные интервью, сложные follow-up, разбор типовых ошибок и улучшение формулировок.",
+  },
+  {
+    title: "Модуль 4 — Финальный контроль",
+    text: "Проверка устойчивости перед MPU, закрытие оставшихся рисков и итоговые рекомендации.",
+  },
+];
+
 export default function ServicesPage() {
   return (
-    <div className="public-page-stack">
-      <section className="card pad service-hero">
-        <div className="badge">Услуги</div>
-        <h1 className="h2 mt-10">Форматы подготовки</h1>
+    <div className="public-page-stack services-page-xl">
+      <section className="card pad service-hero service-hero-xl">
+        <div className="badge">Архитектура программы</div>
+        <h1 className="h2 mt-10">Полноценный рабочий цикл подготовки вместо точечных консультаций</h1>
         <p className="lead mt-12">
-          Старт — информационная консультация (30€ / 30 минут), дальше выбираем формат под вашу ситуацию,
-          опыт предыдущих попыток и уровень готовности.
+          Вся программа разделена на модули, каждый из которых имеет понятную цель, критерии завершения
+          и влияет на итоговую готовность к MPU.
         </p>
-        <div className="hero-actions">
-          <Link href="/contact">
-            <Button>Записаться</Button>
-          </Link>
-          <Link href="/pricing">
-            <Button variant="secondary">Посмотреть тарифы</Button>
-          </Link>
-        </div>
       </section>
 
-      <section className="cards3 services-grid">
-        <article className="card pad soft service-card">
-          <div className="badge">Диагностика кейса</div>
-          <h3 className="h3 mt-10">Старт с полной картины</h3>
-          <p className="p mt-8">Разбираем историю, сроки, документы и формируем чёткий план работ по приоритетам.</p>
+      <section className="cards3 services-grid services-grid-xl">
+        {modules.map((module) => (
+          <article className="card pad soft service-card" key={module.title}>
+            <div className="badge">{module.title}</div>
+            <p className="p mt-10">{module.text}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="grid2">
+        <article className="card pad soft">
+          <div className="badge">Контроль качества</div>
+          <p className="p mt-10">
+            На каждом этапе система фиксирует прогресс по ключевым параметрам: полнота кейса, качество аргументации,
+            стабильность ответов и готовность к стрессовым вопросам.
+          </p>
         </article>
 
-        <article className="card pad soft service-card">
-          <div className="badge">Тренировки интервью</div>
-          <h3 className="h3 mt-10">Практика до уверенности</h3>
-          <p className="p mt-8">Регулярная отработка вопросов, сложных follow-up и корректировка формулировок.</p>
-        </article>
-
-        <article className="card pad soft service-card">
-          <div className="badge">Подготовка к MPU</div>
-          <h3 className="h3 mt-10">Полная стратегия кейса</h3>
-          <p className="p mt-8">Пошаговая работа: история изменений, документы, тренировка интервью и поддержка до сдачи.</p>
+        <article className="card pad soft">
+          <div className="badge">Логика монетизации</div>
+          <p className="p mt-10">
+            Глубина сопровождения зависит от пакета: чем выше пакет, тем больше тренировок, дольше доступ к кабинету и
+            глубже контроль готовности.
+          </p>
         </article>
       </section>
 
       <section className="card pad soft">
         <div className="section-head">
           <div>
-            <div className="badge">Следующий шаг</div>
-            <h2 className="h2 mt-10">Определите пакет и запустите подготовку</h2>
+            <div className="badge">Старт</div>
+            <h2 className="h2 mt-10">Выберите пакет и начните подготовку без задержек</h2>
           </div>
           <Link href="/pricing">
-            <Button>К пакетам</Button>
+            <Button>Перейти к пакетам</Button>
           </Link>
         </div>
       </section>
