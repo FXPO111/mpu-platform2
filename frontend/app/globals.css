@@ -1787,3 +1787,92 @@ body{
     max-width: 100%;
   }
 }
+
+/* ---------------------------
+   24. FREE SPACE / FLOW FIX
+--------------------------- */
+body{
+  background-attachment: fixed;
+  background:
+    radial-gradient(1200px 900px at 15% -8%, rgba(100,212,72,.08), transparent 72%),
+    radial-gradient(1100px 900px at 86% -12%, rgba(243,214,76,.06), transparent 74%),
+    linear-gradient(180deg, #0b120e 0%, #0d1510 100%);
+}
+
+.premium-home{
+  gap: 30px;
+}
+
+.premium-hero-compact{
+  padding: 26px;
+  border-radius: 14px;
+}
+
+.premium-hero-title{
+  max-width: 30ch;
+  font-size: clamp(34px, 3.1vw, 52px);
+  line-height: 1.08;
+}
+
+.premium-hero-sub{
+  max-width: 82ch;
+  color: rgba(234,246,238,.84);
+}
+
+.hero-actions-clean .btn-hero-flat{
+  border-radius: 10px;
+  padding-inline: 16px;
+}
+
+.process-grid-wide .journey-card{
+  min-height: 200px;
+}
+
+.faq-acc-body-long{
+  line-height: 1.75;
+  color: rgba(234,246,238,.82);
+}
+
+@media (max-width: 980px){
+  .premium-home{
+    gap: 24px;
+  }
+  .process-grid-wide .journey-card{ min-height: auto; }
+}
+
+/* ---------------------------
+   25. HERO DECOMPRESS PASS
+--------------------------- */
+.premium-hero-compact{
+  padding: 34px 34px 30px;
+}
+
+.premium-hero-title{
+  max-width: 36ch;
+  font-size: clamp(36px, 3.15vw, 54px);
+  line-height: 1.1;
+}
+
+.premium-hero-sub{
+  max-width: 88ch;
+}
+
+.premium-hero-compact .cards3{
+  margin-top: 20px;
+  gap: 14px;
+}
+
+.process-copy{
+  margin: 0;
+  line-height: 1.75;
+  color: rgba(234,246,238,.86);
+}
+
+@media (max-width: 980px){
+  .premium-hero-compact{
+    padding: 24px 20px 20px;
+  }
+  .premium-hero-title{
+    max-width: 100%;
+  }
+}
