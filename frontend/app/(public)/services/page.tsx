@@ -37,9 +37,7 @@ export default function ServicesPage() {
             <div className="badge">Запуск</div>
             <h2 className="h2 mt-10">Выберите пакет и переходите к подготовке</h2>
           </div>
-          <Link href="/pricing">
-            <Button>К тарифам</Button>
-          </Link>
+          <Link href="/pricing"><Button>К тарифам</Button></Link>
         </div>
       </section>
     </div>

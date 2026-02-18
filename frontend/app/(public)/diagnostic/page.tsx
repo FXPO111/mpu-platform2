@@ -39,9 +39,7 @@ export default function DiagnosticPage() {
     <div className="public-page-stack">
       <section className="card pad">
         <h1 className="h2">Диагностика</h1>
-        <p className="p mt-8">
-          Шаг {i + 1} из {STEPS.length} • {progress}%
-        </p>
+        <p className="p mt-8">Шаг {i + 1} из {STEPS.length} • {progress}%</p>
 
         <h2 className="h3 mt-12">{step.title}</h2>
         <p className="small mt-8">{step.hint}</p>
@@ -55,19 +53,12 @@ export default function DiagnosticPage() {
         </div>
 
         <div className="hero-actions">
-          <Button
-            variant="ghost"
-            disabled={i === 0}
-            onClick={() => setI((prev) => Math.max(0, prev - 1))}
-          >
+          <Button variant="ghost" disabled={i === 0} onClick={() => setI((prev) => Math.max(0, prev - 1))}>
             Назад
           </Button>
 
           {i < STEPS.length - 1 ? (
-            <Button
-              disabled={!canNext}
-              onClick={() => setI((prev) => Math.min(STEPS.length - 1, prev + 1))}
-            >
+            <Button disabled={!canNext} onClick={() => setI((prev) => Math.min(STEPS.length - 1, prev + 1))}>
               Далее
             </Button>
           ) : (
@@ -90,19 +81,12 @@ export default function DiagnosticPage() {
           <h2 className="h3">Результат диагностики</h2>
           <p className="p mt-10">
             Рекомендуемый формат подготовки:{" "}
-            <strong>
-              {recommended === "start" ? "Start" : recommended === "pro" ? "Pro" : "Intensive"}
-            </strong>
-            . Вы можете перейти к оплате или выбрать другой вариант вручную.
+            <strong>{recommended === "start" ? "Start" : recommended === "pro" ? "Pro" : "Intensive"}</strong>.
+            Вы можете перейти к оплате или выбрать другой вариант вручную.
           </p>
-
           <div className="hero-actions">
-            <Link href={`/pricing?plan=${recommended}`}>
-              <Button>Выбрать формат и оплатить</Button>
-            </Link>
-            <Link href="/pricing">
-              <Button variant="secondary">Смотреть все тарифы</Button>
-            </Link>
+            <Link href={`/pricing?plan=${recommended}`}><Button>Выбрать формат и оплатить</Button></Link>
+            <Link href="/pricing"><Button variant="secondary">Смотреть все тарифы</Button></Link>
           </div>
         </section>
       ) : null}
