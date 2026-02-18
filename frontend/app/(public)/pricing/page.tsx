@@ -58,8 +58,8 @@ export default function PricingPage() {
         <div className="badge">Пакеты и оплата</div>
         <h1 className="h1 mt-14">Продуктовая тарификация без тумана и «созвонов ради цены»</h1>
         <p className="lead mt-12">
-          Пользователь сразу видит стоимость, срок и конкретное наполнение пакета.
-          После оплаты — моментальный запуск маршрута подготовки в личном кабинете.
+          Пользователь сразу видит стоимость, срок и конкретное наполнение пакета. После оплаты — моментальный запуск
+          маршрута подготовки в личном кабинете.
         </p>
       </section>
 
@@ -67,10 +67,12 @@ export default function PricingPage() {
         {plans.map((plan) => (
           <article className={`card pad plan-card ${plan.primary ? "plan-card-primary" : ""}`} key={plan.title}>
             <div className="badge">{plan.title}</div>
+
             <div className="plan-price-wrap">
               <div className="plan-price">{plan.price}</div>
               <div className="small">{plan.period}</div>
             </div>
+
             <p className="p">{plan.desc}</p>
 
             <div className="hr" />
@@ -83,7 +85,9 @@ export default function PricingPage() {
 
             <div className="hero-actions mt-16">
               <Link href="/start" className="w-full">
-                <Button className="w-full" variant={plan.primary ? "primary" : "secondary"}>Выбрать {plan.title}</Button>
+                <Button className="w-full" variant={plan.primary ? "primary" : "secondary"}>
+                  Выбрать {plan.title}
+                </Button>
               </Link>
             </div>
           </article>
@@ -123,10 +127,12 @@ export default function PricingPage() {
             <p className="faq-q">1. Открывается кабинет и маршрут</p>
             <p className="faq-a">Пользователь видит персональные шаги, дедлайны и блоки подготовки.</p>
           </article>
+
           <article className="faq-item">
             <p className="faq-q">2. Заполняется входной профиль</p>
             <p className="faq-a">На основе ответов система формирует приоритеты и порядок работы по кейсу.</p>
           </article>
+
           <article className="faq-item">
             <p className="faq-q">3. Запускается сопровождение</p>
             <p className="faq-a">Тренировки, контроль прогресса и регулярные проверки готовности до MPU.</p>

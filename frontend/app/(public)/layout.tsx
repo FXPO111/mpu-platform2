@@ -21,19 +21,33 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           </Link>
 
           <nav className="nav">
-            <NavLink href="/" exact>Главная</NavLink>
-            <NavLink href="/pricing" exact>Пакеты</NavLink>
-            <NavLink href="/services" exact>Программа</NavLink>
-            <NavLink href="/start" exact>Диагностика</NavLink>
-            <NavLink href="/contact" exact>Контакты</NavLink>
+            <NavLink href="/" exact>
+              Главная
+            </NavLink>
+            <NavLink href="/pricing" exact>
+              Пакеты
+            </NavLink>
+            <NavLink href="/services" exact>
+              Программа
+            </NavLink>
+            <NavLink href="/start" exact>
+              Диагностика
+            </NavLink>
+            <NavLink href="/contact" exact>
+              Контакты
+            </NavLink>
           </nav>
 
           <div className="header-actions">
             <a href="tel:+491752730963">
-              <Button variant="ghost" size="sm">Позвонить</Button>
+              <Button variant="ghost" size="sm">
+                Позвонить
+              </Button>
             </a>
             <Link href="/pricing">
-              <Button variant="secondary" size="sm">Цены</Button>
+              <Button variant="secondary" size="sm">
+                Цены
+              </Button>
             </Link>
             <Link href="/start">
               <Button size="sm">Начать</Button>
@@ -49,7 +63,8 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           <div>
             <div className="badge">Контакты</div>
             <div className="p mt-10">
-              <a href="tel:+491752730963">+49 175 27 30 963</a><br />
+              <a href="tel:+491752730963">+49 175 27 30 963</a>
+              <br />
               <a href="mailto:info@mpu-praxis-dp.de">info@mpu-praxis-dp.de</a>
             </div>
             <div className="p mt-10">Viktoriastraße 32-36, 56068 Koblenz</div>
@@ -58,17 +73,27 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           <div>
             <div className="badge">Продукт</div>
             <div className="footer-links">
-              <Link className="navlink" href="/pricing">Пакеты</Link>
-              <Link className="navlink" href="/services">Модули программы</Link>
-              <Link className="navlink" href="/start">Стартовая диагностика</Link>
+              <Link className="navlink" href="/pricing">
+                Пакеты
+              </Link>
+              <Link className="navlink" href="/services">
+                Модули программы
+              </Link>
+              <Link className="navlink" href="/start">
+                Стартовая диагностика
+              </Link>
             </div>
           </div>
 
           <div>
             <div className="badge">Юридическое</div>
             <div className="footer-links">
-              <Link className="navlink" href="/impressum">Impressum</Link>
-              <Link className="navlink" href="/privacy">Datenschutz</Link>
+              <Link className="navlink" href="/impressum">
+                Impressum
+              </Link>
+              <Link className="navlink" href="/privacy">
+                Datenschutz
+              </Link>
             </div>
           </div>
         </div>

@@ -46,9 +46,19 @@ export default function HomePage() {
           </p>
 
           <div className="hero-actions">
-            <Link href="/pricing"><Button size="lg">Смотреть пакеты и оплату</Button></Link>
-            <Link href="/start"><Button size="lg" variant="secondary">Пройти стартовую диагностику</Button></Link>
-            <Link href="/contact"><Button size="lg" variant="ghost">Нужна консультация по выбору</Button></Link>
+            <Link href="/pricing">
+              <Button size="lg">Смотреть пакеты и оплату</Button>
+            </Link>
+            <Link href="/start">
+              <Button size="lg" variant="secondary">
+                Пройти стартовую диагностику
+              </Button>
+            </Link>
+            <Link href="/contact">
+              <Button size="lg" variant="ghost">
+                Нужна консультация по выбору
+              </Button>
+            </Link>
           </div>
 
           <div className="kpis product-kpis product-kpis-xl">
@@ -69,7 +79,9 @@ export default function HomePage() {
             <div className="badge">Как работает система</div>
             <h2 className="h2 mt-10">Понятная цепочка действий от входа до финальной проверки</h2>
           </div>
-          <Link href="/services"><Button variant="ghost">Открыть структуру программы</Button></Link>
+          <Link href="/services">
+            <Button variant="ghost">Открыть структуру программы</Button>
+          </Link>
         </div>
 
         <div className="steps product-steps-xl">
@@ -91,7 +103,9 @@ export default function HomePage() {
             <div className="badge">Почему это уже продукт, а не сайт-визитка</div>
             <h2 className="h2 mt-10">Логика удержания клиента построена на процессе и понятной ценности</h2>
           </div>
-          <Link href="/pricing"><Button variant="secondary">Перейти к тарифам</Button></Link>
+          <Link href="/pricing">
+            <Button variant="secondary">Перейти к тарифам</Button>
+          </Link>
         </div>
 
         <div className="features mt-16 features-4">
@@ -113,8 +127,14 @@ export default function HomePage() {
             что именно получает и как будет выглядеть путь до финального этапа MPU.
           </p>
           <div className="hero-actions">
-            <Link href="/pricing"><Button size="lg">Выбрать пакет</Button></Link>
-            <Link href="/start"><Button size="lg" variant="secondary">Начать с диагностики</Button></Link>
+            <Link href="/pricing">
+              <Button size="lg">Выбрать пакет</Button>
+            </Link>
+            <Link href="/start">
+              <Button size="lg" variant="secondary">
+                Начать с диагностики
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
