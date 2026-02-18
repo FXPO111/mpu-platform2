@@ -4,10 +4,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
 const MENU = [
-  { href: "#program", label: "Программа" },
-  { href: "#pricing", label: "Тарифы" },
+  { href: "/#program", label: "Программа" },
+  { href: "/pricing", label: "Тарифы" },
   { href: "/diagnostic", label: "Диагностика" },
-  { href: "#contacts", label: "Контакты" },
+  { href: "/#contacts", label: "Контакты" },
 ];
 
 const PRODUCT_LINKS = [

@@ -15,7 +15,8 @@ export default function ServicesPage() {
         <div className="badge">Программа</div>
         <h1 className="h2 mt-10">Структурная система подготовки без перегруза</h1>
         <p className="lead mt-12">
-          Программа собрана как рабочий цикл: каждый модуль имеет цель, результат и связь со следующим этапом.
+          Программа собрана как рабочий цикл: каждый модуль имеет цель, результат и
+          связь со следующим этапом.
         </p>
       </section>
 
@@ -37,9 +38,7 @@ export default function ServicesPage() {
             <div className="badge">Запуск</div>
             <h2 className="h2 mt-10">Выберите пакет и переходите к подготовке</h2>
           </div>
-          <Link href="/pricing">
-            <Button>К тарифам</Button>
-          </Link>
+          <Link href="/pricing"><Button>К тарифам</Button></Link>
         </div>
       </section>
     </div>

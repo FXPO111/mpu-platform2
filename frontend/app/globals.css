@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MPU AI — Production CSS (globals.css)
+   MPU Praxis — Production CSS (globals.css)
    - современный dark, глубина, сетка, типографика
    - аккуратный бренд (зелёный основной, жёлтый как акцент)
    - нормальные модалки / оверлеи / z-index / скролл
@@ -612,6 +612,8 @@ textarea.input{
 
 /* ---------------------------
    09. APP SHELL (dashboard/admin)
+   из твоего AppLayout.tsx:
+   .app-shell .sidebar .topbar .content
 --------------------------- */
 .app-shell{
   min-height: 100vh;
@@ -697,7 +699,7 @@ textarea.input{
 }
 
 /* ---------------------------
-   10. TABLES / LISTS
+   10. TABLES / LISTS (на будущее)
 --------------------------- */
 .table{
   width:100%;
@@ -722,6 +724,12 @@ textarea.input{
 
 /* ---------------------------
    11. MODALS / DIALOGS
+   (фикс “кривых модалок”)
+   Поддержка:
+   - .modal-overlay/.modal-content
+   - .dialog-overlay/.dialog-content
+   - атрибуты data-modal-overlay / data-modal-content
+   - нативный <dialog>
 --------------------------- */
 body.modal-open{ overflow: hidden; }
 
@@ -872,6 +880,7 @@ dialog > *{
 
 /* =========================
    FIX: ритм + “фон рвётся”
+   вставь в конец globals.css
 ========================= */
 
 /* 1) фон: фиксируем и убираем ощущение “обрыва” при скролле */
@@ -888,7 +897,7 @@ dialog > *{
   .page > * + *{ margin-top: 18px; }
 }
 
-/* 3) отступы внутри крупных карточек */
+/* 3) отступы внутри крупных карточек (чтобы не было “всё слиплось”) */
 .card.pad > .badge{ margin-bottom: 12px; }
 .card.pad > .badge + .h1,
 .card.pad > .badge + .h2{ margin-top: 10px; }
@@ -900,16 +909,21 @@ dialog > *{
 .cards3{ margin-top: 16px; }
 .grid2{ gap: 18px; }
 
-/* 4) главная причина “полосы” — тень */
+/* 4) главная причина “полосы” — тень.
+      Делаем shadow более “воздушным”, без жёсткой горизонтальной линии. */
 .card{
+  /* чуть плотнее фон, чтобы не просвечивало “пятнами” */
   background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
   border-color: rgba(255,255,255,.13);
+
+  /* мягкая глубина без “полосы” */
   box-shadow:
     0 1px 0 rgba(255,255,255,.04) inset,
     0 10px 26px rgba(0,0,0,.18),
     0 40px 110px rgba(0,0,0,.16);
 }
 
+/* hero — можно чуть “дороже” */
 .hero-main{
   box-shadow:
     0 1px 0 rgba(255,255,255,.05) inset,
@@ -917,6 +931,7 @@ dialog > *{
     0 90px 190px rgba(0,0,0,.58);
 }
 
+/* 5) чтобы разделитель не выглядел как “обрыв” */
 .hr{
   background: rgba(255,255,255,.10);
   margin: 18px 0;
@@ -1582,4 +1597,75 @@ html{ scroll-behavior: smooth; }
     flex-wrap: nowrap;
     padding-bottom: 2px;
   }
+}
+
+/* ---------------------------
+   21. PREMIUM CLEANUP
+--------------------------- */
+:root{
+  --r-sm: 12px;
+  --r-md: 14px;
+  --r-lg: 18px;
+}
+
+body{
+  background-attachment: fixed;
+  background:
+    radial-gradient(1200px 700px at 14% 0%, rgba(100,212,72,.10), transparent 65%),
+    radial-gradient(900px 620px at 88% 0%, rgba(243,214,76,.08), transparent 62%),
+    linear-gradient(180deg, #0c130f, #111a13 60%, #111913);
+}
+
+.card,
+.clean-plan,
+.journey-card,
+.faq-acc-item{
+  box-shadow: 0 8px 24px rgba(0,0,0,.16) !important;
+  border-color: rgba(255,255,255,.12);
+}
+
+.card::before{ opacity: .10; }
+
+@media (hover:hover){
+  .card.hover:hover,
+  .clean-plan:hover,
+  .journey-card:hover{
+    box-shadow: 0 10px 28px rgba(0,0,0,.18) !important;
+    transform: none;
+  }
+}
+
+.premium-hero,
+.pricing-clean-hero,
+.premium-cta{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.035));
+  border-color: rgba(255,255,255,.14);
+}
+
+.journey-num,
+.step-num{
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.badge{
+  border-radius: 999px;
+  padding: 5px 9px;
+}
+
+.faq-chevron{
+  display: inline-block;
+  transition: transform .18s ease;
+  font-size: 16px;
+}
+
+.faq-chevron.open{
+  transform: rotate(180deg);
 }

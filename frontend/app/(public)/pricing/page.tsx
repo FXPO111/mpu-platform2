@@ -1,96 +1,165 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 
-const plans = [
+type PlanKey = "start" | "pro" | "intensive";
+
+type Plan = {
+  key: PlanKey;
+  title: string;
+  price: string;
+  period: string;
+  items: string[];
+};
+
+const PLANS: Plan[] = [
   {
+    key: "start",
     title: "Start",
-    price: "€79",
+    price: "€19.99",
     period: "14 дней",
-    items: ["Стартовая диагностика", "Персональный план", "3 тренировки", "Чек-лист документов"],
+    items: [
+      "Диагностика и карта рисков",
+      "План подготовки по неделям",
+      "Базовые модули",
+      "Тренировки интервью (лимит N)",
+      "Чеклист документов",
+    ],
   },
   {
-    title: "Progress",
+    key: "pro",
+    title: "Pro",
     price: "€169",
     period: "30 дней",
-    items: ["Расширенный маршрут", "8 тренировок", "Контрольные точки", "Корректировка плана"],
-    featured: true,
+    items: [
+      "Всё из Start",
+      "Тренировки интервью без лимита",
+      "Расширенная проверка формулировок",
+      "Финальный контроль готовности + отчёт",
+    ],
   },
   {
-    title: "Premium",
+    key: "intensive",
+    title: "Intensive",
     price: "€289",
     period: "45 дней",
-    items: ["Интенсивный формат", "Без лимита тренировок", "Приоритетная поддержка", "Финальная репетиция"],
+    items: [
+      "Всё из Pro",
+      "Дополнительные итерации финальной проверки",
+      "Приоритетная поддержка",
+    ],
   },
 ];
 
+function track(
+  event:
+    | "view_pricing_section"
+    | "select_plan_start"
+    | "select_plan_pro"
+    | "select_plan_intensive"
+) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent("analytics:event", { detail: { event } }));
+  const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
+  if (gtag) gtag("event", event, {});
+}
+
 export default function PricingPage() {
+  const params = useSearchParams();
+  const [recommended, setRecommended] = useState<PlanKey>("pro");
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const fromUrl = params.get("plan");
+    const fromStorage =
+      typeof window !== "undefined" ? localStorage.getItem("recommended_plan") : null;
+    const value = (fromUrl || fromStorage) as PlanKey | null;
+    if (value === "start" || value === "pro" || value === "intensive") {
+      setRecommended(value);
+    }
+  }, [params]);
+
+  useEffect(() => {
+    if (!rootRef.current) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            track("view_pricing_section");
+            obs.disconnect();
+          }
+        });
+      },
+      { threshold: 0.35 }
+    );
+    obs.observe(rootRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  const eventByPlan = useMemo(
+    () =>
+      ({
+        start: "select_plan_start",
+        pro: "select_plan_pro",
+        intensive: "select_plan_intensive",
+      }) as const,
+    []
+  );
+
   return (
-    <div className="public-page-stack pricing-clean">
+    <div className="public-page-stack pricing-clean" id="pricing" ref={rootRef}>
       <section className="card pad pricing-clean-hero">
-        <div className="badge">Тарифы</div>
-        <h1 className="h1 mt-14">Понятная стоимость и наполнение каждого пакета</h1>
+        <h1 className="h1">Выберите формат подготовки</h1>
         <p className="lead mt-12">
-          Никаких скрытых уровней и сложных условий: пользователь сразу понимает, какой объём подготовки получает в
-          каждом пакете.
+          Начните с диагностики — рекомендованный вариант уже отмечен на основе результата.
         </p>
       </section>
 
       <section className="plan-grid clean-grid">
-        {plans.map((plan) => (
-          <article
-            key={plan.title}
-            className={`clean-plan card pad ${plan.featured ? "clean-plan-featured" : ""}`}
-          >
-            <div className="badge">{plan.title}</div>
+        {PLANS.map((plan) => {
+          const isRecommended = plan.key === recommended;
+          return (
+            <article
+              key={plan.key}
+              className={`clean-plan card pad ${isRecommended ? "clean-plan-featured" : ""}`}
+            >
+              <h2 className="h3">{plan.title}</h2>
+              {isRecommended ? <p className="small mt-8">Рекомендуемый формат</p> : null}
 
-            <div className="plan-price-wrap">
-              <div className="plan-price">{plan.price}</div>
-              <div className="small">{plan.period}</div>
-            </div>
+              <div className="plan-price-wrap">
+                <div className="plan-price">{plan.price}</div>
+                <div className="small">{plan.period}</div>
+              </div>
 
-            <ul className="plan-list mt-16">
-              {plan.items.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
+              <ul className="plan-list mt-16">
+                {plan.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
 
-            <div className="hero-actions mt-16">
-              <Link href="/start" className="w-full">
-                <Button className="w-full" variant={plan.featured ? "primary" : "secondary"}>
-                  Выбрать {plan.title}
-                </Button>
-              </Link>
-            </div>
-          </article>
-        ))}
+              <div className="hero-actions mt-16">
+                <Link
+                  href="/dashboard"
+                  className="w-full"
+                  onClick={() => track(eventByPlan[plan.key])}
+                >
+                  <Button className="w-full" variant={isRecommended ? "primary" : "secondary"}>
+                    Выбрать {plan.title} и оплатить
+                  </Button>
+                </Link>
+              </div>
+            </article>
+          );
+        })}
       </section>
 
-      <section className="card pad soft">
-        <div className="badge">После оплаты</div>
-        <div className="journey-grid mt-16">
-          <article className="journey-card">
-            <div className="journey-top">
-              <span className="journey-num">01</span>
-              <p className="faq-q">Открывается кабинет</p>
-            </div>
-            <p className="faq-a">Доступ к маршруту, этапам и материалам запускается сразу.</p>
-          </article>
-          <article className="journey-card">
-            <div className="journey-top">
-              <span className="journey-num">02</span>
-              <p className="faq-q">Заполняется профиль</p>
-            </div>
-            <p className="faq-a">На основе диагностики формируется персональный рабочий план.</p>
-          </article>
-          <article className="journey-card">
-            <div className="journey-top">
-              <span className="journey-num">03</span>
-              <p className="faq-q">Стартует программа</p>
-            </div>
-            <p className="faq-a">Пошаговая подготовка и контроль качества до финального этапа.</p>
-          </article>
-        </div>
-      </section>
+      <p className="small">
+        Результат зависит от исходных данных и выполнения программы. Подготовка снижает риск
+        провала за счёт структуры, тренировок и контроля.
+      </p>
     </div>
   );
 }
