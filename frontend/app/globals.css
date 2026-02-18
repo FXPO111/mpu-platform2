@@ -936,3 +936,144 @@ dialog > *{
   background: rgba(255,255,255,.10);
   margin: 18px 0;
 }
+
+/* ---------------------------
+   15. PUBLIC PAGES POLISH
+--------------------------- */
+.public-page-stack{
+  display: grid;
+  gap: 22px;
+}
+
+.hero-grid{
+  display: grid;
+  grid-template-columns: minmax(0, 1.28fr) minmax(320px, .72fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.hero-primary::after{
+  content: "";
+  position: absolute;
+  inset: auto -24% -36% auto;
+  width: 360px;
+  height: 360px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 50%, rgba(250,204,21,.22), rgba(250,204,21,0) 62%);
+  pointer-events: none;
+}
+
+.mt-8{ margin-top: 8px; }
+.mt-10{ margin-top: 10px; }
+.mt-12{ margin-top: 12px; }
+.mt-14{ margin-top: 14px; }
+.mt-16{ margin-top: 16px; }
+
+.chips{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.section-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.steps,
+.features,
+.faq{
+  display: grid;
+  gap: 12px;
+}
+
+.steps{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 16px;
+}
+
+.features,
+.faq{
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.faq-item{
+  border-radius: var(--r-md);
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.035);
+  padding: 16px;
+}
+
+.step-num{
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #132313;
+  background: linear-gradient(135deg, var(--yellow), rgba(250,204,21,.74));
+}
+
+.faq-q{
+  margin: 0;
+  font-weight: 760;
+  color: rgba(234,246,238,.93);
+}
+
+.faq-a{
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.cta{
+  background:
+    radial-gradient(640px 240px at 0% 100%, rgba(34,197,94,.16), transparent 72%),
+    radial-gradient(520px 220px at 92% 18%, rgba(250,204,21,.14), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.045));
+}
+
+.service-hero,
+.about-page{
+  max-width: 960px;
+}
+
+.services-grid .service-card,
+.about-facts .card{
+  min-height: 220px;
+}
+
+.about-facts{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.contact-grid{
+  align-items: start;
+}
+
+.contact-form{
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.contact-form-card .btn{
+  margin-top: 4px;
+}
+
+@media (max-width: 980px){
+  .hero-grid,
+  .steps,
+  .features,
+  .faq,
+  .about-facts{
+    grid-template-columns: 1fr;
+  }
+}
