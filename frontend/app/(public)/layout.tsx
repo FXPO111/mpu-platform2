@@ -9,7 +9,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
       <header className="public-header">
         <div className="topstrip">
           <div className="container topstrip-inner">
-            <span>96% клиентов сдают с первого раза</span>
+            <span>MPU Praxis DP • полноценная онлайн-подготовка и сопровождение</span>
             <a href="mailto:info@mpu-praxis-dp.de">info@mpu-praxis-dp.de</a>
           </div>
         </div>
@@ -17,25 +17,25 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         <div className="container public-header-inner">
           <Link href="/" className="brand">
             <span className="brand-dot" />
-            MPU AI
+            MPU Praxis DP
           </Link>
 
           <nav className="nav">
             <NavLink href="/" exact>Главная</NavLink>
-            <NavLink href="/services" exact>Услуги</NavLink>
-            <NavLink href="/about" exact>Обо мне</NavLink>
+            <NavLink href="/pricing" exact>Пакеты</NavLink>
+            <NavLink href="/services" exact>Программа</NavLink>
             <NavLink href="/contact" exact>Контакты</NavLink>
           </nav>
 
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <div className="header-actions">
             <a href="tel:+491752730963">
               <Button variant="ghost" size="sm">Позвонить</Button>
             </a>
-            <Link href="/login">
-              <Button variant="secondary" size="sm">Войти</Button>
+            <Link href="/start">
+              <Button variant="secondary" size="sm">Начать диагностику</Button>
             </Link>
-            <Link href="/dashboard">
-              <Button size="sm">Кабинет</Button>
+            <Link href="/pricing">
+              <Button size="sm">Выбрать пакет</Button>
             </Link>
           </div>
         </div>
@@ -47,27 +47,28 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         <div className="footer-grid">
           <div>
             <div className="badge">Контакты</div>
-            <div className="p" style={{ marginTop: 10 }}>
+            <div className="p mt-10">
               <a href="tel:+491752730963">+49 175 27 30 963</a><br />
               <a href="mailto:info@mpu-praxis-dp.de">info@mpu-praxis-dp.de</a>
             </div>
-            <div className="p" style={{ marginTop: 10 }}>
+            <div className="p mt-10">
               Viktoriastraße 32-36, 56068 Koblenz
             </div>
           </div>
 
           <div>
             <div className="badge">Навигация</div>
-            <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
-              <Link className="navlink" href="/services">Услуги</Link>
-              <Link className="navlink" href="/about">Обо мне</Link>
+            <div className="footer-links">
+              <Link className="navlink" href="/pricing">Пакеты</Link>
+              <Link className="navlink" href="/services">Программа</Link>
+              <Link className="navlink" href="/start">Диагностика</Link>
               <Link className="navlink" href="/contact">Контакты</Link>
             </div>
           </div>
 
           <div>
             <div className="badge">Юридическое</div>
-            <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+            <div className="footer-links">
               <Link className="navlink" href="/impressum">Impressum</Link>
               <Link className="navlink" href="/privacy">Datenschutz</Link>
             </div>
@@ -75,7 +76,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         </div>
 
         <div className="footer-bottom">
-          © {new Date().getFullYear()} MPU AI • Praxis DP
+          © {new Date().getFullYear()} MPU Praxis DP
         </div>
       </footer>
     </>
