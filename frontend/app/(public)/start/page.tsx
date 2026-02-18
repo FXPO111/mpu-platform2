@@ -1,43 +1,44 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
 const STEPS = [
-  { k: "reason", title: "Причина MPU", hint: "Алкоголь / наркотики / баллы / агрессия / другое" },
-  { k: "timeline", title: "Хронология", hint: "Когда произошло, что было дальше, сроки" },
-  { k: "changes", title: "Изменения", hint: "Что изменили: терапия, курсы, анализы, поведение" },
-  { k: "docs", title: "Документы", hint: "Что есть на руках, чего нет" },
+  { k: "reason", title: "Причина MPU", hint: "Алкоголь / вещества / баллы / агрессия / другое" },
+  { k: "timeline", title: "Хронология", hint: "Когда произошло, какие решения уже были приняты" },
+  { k: "changes", title: "Изменения", hint: "Какие действия уже сделаны: курсы, терапия, анализы, поведение" },
+  { k: "docs", title: "Документы", hint: "Что готово сейчас и что необходимо собрать" },
+  { k: "goal", title: "Цель по срокам", hint: "Когда планируете выход на финальный этап MPU" },
 ];
 
 export default function StartPage() {
   const [i, setI] = useState(0);
   const [data, setData] = useState<Record<string, string>>({});
+  const [done, setDone] = useState(false);
 
   const step = STEPS[i];
   const value = data[step.k] ?? "";
-
   const canNext = value.trim().length >= 8;
-
   const progress = useMemo(() => Math.round(((i + 1) / STEPS.length) * 100), [i]);
 
   return (
-    <div style={{ display: "grid", gap: 16 }}>
-      <div className="card pad">
-        <div className="badge">Диагностика • шаг {i + 1}/{STEPS.length} • {progress}%</div>
-        <h1 className="h2" style={{ marginTop: 10 }}>{step.title}</h1>
-        <p className="p" style={{ marginTop: 8 }}>{step.hint}</p>
+    <div className="public-page-stack start-page-xl">
+      <section className="card pad">
+        <div className="badge">Стартовая диагностика • шаг {i + 1}/{STEPS.length} • {progress}%</div>
+        <h1 className="h2 mt-10">{step.title}</h1>
+        <p className="p mt-8">{step.hint}</p>
 
-        <div style={{ marginTop: 12 }}>
+        <div className="mt-12">
           <Input
-            placeholder="Введите кратко, но по сути"
+            placeholder="Введите коротко и по существу"
             value={value}
             onChange={(e) => setData((p) => ({ ...p, [step.k]: e.target.value }))}
           />
         </div>
 
-        <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+        <div className="hero-actions">
           <Button
             variant="ghost"
             disabled={i === 0}
@@ -54,23 +55,47 @@ export default function StartPage() {
             <Button
               disabled={!canNext}
               onClick={() => {
-                // пока MVP: просто сохраняем локально
                 localStorage.setItem("mpu_draft", JSON.stringify(data));
-                alert("Черновик сохранён. Следующий шаг: генерация плана и создание кейса в кабинете.");
+                setDone(true);
               }}
             >
-              Сформировать черновик
+              Сохранить диагностику
             </Button>
           )}
         </div>
-      </div>
+      </section>
 
-      <div className="card pad soft">
-        <div className="badge">Что будет дальше</div>
-        <p className="p" style={{ marginTop: 10 }}>
-          После диагностики система построит план, предложит тренировку интервью и при необходимости — запись к эксперту (Zoom).
-        </p>
-      </div>
+      {done && (
+        <section className="card pad soft">
+          <div className="badge">Диагностика сохранена</div>
+          <p className="p mt-10">
+            Следующий шаг — выбор пакета. На основе диагностики маршрут подготовки уже сформирован,
+            после оплаты активируется полный доступ к программе.
+          </p>
+          <div className="hero-actions">
+            <Link href="/pricing"><Button>Выбрать пакет</Button></Link>
+            <Link href="/services"><Button variant="secondary">Посмотреть модули программы</Button></Link>
+          </div>
+        </section>
+      )}
+
+      <section className="card pad soft">
+        <div className="badge">Что вы получите после старта</div>
+        <div className="steps mt-16">
+          <article className="faq-item">
+            <p className="faq-q">Карту рисков по кейсу</p>
+            <p className="faq-a">Понятно, какие зоны требуют проработки в первую очередь.</p>
+          </article>
+          <article className="faq-item">
+            <p className="faq-q">Пошаговый маршрут</p>
+            <p className="faq-a">Чёткий план с этапами и дедлайнами без лишнего шума.</p>
+          </article>
+          <article className="faq-item">
+            <p className="faq-q">Подготовку к интервью</p>
+            <p className="faq-a">Системные тренировки и контроль качества ответов.</p>
+          </article>
+        </div>
+      </section>
     </div>
   );
 }
