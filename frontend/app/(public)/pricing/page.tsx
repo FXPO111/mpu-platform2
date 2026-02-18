@@ -1,81 +1,81 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
-function PlanCard({
-  title,
-  price,
-  desc,
-  items,
-  cta,
-  primary,
-}: {
-  title: string;
-  price: string;
-  desc: string;
-  items: string[];
-  cta: string;
-  primary?: boolean;
-}) {
-  return (
-    <div className="card pad" style={{ borderColor: primary ? "rgba(250,204,21,.30)" : undefined }}>
-      <div className="badge">{title}</div>
-      <div style={{ fontSize: 34, fontWeight: 800, marginTop: 10 }}>{price}</div>
-      <p className="p" style={{ marginTop: 8 }}>{desc}</p>
-
-      <div className="hr" />
-
-      <ul style={{ margin: 0, paddingLeft: 18, color: "var(--muted)", lineHeight: 1.7 }}>
-        {items.map((x) => <li key={x}>{x}</li>)}
-      </ul>
-
-      <div style={{ marginTop: 16 }}>
-        <Link href="/login">
-          <Button variant={primary ? "primary" : "secondary"} style={{ width: "100%" }}>
-            {cta}
-          </Button>
-        </Link>
-      </div>
-    </div>
-  );
-}
+const plans = [
+  {
+    title: "Start",
+    price: "€79",
+    period: "14 дней",
+    items: ["Стартовая диагностика", "Персональный план", "3 тренировки", "Чек-лист документов"],
+  },
+  {
+    title: "Progress",
+    price: "€169",
+    period: "30 дней",
+    items: ["Расширенный маршрут", "8 тренировок", "Контрольные точки", "Корректировка плана"],
+    featured: true,
+  },
+  {
+    title: "Premium",
+    price: "€289",
+    period: "45 дней",
+    items: ["Интенсивный формат", "Без лимита тренировок", "Приоритетная поддержка", "Финальная репетиция"],
+  },
+];
 
 export default function PricingPage() {
   return (
-    <div>
-      <h1 className="h1">Тарифы</h1>
-      <p className="p">MVP: пакеты попыток. Подписку и биллинг — следующим шагом.</p>
+    <div className="public-page-stack pricing-clean">
+      <section className="card pad pricing-clean-hero">
+        <div className="badge">Тарифы</div>
+        <h1 className="h1 mt-14">Понятная стоимость и наполнение каждого пакета</h1>
+        <p className="lead mt-12">
+          Никаких скрытых уровней и сложных условий: пользователь сразу понимает,
+          какой объём подготовки получает в каждом пакете.
+        </p>
+      </section>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginTop: 18 }}
-           className="pricing-grid">
-        <PlanCard
-          title="Start"
-          price="€19"
-          desc="Пробный прогон под 1 кейс."
-          items={["1 кейс", "До 30 сообщений", "Базовые подсказки", "История 7 дней"]}
-          cta="Взять Start"
-        />
-        <PlanCard
-          title="Pro"
-          price="€49"
-          desc="Нормальная работа в кабинете."
-          items={["До 5 кейсов", "До 200 сообщений", "Trainer-сессии", "История 30 дней"]}
-          cta="Взять Pro"
-          primary
-        />
-        <PlanCard
-          title="Team"
-          price="€99"
-          desc="Если будет поток клиентов."
-          items={["До 20 кейсов", "До 800 сообщений", "Файлы/документы", "Приоритетная очередь"]}
-          cta="Взять Team"
-        />
-      </div>
+      <section className="plan-grid clean-grid">
+        {plans.map((plan) => (
+          <article key={plan.title} className={`clean-plan card pad ${plan.featured ? "clean-plan-featured" : ""}`}>
+            <div className="badge">{plan.title}</div>
+            <div className="plan-price-wrap">
+              <div className="plan-price">{plan.price}</div>
+              <div className="small">{plan.period}</div>
+            </div>
 
-      <style>{`
-        @media (max-width: 980px){
-          .pricing-grid{ grid-template-columns: 1fr !important; }
-        }
-      `}</style>
+            <ul className="plan-list mt-16">
+              {plan.items.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+
+            <div className="hero-actions mt-16">
+              <Link href="/start" className="w-full">
+                <Button className="w-full" variant={plan.featured ? "primary" : "secondary"}>Выбрать {plan.title}</Button>
+              </Link>
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <section className="card pad soft">
+        <div className="badge">После оплаты</div>
+        <div className="journey-grid mt-16">
+          <article className="journey-card">
+            <div className="journey-top"><span className="journey-num">01</span><p className="faq-q">Открывается кабинет</p></div>
+            <p className="faq-a">Доступ к маршруту, этапам и материалам запускается сразу.</p>
+          </article>
+          <article className="journey-card">
+            <div className="journey-top"><span className="journey-num">02</span><p className="faq-q">Заполняется профиль</p></div>
+            <p className="faq-a">На основе диагностики формируется персональный рабочий план.</p>
+          </article>
+          <article className="journey-card">
+            <div className="journey-top"><span className="journey-num">03</span><p className="faq-q">Стартует программа</p></div>
+            <p className="faq-a">Пошаговая подготовка и контроль качества до финального этапа.</p>
+          </article>
+        </div>
+      </section>
     </div>
   );
 }
