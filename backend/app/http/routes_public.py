@@ -80,8 +80,6 @@ def detect_plan(payload: DiagnosticSubmitIn) -> str:
     return "start"
 
 
-
-
 def _safe_redirect_url(value: str | None) -> str | None:
     if not value:
         return None
@@ -91,6 +89,7 @@ def _safe_redirect_url(value: str | None) -> str | None:
     if not (candidate.startswith("http://") or candidate.startswith("https://")):
         raise APIError("BAD_REDIRECT_URL", "Redirect URL must be absolute http(s) URL", status_code=422)
     return candidate
+
 
 def _normalize_locale(locale: str) -> str:
     loc = (locale or "ru").strip().lower()
@@ -129,7 +128,17 @@ def products(db: Session = Depends(get_db)):
 def slots(db: Session = Depends(get_db)):
     repo = Repo(db)
     rows = repo.list_open_slots()
-    return {"data": [{"id": str(s.id), "starts_at_utc": s.starts_at_utc.isoformat(), "duration_min": s.duration_min, "title": s.title} for s in rows]}
+    return {
+        "data": [
+            {
+                "id": str(s.id),
+                "starts_at_utc": s.starts_at_utc.isoformat(),
+                "duration_min": s.duration_min,
+                "title": s.title,
+            }
+            for s in rows
+        ]
+    }
 
 
 @router.post("/diagnostic", response_model=DiagnosticSubmitOut)

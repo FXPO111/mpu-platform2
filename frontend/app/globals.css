@@ -2896,3 +2896,4 @@ body:has(.diagnostic-page) .header-actions a[href="/diagnostic"]{
 @media (max-width: 980px) {
   .cabinet-v2-overview-grid { grid-template-columns: 1fr; }
 }
+

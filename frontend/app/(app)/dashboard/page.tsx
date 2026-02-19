@@ -70,7 +70,9 @@ export default function DashboardPage() {
       }
     }
 
-    setMessages([{ id: "m0", role: "assistant", content: "Начнем. Расскажите коротко, что изменилось в вашей жизни за последний год." }]);
+    setMessages([
+      { id: "m0", role: "assistant", content: "Начнем. Расскажите коротко, что изменилось в вашей жизни за последний год." },
+    ]);
     setTasks([
       { id: "t1", text: "Короткий ответ о причинах прошлых ошибок", done: false },
       { id: "t2", text: "Ответ о том, что конкретно изменилось", done: false },
@@ -163,25 +165,44 @@ export default function DashboardPage() {
               <h2 className="h3">Общий прогресс</h2>
               <span className="cabinet-v2-score">{readiness}/100</span>
             </div>
-            <div className="cabinet-v2-progress"><div style={{ width: `${readiness}%` }} /></div>
+            <div className="cabinet-v2-progress">
+              <div style={{ width: `${readiness}%` }} />
+            </div>
             <p className="small">Дальше: короткая тренировка и один уверенный повтор ответа.</p>
           </div>
 
           <div className="cabinet-v2-status">
-            <div className="cabinet-v2-status-top"><h2 className="h3">Стабильность ответов</h2><span className="cabinet-v2-score">{stability}%</span></div>
-            <div className="cabinet-v2-progress"><div style={{ width: `${stability}%` }} /></div>
+            <div className="cabinet-v2-status-top">
+              <h2 className="h3">Стабильность ответов</h2>
+              <span className="cabinet-v2-score">{stability}%</span>
+            </div>
+            <div className="cabinet-v2-progress">
+              <div style={{ width: `${stability}%` }} />
+            </div>
             <p className="small">Чем выше показатель, тем увереннее и ровнее ответы на интервью.</p>
           </div>
 
           <div className="cabinet-v2-status">
-            <div className="cabinet-v2-status-top"><h2 className="h3">Согласованность истории</h2><span className="cabinet-v2-score">{consistency}%</span></div>
-            <div className="cabinet-v2-progress"><div style={{ width: `${consistency}%` }} /></div>
+            <div className="cabinet-v2-status-top">
+              <h2 className="h3">Согласованность истории</h2>
+              <span className="cabinet-v2-score">{consistency}%</span>
+            </div>
+            <div className="cabinet-v2-progress">
+              <div style={{ width: `${consistency}%` }} />
+            </div>
             <p className="small">Проверка на противоречия между разными ответами и блоками интервью.</p>
           </div>
 
           <div className="cabinet-v2-status">
-            <div className="cabinet-v2-status-top"><h2 className="h3">Дневной ритм</h2><span className="cabinet-v2-score">{completed}/{tasks.length}</span></div>
-            <div className="cabinet-v2-progress"><div style={{ width: `${(completed / Math.max(tasks.length,1)) * 100}%` }} /></div>
+            <div className="cabinet-v2-status-top">
+              <h2 className="h3">Дневной ритм</h2>
+              <span className="cabinet-v2-score">
+                {completed}/{tasks.length}
+              </span>
+            </div>
+            <div className="cabinet-v2-progress">
+              <div style={{ width: `${(completed / Math.max(tasks.length, 1)) * 100}%` }} />
+            </div>
             <p className="small">Выполнение коротких ежедневных шагов повышает качество подготовки.</p>
           </div>
         </section>
@@ -205,7 +226,9 @@ export default function DashboardPage() {
               </label>
             ))}
           </div>
-          <p className="small">Выполнено: {completed}/{tasks.length}</p>
+          <p className="small">
+            Выполнено: {completed}/{tasks.length}
+          </p>
         </section>
       ) : null}
 
@@ -214,9 +237,15 @@ export default function DashboardPage() {
           <h2 className="h3">Тренировка интервью</h2>
 
           <div className="cabinet-v2-actions">
-            <Button variant="secondary" size="sm" onClick={() => quick("check")}>Проверить ответ</Button>
-            <Button variant="secondary" size="sm" onClick={() => quick("risk")}>Найти риски</Button>
-            <Button variant="secondary" size="sm" onClick={() => quick("strong")}>Усилить ответ</Button>
+            <Button variant="secondary" size="sm" onClick={() => quick("check")}>
+              Проверить ответ
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => quick("risk")}>
+              Найти риски
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => quick("strong")}>
+              Усилить ответ
+            </Button>
           </div>
 
           <div className="cabinet-v2-chat">
@@ -238,7 +267,11 @@ export default function DashboardPage() {
             <Button onClick={() => void send()} disabled={sending || !input.trim()}>
               {sending ? "Идет проверка..." : "Отправить ответ"}
             </Button>
-            {error ? <p className="help" style={{ color: "#9a4040" }}>{error}</p> : null}
+            {error ? (
+              <p className="help" style={{ color: "#9a4040" }}>
+                {error}
+              </p>
+            ) : null}
           </div>
         </section>
       ) : null}
@@ -247,10 +280,20 @@ export default function DashboardPage() {
         <section className="cabinet-v2-block" id="readiness">
           <h2 className="h3">Контроль готовности</h2>
           <div className="cabinet-v2-task-list">
-            <div className="cabinet-v2-task-item"><span>Общий прогресс: {readiness}/100</span></div>
-            <div className="cabinet-v2-task-item"><span>Стабильность ответов: {stability}%</span></div>
-            <div className="cabinet-v2-task-item"><span>Согласованность истории: {consistency}%</span></div>
-            <div className="cabinet-v2-task-item"><span>Шагов выполнено: {completed}/{tasks.length}</span></div>
+            <div className="cabinet-v2-task-item">
+              <span>Общий прогресс: {readiness}/100</span>
+            </div>
+            <div className="cabinet-v2-task-item">
+              <span>Стабильность ответов: {stability}%</span>
+            </div>
+            <div className="cabinet-v2-task-item">
+              <span>Согласованность истории: {consistency}%</span>
+            </div>
+            <div className="cabinet-v2-task-item">
+              <span>
+                Шагов выполнено: {completed}/{tasks.length}
+              </span>
+            </div>
           </div>
           <p className="small">Если все показатели выше 75, можно переходить к финальному прогону интервью.</p>
         </section>
