@@ -1,6 +1,9 @@
+<<<<<<< codex/fix-column-height-discrepancy-kfvrsw
 from secrets import token_urlsafe
 from typing import Literal
 
+=======
+>>>>>>> main
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -44,6 +47,31 @@ class PublicCheckoutOut(BaseModel):
     order_id: str
     checkout_session_id: str
     checkout_url: str | None
+
+
+def detect_plan(payload: DiagnosticSubmitIn) -> str:
+    text = " ".join(payload.reasons + [payload.other_reason or "", payload.situation, payload.history, payload.goal]).lower()
+    intense_keywords = ["повтор", "отказ", "сложно", "долго", "стресс", "срочно", "конфликт", "инцидент"]
+    pro_keywords = ["документ", "план", "трениров", "ошиб", "формулиров", "подготов"]
+
+    if any(k in text for k in intense_keywords):
+        return "intensive"
+    if any(k in text for k in pro_keywords):
+        return "pro"
+    return "start"
+
+
+class DiagnosticSubmitIn(BaseModel):
+    reasons: list[str] = Field(default_factory=list, min_length=1, max_length=2)
+    other_reason: str | None = Field(default=None, max_length=120)
+    situation: str = Field(min_length=12, max_length=2000)
+    history: str = Field(min_length=12, max_length=2000)
+    goal: str = Field(min_length=8, max_length=2000)
+
+
+class DiagnosticSubmitOut(BaseModel):
+    id: str
+    recommended_plan: str
 
 
 def detect_plan(payload: DiagnosticSubmitIn) -> str:
@@ -102,6 +130,7 @@ def submit_diagnostic(payload: DiagnosticSubmitIn, request: Request, db: Session
     )
     db.commit()
     return DiagnosticSubmitOut(id=str(row.id), recommended_plan=row.recommended_plan)
+<<<<<<< codex/fix-column-height-discrepancy-kfvrsw
 
 
 @router.post("/checkout", response_model=PublicCheckoutOut)
@@ -150,3 +179,5 @@ def public_checkout(payload: PublicCheckoutIn, db: Session = Depends(get_db)):
         checkout_session_id=session["id"],
         checkout_url=session.get("url"),
     )
+=======
+>>>>>>> main
