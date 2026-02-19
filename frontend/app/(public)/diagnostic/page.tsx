@@ -48,6 +48,10 @@ export default function DiagnosticPage() {
   const [history, setHistory] = useState("");
   const [goal, setGoal] = useState("");
   const [done, setDone] = useState(false);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [resultPlan, setResultPlan] = useState<PlanKey | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -112,14 +116,49 @@ export default function DiagnosticPage() {
     });
   };
 
-  const saveResult = () => {
+  const saveResult = async () => {
     if (typeof window === "undefined") return;
-    localStorage.setItem(
-      "diagnostic_answers",
-      JSON.stringify({ reasons, otherReason, situation, history, goal }),
-    );
-    localStorage.setItem("recommended_plan", recommended);
-    setDone(true);
+    setIsSaving(true);
+    setSubmitError(null);
+
+    const payload = {
+      reasons,
+      other_reason: otherReason || null,
+      situation,
+      history,
+      goal,
+    };
+
+    try {
+      const publicApiBase = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
+      const apiUrl = publicApiBase ? `${publicApiBase}/api/public/diagnostic` : "/api/public/diagnostic";
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || `HTTP ${res.status}`);
+      }
+
+      const data = (await res.json()) as { id: string; recommended_plan: PlanKey };
+
+      localStorage.setItem(
+        "diagnostic_answers",
+        JSON.stringify({ reasons, otherReason, situation, history, goal }),
+      );
+      localStorage.setItem("recommended_plan", data.recommended_plan ?? recommended);
+      localStorage.setItem("diagnostic_submission_id", data.id);
+      setSubmissionId(data.id);
+      setResultPlan(data.recommended_plan ?? recommended);
+      setDone(true);
+    } catch {
+      setSubmitError("Не удалось сохранить диагностику на сервере. Проверьте подключение и попробуйте снова.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -222,9 +261,11 @@ export default function DiagnosticPage() {
             {step < STEP_TITLES.length - 1 ? (
               <Button disabled={!canNext} onClick={() => setStep((v) => Math.min(STEP_TITLES.length - 1, v + 1))}>Далее</Button>
             ) : (
-              <Button disabled={!canNext} onClick={saveResult}>Показать результат</Button>
+              <Button disabled={!canNext || isSaving} onClick={saveResult}>{isSaving ? "Сохраняем..." : "Показать результат"}</Button>
             )}
           </div>
+
+          {submitError ? <p className="help mt-8">{submitError}</p> : null}
         </article>
 
         <aside className="card pad diagnostic-side">
@@ -252,11 +293,12 @@ export default function DiagnosticPage() {
         <section className="card pad soft">
           <h2 className="h3">Результат диагностики</h2>
           <p className="p mt-10">
-            Рекомендуемый формат подготовки: <strong>{recommended === "start" ? "Start" : recommended === "pro" ? "Pro" : "Intensive"}</strong>.
+            Рекомендуемый формат подготовки: <strong>{(resultPlan ?? recommended) === "start" ? "Start" : (resultPlan ?? recommended) === "pro" ? "Pro" : "Intensive"}</strong>.
             Вы можете перейти к оплате или выбрать другой вариант вручную.
           </p>
+          {submissionId ? <p className="help mt-8">ID диагностики: {submissionId}</p> : null}
           <div className="hero-actions">
-            <Link href={`/pricing?plan=${recommended}`}><Button>Выбрать формат и оплатить</Button></Link>
+            <Link href={`/pricing?plan=${resultPlan ?? recommended}`}><Button>Выбрать формат и оплатить</Button></Link>
             <Link href="/pricing"><Button variant="secondary">Смотреть все тарифы</Button></Link>
           </div>
         </section>
