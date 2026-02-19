@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { toPublicApiUrl } from "@/lib/public-api-base";
 
 type PlanKey = "start" | "pro" | "intensive";
 
@@ -115,8 +116,7 @@ export default function PricingPage() {
 
     setLoadingPlan(plan);
     try {
-      const publicApiBase = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
-      const apiUrl = publicApiBase ? `${publicApiBase}/api/public/checkout` : "/api/public/checkout";
+      const apiUrl = toPublicApiUrl("/api/public/checkout");
       const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

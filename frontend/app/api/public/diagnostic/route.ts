@@ -9,7 +9,6 @@ function resolveBackendCandidates(): string[] {
   };
 
   add(process.env.BACKEND_API_BASE_URL);
-  add(process.env.NEXT_PUBLIC_API_BASE_URL);
 
   // Safe fallbacks for local/dev/container topologies.
   add("http://localhost:8000");
