@@ -26,7 +26,6 @@ def _upsert(code: str, plan: str, name: str, price_cents: int) -> None:
     upsert_stmt = sa.text(
         """
             INSERT INTO products (id, code, type, name_de, name_en, price_cents, currency, stripe_price_id, metadata, active)
-<<<<<<< codex/fix-sql-syntax-error-in-migration-m1f69j
             VALUES (
               :id,
               :code,
@@ -39,9 +38,6 @@ def _upsert(code: str, plan: str, name: str, price_cents: int) -> None:
               jsonb_build_object('plan', :plan, 'seed_tag', :seed_tag),
               true
             )
-=======
-            VALUES (:id, :code, 'program', :name, :name, :price_cents, 'EUR', NULL, :metadata, true)
->>>>>>> main
             ON CONFLICT (code) DO UPDATE SET
               type = CASE WHEN products.type IS NULL OR products.type = '' THEN EXCLUDED.type ELSE products.type END,
               name_de = CASE WHEN products.name_de IS NULL OR products.name_de = '' THEN EXCLUDED.name_de ELSE products.name_de END,
@@ -67,10 +63,6 @@ def _upsert(code: str, plan: str, name: str, price_cents: int) -> None:
             "name": name,
             "price_cents": price_cents,
             "seed_tag": SEED_TAG,
-<<<<<<< codex/fix-sql-syntax-error-in-migration-m1f69j
-=======
-            "metadata": json.dumps({"plan": plan, "seed_tag": SEED_TAG}),
->>>>>>> main
         },
     )
 
