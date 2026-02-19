@@ -139,16 +139,24 @@ export default function DashboardPage() {
 
     try {
       const apiUrl = toPublicApiUrl("/api/public/therapy");
-      const res = await fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: trimmed,
-          diagnostic_submission_id: submissionId,
-          locale: "ru",
-          history: nextMessages.slice(-12).map((m) => ({ role: m.role, content: m.content })),
-        }),
-      });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 12000);
+      let res: Response;
+      try {
+        res = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: trimmed,
+            diagnostic_submission_id: submissionId,
+            locale: "ru",
+            history: nextMessages.slice(-12).map((m) => ({ role: m.role, content: m.content })),
+          }),
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
 
       if (!res.ok) {
         const errText = await res.text();
