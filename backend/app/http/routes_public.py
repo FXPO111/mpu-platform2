@@ -1,9 +1,6 @@
-<<<<<<< codex/fix-column-height-discrepancy-kfvrsw
 from secrets import token_urlsafe
 from typing import Literal
 
-=======
->>>>>>> main
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -50,32 +47,9 @@ class PublicCheckoutOut(BaseModel):
 
 
 def detect_plan(payload: DiagnosticSubmitIn) -> str:
-    text = " ".join(payload.reasons + [payload.other_reason or "", payload.situation, payload.history, payload.goal]).lower()
-    intense_keywords = ["повтор", "отказ", "сложно", "долго", "стресс", "срочно", "конфликт", "инцидент"]
-    pro_keywords = ["документ", "план", "трениров", "ошиб", "формулиров", "подготов"]
-
-    if any(k in text for k in intense_keywords):
-        return "intensive"
-    if any(k in text for k in pro_keywords):
-        return "pro"
-    return "start"
-
-
-class DiagnosticSubmitIn(BaseModel):
-    reasons: list[str] = Field(default_factory=list, min_length=1, max_length=2)
-    other_reason: str | None = Field(default=None, max_length=120)
-    situation: str = Field(min_length=12, max_length=2000)
-    history: str = Field(min_length=12, max_length=2000)
-    goal: str = Field(min_length=8, max_length=2000)
-
-
-class DiagnosticSubmitOut(BaseModel):
-    id: str
-    recommended_plan: str
-
-
-def detect_plan(payload: DiagnosticSubmitIn) -> str:
-    text = " ".join(payload.reasons + [payload.other_reason or "", payload.situation, payload.history, payload.goal]).lower()
+    text = " ".join(
+        payload.reasons + [payload.other_reason or "", payload.situation, payload.history, payload.goal]
+    ).lower()
     intense_keywords = ["повтор", "отказ", "сложно", "долго", "стресс", "срочно", "конфликт", "инцидент"]
     pro_keywords = ["документ", "план", "трениров", "ошиб", "формулиров", "подготов"]
 
@@ -102,14 +76,29 @@ def expert():
 def products(db: Session = Depends(get_db)):
     repo = Repo(db)
     rows = repo.list_products()
-    return {"data": [{"id": str(p.id), "code": p.code, "price_cents": p.price_cents, "currency": p.currency, "type": p.type} for p in rows]}
+    return {
+        "data": [
+            {"id": str(p.id), "code": p.code, "price_cents": p.price_cents, "currency": p.currency, "type": p.type}
+            for p in rows
+        ]
+    }
 
 
 @router.get("/slots")
 def slots(db: Session = Depends(get_db)):
     repo = Repo(db)
     rows = repo.list_open_slots()
-    return {"data": [{"id": str(s.id), "starts_at_utc": s.starts_at_utc.isoformat(), "duration_min": s.duration_min, "title": s.title} for s in rows]}
+    return {
+        "data": [
+            {
+                "id": str(s.id),
+                "starts_at_utc": s.starts_at_utc.isoformat(),
+                "duration_min": s.duration_min,
+                "title": s.title,
+            }
+            for s in rows
+        ]
+    }
 
 
 @router.post("/diagnostic", response_model=DiagnosticSubmitOut)
@@ -130,7 +119,6 @@ def submit_diagnostic(payload: DiagnosticSubmitIn, request: Request, db: Session
     )
     db.commit()
     return DiagnosticSubmitOut(id=str(row.id), recommended_plan=row.recommended_plan)
-<<<<<<< codex/fix-column-height-discrepancy-kfvrsw
 
 
 @router.post("/checkout", response_model=PublicCheckoutOut)
@@ -179,5 +167,3 @@ def public_checkout(payload: PublicCheckoutIn, db: Session = Depends(get_db)):
         checkout_session_id=session["id"],
         checkout_url=session.get("url"),
     )
-=======
->>>>>>> main
