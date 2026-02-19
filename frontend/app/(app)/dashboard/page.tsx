@@ -60,7 +60,13 @@ export default function DashboardPage() {
       }
     }
 
-    setMessages([{ id: "m0", role: "assistant", content: "Начнем. Расскажите коротко, что изменилось в вашей жизни за последний год." }]);
+    setMessages([
+      {
+        id: "m0",
+        role: "assistant",
+        content: "Начнем. Расскажите коротко, что изменилось в вашей жизни за последний год.",
+      },
+    ]);
     setTasks([
       { id: "t1", text: "Короткий ответ о причинах прошлых ошибок", done: false },
       { id: "t2", text: "Ответ о том, что конкретно изменилось", done: false },
@@ -90,6 +96,7 @@ export default function DashboardPage() {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 12000);
       let res: Response;
+
       try {
         res = await fetch(toPublicApiUrl("/api/public/therapy"), {
           method: "POST",
@@ -174,17 +181,27 @@ export default function DashboardPage() {
               </label>
             ))}
           </div>
-          <p className="small">Выполнено: {completed}/{tasks.length}</p>
+          <p className="small">
+            Выполнено: {completed}/{tasks.length}
+          </p>
         </section>
 
         <section className="cabinet-v2-block" id="training">
           <h2 className="h3">Тренировка интервью</h2>
 
           <div className="cabinet-v2-actions">
-            <Button variant="secondary" size="sm" onClick={() => quick("sample")}>Пример</Button>
-            <Button variant="secondary" size="sm" onClick={() => quick("check")}>Проверить</Button>
-            <Button variant="secondary" size="sm" onClick={() => quick("short")}>Короче</Button>
-            <Button variant="secondary" size="sm" onClick={() => quick("de")}>На немецкий</Button>
+            <Button variant="secondary" size="sm" onClick={() => quick("sample")}>
+              Пример
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => quick("check")}>
+              Проверить
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => quick("short")}>
+              Короче
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => quick("de")}>
+              На немецкий
+            </Button>
           </div>
 
           <div className="cabinet-v2-chat">
@@ -206,7 +223,11 @@ export default function DashboardPage() {
             <Button onClick={() => void send()} disabled={sending || !input.trim()}>
               {sending ? "Идет проверка..." : "Отправить ответ"}
             </Button>
-            {error ? <p className="help" style={{ color: "#9a4040" }}>{error}</p> : null}
+            {error ? (
+              <p className="help" style={{ color: "#9a4040" }}>
+                {error}
+              </p>
+            ) : null}
           </div>
         </section>
       </div>
