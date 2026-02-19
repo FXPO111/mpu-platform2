@@ -39,7 +39,9 @@ export default function DiagnosticPage() {
     <div className="public-page-stack">
       <section className="card pad">
         <h1 className="h2">Диагностика</h1>
-        <p className="p mt-8">Шаг {i + 1} из {STEPS.length} • {progress}%</p>
+        <p className="p mt-8">
+          Шаг {i + 1} из {STEPS.length} • {progress}%
+        </p>
 
         <h2 className="h3 mt-12">{step.title}</h2>
         <p className="small mt-8">{step.hint}</p>
@@ -85,8 +87,12 @@ export default function DiagnosticPage() {
             Вы можете перейти к оплате или выбрать другой вариант вручную.
           </p>
           <div className="hero-actions">
-            <Link href={`/pricing?plan=${recommended}`}><Button>Выбрать формат и оплатить</Button></Link>
-            <Link href="/pricing"><Button variant="secondary">Смотреть все тарифы</Button></Link>
+            <Link href={`/pricing?plan=${recommended}`}>
+              <Button>Выбрать формат и оплатить</Button>
+            </Link>
+            <Link href="/pricing">
+              <Button variant="secondary">Смотреть все тарифы</Button>
+            </Link>
           </div>
         </section>
       ) : null}

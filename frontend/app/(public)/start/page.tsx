@@ -41,19 +41,12 @@ export default function StartPage() {
         </div>
 
         <div className="hero-actions">
-          <Button
-            variant="ghost"
-            disabled={i === 0}
-            onClick={() => setI((v) => Math.max(0, v - 1))}
-          >
+          <Button variant="ghost" disabled={i === 0} onClick={() => setI((v) => Math.max(0, v - 1))}>
             Назад
           </Button>
 
           {i < STEPS.length - 1 ? (
-            <Button
-              disabled={!canNext}
-              onClick={() => setI((v) => Math.min(STEPS.length - 1, v + 1))}
-            >
+            <Button disabled={!canNext} onClick={() => setI((v) => Math.min(STEPS.length - 1, v + 1))}>
               Далее
             </Button>
           ) : (
@@ -74,8 +67,8 @@ export default function StartPage() {
         <section className="card pad soft">
           <div className="badge">Диагностика сохранена</div>
           <p className="p mt-10">
-            Следующий шаг — выбор пакета. На основе диагностики маршрут подготовки уже сформирован,
-            после оплаты активируется полный доступ к программе.
+            Следующий шаг — выбор пакета. На основе диагностики маршрут подготовки уже сформирован, после оплаты
+            активируется полный доступ к программе.
           </p>
           <div className="hero-actions">
             <Link href="/pricing">

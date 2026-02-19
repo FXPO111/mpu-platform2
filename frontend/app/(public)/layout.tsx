@@ -58,20 +58,27 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="header-actions">
-            <Link href="/diagnostic"><Button size="sm">Начать диагностику</Button></Link>
-            <Link href="/#pricing"><Button variant="secondary" size="sm">Тарифы</Button></Link>
+            <Link href="/diagnostic">
+              <Button size="sm">Начать диагностику</Button>
+            </Link>
+            <Link href="/#pricing">
+              <Button variant="secondary" size="sm">
+                Тарифы
+              </Button>
+            </Link>
           </div>
         </div>
       </header>
 
-      <main className="container page">{children}</main>
+      <main className="container page public-design-refactor">{children}</main>
 
       <footer className="container footer" id="contacts">
         <div className="footer-grid">
           <div>
             <div className="badge">Контакты</div>
             <div className="p mt-10">
-              <a href="tel:+491752730963">+49 175 27 30 963</a><br />
+              <a href="tel:+491752730963">+49 175 27 30 963</a>
+              <br />
               <a href="mailto:info@mpu-praxis-dp.de">info@mpu-praxis-dp.de</a>
             </div>
             <div className="p mt-10">Viktoriastraße 32-36, 56068 Koblenz</div>
@@ -81,7 +88,9 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
             <div className="badge">Продукт</div>
             <div className="footer-links">
               {PRODUCT_LINKS.map((item) => (
-                <Link className="navlink" key={item.href} href={item.href}>{item.label}</Link>
+                <Link className="navlink" key={item.href} href={item.href}>
+                  {item.label}
+                </Link>
               ))}
             </div>
           </div>
@@ -90,7 +99,9 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
             <div className="badge">Юридическое</div>
             <div className="footer-links">
               {LEGAL_LINKS.map((item) => (
-                <Link className="navlink" key={item.href} href={item.href}>{item.label}</Link>
+                <Link className="navlink" key={item.href} href={item.href}>
+                  {item.label}
+                </Link>
               ))}
             </div>
           </div>

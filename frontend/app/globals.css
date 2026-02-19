@@ -1926,3 +1926,388 @@ body{
   .premium-hero-title{ max-width: 100% !important; }
   .process-grid-wide .journey-card{ min-height: auto !important; }
 }
+
+/* ---------------------------
+   27. THEME ROUTING (scoped)
+   - default styles remain untouched for app-shell/admin
+   - warm/light only apply when body class is present
+--------------------------- */
+
+body.theme-warm{
+  --r-xs: 8px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 22px;
+
+  --text: #edf7f1;
+  --muted: rgba(237,247,241,.72);
+  --muted2: rgba(237,247,241,.58);
+
+  --green: #5fe06a;
+  --green-2: #39c559;
+  --yellow: #f0d85b;
+
+  --ring: 0 0 0 3px rgba(95,224,106,.16), 0 0 0 6px rgba(240,216,91,.07);
+
+  background-attachment: fixed;
+  background:
+    radial-gradient(980px 620px at 12% 6%, rgba(95,224,106,.14), transparent 62%),
+    radial-gradient(880px 560px at 86% 0%, rgba(240,216,91,.12), transparent 58%),
+    radial-gradient(920px 700px at 68% 92%, rgba(95,224,106,.10), transparent 64%),
+    radial-gradient(1200px 760px at 50% 42%, rgba(0,0,0,0), rgba(0,0,0,.46)),
+    linear-gradient(180deg, #0b1410, #101a14 56%, #0d1712);
+}
+
+/* ---------------------------
+   28. LIGHT PUBLIC THEME (prod)
+--------------------------- */
+body.theme-light{
+  color-scheme: light;
+
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+
+  --bg0: #F6FAF7;
+  --bg1: #EEF6F0;
+  --bg2: #E8F1EA;
+
+  --text: #0B1A12;
+  --muted: #3A4B41;
+  --muted2: #607267;
+
+  --panel-0: rgba(255,255,255,.92);
+  --panel-1: rgba(255,255,255,.78);
+  --panel-2: rgba(255,255,255,.62);
+
+  --stroke-0: rgba(10,20,14,.10);
+  --stroke-1: rgba(10,20,14,.14);
+
+  --green: #22c55e;
+  --green-2: #16a34a;
+  --yellow: #facc15;
+
+  color: var(--text);
+  background:
+    radial-gradient(1100px 700px at 8% 0%, rgba(34,197,94,.10), transparent 70%),
+    radial-gradient(900px 620px at 92% 0%, rgba(250,204,21,.12), transparent 72%),
+    linear-gradient(180deg, var(--bg0), var(--bg1) 54%, var(--bg2));
+}
+
+body.theme-light .public-header{
+  background: rgba(255,255,255,.75);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--stroke-0);
+}
+
+body.theme-light .topstrip{
+  background: rgba(255,255,255,.68);
+  border-bottom: 1px solid var(--stroke-0);
+}
+
+body.theme-light .topstrip-inner,
+body.theme-light .brand,
+body.theme-light .navlink,
+body.theme-light .footer,
+body.theme-light .footer a{
+  color: var(--text);
+}
+
+body.theme-light .navlink{
+  border-color: transparent;
+}
+
+body.theme-light .navlink:hover{
+  background: rgba(34,197,94,.10);
+  border-color: rgba(10,20,14,.08);
+}
+
+body.theme-light .navlink.active{
+  background: rgba(34,197,94,.16);
+  border-color: rgba(34,197,94,.25);
+  box-shadow: none;
+}
+
+body.theme-light .public-page-stack,
+body.theme-light .premium-home{
+  gap: 28px;
+}
+
+body.theme-light .card,
+body.theme-light .journey-card,
+body.theme-light .faq-acc-item,
+body.theme-light .clean-plan,
+body.theme-light .premium-hero,
+body.theme-light .pricing-clean-hero,
+body.theme-light .premium-cta,
+body.theme-light .faq-item,
+body.theme-light .step{
+  background: var(--panel-0) !important;
+  border: 1px solid var(--stroke-0) !important;
+  box-shadow: 0 8px 22px rgba(12,28,18,.08) !important;
+  border-radius: var(--r-lg) !important;
+}
+
+body.theme-light .card:hover,
+body.theme-light .journey-card:hover,
+body.theme-light .clean-plan:hover,
+body.theme-light .faq-acc-item:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(12,28,18,.12) !important;
+}
+
+body.theme-light .card::before{ display: none; }
+
+body.theme-light .h1,
+body.theme-light .h2,
+body.theme-light .h3,
+body.theme-light .faq-q,
+body.theme-light .plan-price,
+body.theme-light .journey-num{
+  color: var(--text);
+}
+
+body.theme-light .lead{
+  color: var(--muted);
+  font-weight: 500;
+}
+
+body.theme-light .small,
+body.theme-light .p,
+body.theme-light .faq-a,
+body.theme-light .faq-acc-body,
+body.theme-light .faq-acc-body-long,
+body.theme-light .process-copy{
+  color: var(--muted);
+}
+
+body.theme-light .premium-hero{
+  background:
+    radial-gradient(560px 220px at 0% 100%, rgba(34,197,94,.10), transparent 72%),
+    radial-gradient(520px 220px at 100% 0%, rgba(250,204,21,.13), transparent 70%),
+    var(--panel-0) !important;
+}
+
+body.theme-light .premium-hero-title{
+  max-width: 30ch;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+}
+
+body.theme-light .premium-hero-sub{
+  max-width: 68ch;
+  margin-inline: auto;
+}
+
+body.theme-light .hero-actions-clean{
+  justify-content: flex-start;
+}
+
+body.theme-light .btn,
+body.theme-light .btn-hero-flat{
+  border-radius: var(--r-sm) !important;
+}
+
+body.theme-light .btn-primary{
+  background: var(--green) !important;
+  color: #fff !important;
+  border-color: color-mix(in oklab, var(--green) 72%, #0b1a12);
+  box-shadow: 0 8px 18px rgba(22,163,74,.22) !important;
+}
+
+body.theme-light .btn-primary:hover{
+  background: color-mix(in oklab, var(--green-2) 88%, black) !important;
+}
+
+body.theme-light .btn-secondary,
+body.theme-light .btn-ghost{
+  background: rgba(255,255,255,.9) !important;
+  color: var(--text) !important;
+  border-color: var(--stroke-1) !important;
+}
+
+body.theme-light .btn-secondary:hover,
+body.theme-light .btn-ghost:hover{
+  background: rgba(34,197,94,.08) !important;
+}
+
+body.theme-light .faq-accordion{ gap: 12px; }
+
+body.theme-light .faq-acc-item{
+  background: rgba(255,255,255,.94) !important;
+}
+
+body.theme-light .faq-acc-btn{
+  color: var(--text);
+}
+
+body.theme-light .faq-acc-btn:hover,
+body.theme-light .faq-acc-item:has(.faq-chevron.open) .faq-acc-btn{
+  background: rgba(34,197,94,.06);
+}
+
+body.theme-light .faq-chevron-wrap{
+  border-color: rgba(10,20,14,.14);
+  background: rgba(255,255,255,.9);
+}
+
+body.theme-light .footer{
+  border-top: 1px solid var(--stroke-0);
+}
+
+@media (max-width: 980px){
+  body.theme-light .premium-hero-title{ max-width: 100%; }
+  body.theme-light .public-page-stack,
+  body.theme-light .premium-home{ gap: 22px; }
+}
+
+/* 29. PUBLIC AUTO LIGHT THEME (improvised production pass) */
+body:has(main.public-design-refactor){
+  color-scheme: light;
+  background:
+    radial-gradient(1200px 700px at 8% -6%, rgba(34,197,94,.14), transparent 72%),
+    radial-gradient(900px 620px at 92% -10%, rgba(250,204,21,.16), transparent 72%),
+    linear-gradient(180deg, #f8fcf9 0%, #eef6f0 56%, #e7f0e9 100%) !important;
+  color: #0b1a12;
+}
+
+body:has(main.public-design-refactor) .public-header,
+body:has(main.public-design-refactor) .topstrip,
+body:has(main.public-design-refactor) .public-header-inner{
+  background: rgba(255,255,255,.84) !important;
+  backdrop-filter: blur(10px);
+  border-color: rgba(10,20,14,.12) !important;
+}
+
+body:has(main.public-design-refactor) .topstrip-inner,
+body:has(main.public-design-refactor) .brand,
+body:has(main.public-design-refactor) .navlink,
+body:has(main.public-design-refactor) .h1,
+body:has(main.public-design-refactor) .h2,
+body:has(main.public-design-refactor) .h3,
+body:has(main.public-design-refactor) .faq-q,
+body:has(main.public-design-refactor) .plan-price,
+body:has(main.public-design-refactor) .p,
+body:has(main.public-design-refactor) .small,
+body:has(main.public-design-refactor) .lead,
+body:has(main.public-design-refactor) .faq-a,
+body:has(main.public-design-refactor) .faq-acc-body,
+body:has(main.public-design-refactor) .faq-acc-body-long,
+body:has(main.public-design-refactor) .footer,
+body:has(main.public-design-refactor) .footer a{
+  color: #102118 !important;
+}
+
+body:has(main.public-design-refactor) .lead,
+body:has(main.public-design-refactor) .small,
+body:has(main.public-design-refactor) .faq-a,
+body:has(main.public-design-refactor) .faq-acc-body,
+body:has(main.public-design-refactor) .faq-acc-body-long{
+  color: #3f5348 !important;
+}
+
+body:has(main.public-design-refactor) .public-page-stack,
+body:has(main.public-design-refactor) .premium-home{
+  gap: 30px !important;
+}
+
+body:has(main.public-design-refactor) .card,
+body:has(main.public-design-refactor) .journey-card,
+body:has(main.public-design-refactor) .faq-acc-item,
+body:has(main.public-design-refactor) .clean-plan,
+body:has(main.public-design-refactor) .premium-hero,
+body:has(main.public-design-refactor) .pricing-clean-hero,
+body:has(main.public-design-refactor) .premium-cta,
+body:has(main.public-design-refactor) .faq-item,
+body:has(main.public-design-refactor) .step{
+  background: rgba(255,255,255,.9) !important;
+  border: 1px solid rgba(10,20,14,.1) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 24px rgba(10,30,18,.10) !important;
+}
+
+body:has(main.public-design-refactor) .premium-hero{
+  background:
+    radial-gradient(620px 220px at 0% 100%, rgba(34,197,94,.11), transparent 70%),
+    radial-gradient(520px 220px at 100% 0%, rgba(250,204,21,.14), transparent 70%),
+    rgba(255,255,255,.94) !important;
+}
+
+body:has(main.public-design-refactor) .premium-hero.premium-hero-compact{
+  padding: 42px !important;
+}
+
+body:has(main.public-design-refactor) .premium-hero-title{
+  max-width: 31ch !important;
+  font-size: clamp(34px, 3.2vw, 50px) !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.018em !important;
+}
+
+body:has(main.public-design-refactor) .premium-hero-sub{
+  max-width: 70ch !important;
+  color: #42564a !important;
+}
+
+body:has(main.public-design-refactor) .btn,
+body:has(main.public-design-refactor) .btn-hero-flat{
+  border-radius: 10px !important;
+}
+
+body:has(main.public-design-refactor) .btn-primary{
+  background: #22c55e !important;
+  color: #fff !important;
+  border-color: #16a34a !important;
+  box-shadow: 0 10px 20px rgba(22,163,74,.22) !important;
+}
+
+body:has(main.public-design-refactor) .btn-primary:hover{
+  background: #16a34a !important;
+}
+
+body:has(main.public-design-refactor) .btn-secondary,
+body:has(main.public-design-refactor) .btn-ghost{
+  background: rgba(255,255,255,.95) !important;
+  border-color: rgba(10,20,14,.16) !important;
+  color: #0f1f16 !important;
+}
+
+body:has(main.public-design-refactor) .btn-secondary:hover,
+body:has(main.public-design-refactor) .btn-ghost:hover,
+body:has(main.public-design-refactor) .navlink:hover{
+  background: rgba(34,197,94,.10) !important;
+}
+
+body:has(main.public-design-refactor) .navlink.active{
+  background: rgba(34,197,94,.16) !important;
+  border-color: rgba(34,197,94,.25) !important;
+  box-shadow: none !important;
+}
+
+body:has(main.public-design-refactor) .faq-acc-item{
+  background: rgba(255,255,255,.96) !important;
+}
+
+body:has(main.public-design-refactor) .faq-acc-btn:hover,
+body:has(main.public-design-refactor) .faq-acc-item:has(.faq-chevron.open) .faq-acc-btn{
+  background: rgba(34,197,94,.07) !important;
+}
+
+body:has(main.public-design-refactor) .faq-acc-btn,
+body:has(main.public-design-refactor) .faq-acc-body,
+body:has(main.public-design-refactor) .faq-acc-body-long,
+body:has(main.public-design-refactor) .faq-q,
+body:has(main.public-design-refactor) .faq-a{
+  color: #0b1a12 !important;
+}
+
+body:has(main.public-design-refactor) .faq-chevron-wrap{
+  border-color: rgba(10,20,14,.16) !important;
+  background: rgba(255,255,255,.9) !important;
+}
+
+@media (max-width: 980px){
+  body:has(main.public-design-refactor) .premium-hero.premium-hero-compact{ padding: 24px !important; }
+  body:has(main.public-design-refactor) .premium-hero-title{ max-width: 100% !important; font-size: clamp(30px, 7vw, 40px) !important; }
+}
