@@ -6,9 +6,11 @@ Create Date: 2026-02-19
 """
 
 from uuid import uuid4
+import json
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 revision = "0003_seed_default_plan_products"
 down_revision = "0002_diagnostic_submissions"
@@ -21,9 +23,8 @@ SEED_TAG = "default_plans_v1"
 
 def _upsert(code: str, plan: str, name: str, price_cents: int) -> None:
     bind = op.get_bind()
-    bind.execute(
-        sa.text(
-            """
+    upsert_stmt = sa.text(
+        """
             INSERT INTO products (id, code, type, name_de, name_en, price_cents, currency, stripe_price_id, metadata, active)
             VALUES (
               :id,
@@ -49,7 +50,12 @@ def _upsert(code: str, plan: str, name: str, price_cents: int) -> None:
                    ),
               active = COALESCE(products.active, true)
             """
-        ),
+    ).bindparams(
+        sa.bindparam("id", type_=postgresql.UUID(as_uuid=False)),
+        sa.bindparam("metadata", type_=postgresql.JSONB),
+    )
+    bind.execute(
+        upsert_stmt,
         {
             "id": str(uuid4()),
             "code": code,
