@@ -25,16 +25,22 @@ services:
       context: ../backend
     volumes:
       - ../backend:/app
-    command: >-
-      bash -lc 'python - <<"PY"
-from pathlib import Path
-p = Path("/app/app/db/migrations/versions/0003_seed_default_plan_products.py")
-s = p.read_text(encoding="utf-8")
-if ".bindparams(" in s or "bindparam(\"metadata\"" in s:
-    raise SystemExit("Detected stale 0003 migration in container (/app). Recreate container from the correct repo checkout.")
-print("0003 migration sanity check passed")
-PY
-alembic upgrade head && if [ "$${AUTO_SEED:-0}" = "1" ]; then python -m app.seed --only-missing; fi && uvicorn app.main:app --host 0.0.0.0 --port 8000'
+    command:
+      - bash
+      - -lc
+      - |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('/app/app/db/migrations/versions/0003_seed_default_plan_products.py')
+          s = p.read_text(encoding='utf-8')
+          if '.bindparams(' in s or 'bindparam("metadata"' in s:
+              raise SystemExit(
+                  'Detected stale 0003 migration in container (/app). Recreate container from the correct repo checkout.'
+              )
+          print('0003 migration sanity check passed')
+          PY
+          alembic upgrade head && if [ "$${AUTO_SEED:-0}" = "1" ]; then python -m app.seed --only-missing; fi && uvicorn app.main:app --host 0.0.0.0 --port 8000
     environment:
       DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/mpu
       AUTO_SEED: ${AUTO_SEED:-0}
