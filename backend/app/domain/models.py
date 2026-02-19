@@ -207,6 +207,23 @@ class Booking(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)
 
 
+
+
+class DiagnosticSubmission(Base):
+    __tablename__ = "diagnostic_submissions"
+    __table_args__ = (Index("ix_diag_submission_created", "created_at"),)
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    reasons: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False, default=list)
+    other_reason: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    situation: Mapped[str] = mapped_column(Text, nullable=False)
+    history: Mapped[str] = mapped_column(Text, nullable=False)
+    goal: Mapped[str] = mapped_column(Text, nullable=False)
+    recommended_plan: Mapped[str] = mapped_column(String(32), nullable=False)
+    meta_json: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utcnow)
+
 class Product(Base):
     __tablename__ = "products"
 
