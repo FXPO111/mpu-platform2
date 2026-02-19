@@ -25,7 +25,7 @@ def _upsert(code: str, plan: str, name: str, price_cents: int) -> None:
         sa.text(
             """
             INSERT INTO products (id, code, type, name_de, name_en, price_cents, currency, stripe_price_id, metadata, active)
-            VALUES (:id::uuid, :code, 'program', :name, :name, :price_cents, 'EUR', NULL, :metadata::jsonb, true)
+            VALUES (CAST(:id AS uuid), :code, 'program', :name, :name, :price_cents, 'EUR', NULL, CAST(:metadata AS jsonb), true)
             ON CONFLICT (code) DO UPDATE SET
               type = CASE WHEN products.type IS NULL OR products.type = '' THEN EXCLUDED.type ELSE products.type END,
               name_de = CASE WHEN products.name_de IS NULL OR products.name_de = '' THEN EXCLUDED.name_de ELSE products.name_de END,
