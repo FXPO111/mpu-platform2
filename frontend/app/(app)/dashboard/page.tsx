@@ -1,294 +1,236 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { toPublicApiUrl } from "@/lib/public-api-base";
 
 type PlanKey = "start" | "pro" | "intensive";
+type ChatMessage = { id: string; role: "assistant" | "user"; content: string };
+type Task = { id: string; text: string; done: boolean };
 
-type DiagnosticAnswers = {
-  reasons?: string[];
-  otherReason?: string;
-  situation?: string;
-  history?: string;
-  goal?: string;
-};
-
-type ChatMessage = {
-  id: string;
-  role: "assistant" | "user";
-  content: string;
-};
-
-type TherapySessionState = {
-  messages: ChatMessage[];
-};
-
-const STORAGE_KEYS = {
-  diagnostic: "diagnostic_answers",
-  recommendedPlan: "recommended_plan",
+const STORAGE = {
   submissionId: "diagnostic_submission_id",
-  session: "therapy_session_v2",
+  plan: "recommended_plan",
+  session: "prep_session_v5",
+  diagnostic: "diagnostic_answers",
 };
 
-const PLAN_LABEL: Record<PlanKey, string> = {
-  start: "Start",
-  pro: "Pro",
-  intensive: "Intensive",
-};
+const PLAN_LABEL: Record<PlanKey, string> = { start: "Start", pro: "Pro", intensive: "Intensive" };
 
-function normalizePlan(value: string | null): PlanKey {
-  if (value === "start" || value === "pro" || value === "intensive") return value;
-  return "start";
-}
-
-function safeParseDiagnostic(raw: string | null): DiagnosticAnswers {
-  if (!raw) return {};
-  try {
-    return JSON.parse(raw) as DiagnosticAnswers;
-  } catch {
-    return {};
-  }
-}
-
-function buildFocus(diagnostic: DiagnosticAnswers): string[] {
-  const reasons = diagnostic.reasons ?? [];
-  return [
-    reasons[0] ? `Триггер: ${reasons[0]}` : "Триггер: эмоциональная перегрузка",
-    diagnostic.goal ? `Цель: ${diagnostic.goal}` : "Цель: стабильное состояние перед MPU",
-    diagnostic.situation ? "Разбор актуальной ситуации" : "Формирование безопасной поведенческой модели",
-  ];
-}
-
-function getInitialAssistantMessage(focus: string[]): ChatMessage {
-  return {
-    id: "assistant-initial",
-    role: "assistant",
-    content:
-      "Добро пожаловать в персональный терапевтический кабинет. Я ваш ИИ-специалист и веду полный индивидуальный прием. " +
-      `Сегодня начинаем с фокуса «${focus[0]}». Оцените состояние по шкале 1–10 и опишите, что сейчас тяжелее всего.`,
-  };
+function isUuid(v: string | null): boolean {
+  if (!v) return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
 }
 
 export default function DashboardPage() {
-  const [diagnostic, setDiagnostic] = useState<DiagnosticAnswers>({});
-  const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [plan, setPlan] = useState<PlanKey>("start");
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [input, setInput] = useState("");
-  const [isSending, setIsSending] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
-  const [riskLevel, setRiskLevel] = useState("moderate");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [readiness, setReadiness] = useState(48);
+  const [focus, setFocus] = useState("алкоголь");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const parsedDiagnostic = safeParseDiagnostic(localStorage.getItem(STORAGE_KEYS.diagnostic));
-    const storedPlan = normalizePlan(localStorage.getItem(STORAGE_KEYS.recommendedPlan));
-    const storedSubmissionId = localStorage.getItem(STORAGE_KEYS.submissionId);
+    const p = localStorage.getItem(STORAGE.plan);
+    if (p === "start" || p === "pro" || p === "intensive") setPlan(p);
+    setSubmissionId(localStorage.getItem(STORAGE.submissionId));
 
-    setDiagnostic(parsedDiagnostic);
-    setPlan(storedPlan);
-    setSubmissionId(storedSubmissionId);
+    try {
+      const d = JSON.parse(localStorage.getItem(STORAGE.diagnostic) || "{}") as { reasons?: string[] };
+      if (d.reasons?.[0]) setFocus(d.reasons[0].toLowerCase());
+    } catch {
+      // ignore broken diagnostic in storage
+    }
 
-    const focus = buildFocus(parsedDiagnostic);
-    const storedSession = localStorage.getItem(STORAGE_KEYS.session);
-    if (storedSession) {
+    const saved = localStorage.getItem(STORAGE.session);
+    if (saved) {
       try {
-        const parsed = JSON.parse(storedSession) as TherapySessionState;
-        if (parsed.messages?.length) {
-          setMessages(parsed.messages);
-          return;
-        }
+        const parsed = JSON.parse(saved) as { messages?: ChatMessage[]; tasks?: Task[]; readiness?: number };
+        if (parsed.messages?.length) setMessages(parsed.messages);
+        if (parsed.tasks?.length) setTasks(parsed.tasks);
+        if (typeof parsed.readiness === "number") setReadiness(parsed.readiness);
+        return;
       } catch {
-        // ignore broken state
+        // ignore broken session in storage
       }
     }
 
-    setMessages([getInitialAssistantMessage(focus)]);
+    setMessages([
+      {
+        id: "m0",
+        role: "assistant",
+        content: "Начнем. Расскажите коротко, что изменилось в вашей жизни за последний год.",
+      },
+    ]);
+    setTasks([
+      { id: "t1", text: "Короткий ответ о причинах прошлых ошибок", done: false },
+      { id: "t2", text: "Ответ о том, что конкретно изменилось", done: false },
+      { id: "t3", text: "Повтор ответа без пауз и противоречий", done: false },
+    ]);
   }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!messages.length) return;
-    localStorage.setItem(STORAGE_KEYS.session, JSON.stringify({ messages }));
-  }, [messages]);
+    if (!messages.length || !tasks.length) return;
+    localStorage.setItem(STORAGE.session, JSON.stringify({ messages, tasks, readiness }));
+  }, [messages, tasks, readiness]);
 
-  const focus = useMemo(() => buildFocus(diagnostic), [diagnostic]);
+  const completed = useMemo(() => tasks.filter((t) => t.done).length, [tasks]);
 
-  const hasDiagnostic = Boolean(
-    (diagnostic.reasons && diagnostic.reasons.length) || diagnostic.situation || diagnostic.history || diagnostic.goal,
-  );
+  const send = async (prefill?: string) => {
+    const text = (prefill ?? input).trim();
+    if (!text || sending) return;
 
-  const sendMessage = async () => {
-    const trimmed = input.trim();
-    if (!trimmed || isSending) return;
-
-    const userMessage: ChatMessage = {
-      id: `user-${Date.now()}`,
-      role: "user",
-      content: trimmed,
-    };
-
-    const nextMessages = [...messages, userMessage];
-    setMessages(nextMessages);
+    const next = [...messages, { id: `u-${Date.now()}`, role: "user" as const, content: text }];
+    setMessages(next);
     setInput("");
-    setIsSending(true);
-    setApiError(null);
+    setSending(true);
+    setError(null);
 
     try {
-      const apiUrl = toPublicApiUrl("/api/public/therapy");
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 12000);
+      const timer = setTimeout(() => controller.abort(), 12000);
       let res: Response;
+
       try {
-        res = await fetch(apiUrl, {
+        res = await fetch(toPublicApiUrl("/api/public/therapy"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            message: trimmed,
-            diagnostic_submission_id: submissionId,
+            message: text,
+            diagnostic_submission_id: isUuid(submissionId) ? submissionId : undefined,
             locale: "ru",
-            history: nextMessages.slice(-12).map((m) => ({ role: m.role, content: m.content })),
+            history: next.slice(-12).map((m) => ({ role: m.role, content: m.content })),
           }),
           signal: controller.signal,
         });
       } finally {
-        clearTimeout(timeout);
+        clearTimeout(timer);
       }
 
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || `HTTP ${res.status}`);
-      }
-
-      const data = (await res.json()) as { reply: string; plan: PlanKey; risk_level: string };
-
-      setRiskLevel(data.risk_level || "moderate");
-      if (data.plan === "start" || data.plan === "pro" || data.plan === "intensive") {
-        setPlan(data.plan);
-      }
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `assistant-${Date.now()}`,
-          role: "assistant",
-          content: data.reply,
-        },
-      ]);
+      if (!res.ok) throw new Error("bad_response");
+      const data = (await res.json()) as { reply: string };
+      setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: "assistant", content: data.reply }]);
+      setReadiness((v) => Math.min(100, v + 3));
     } catch {
-      setApiError("Не удалось получить ответ специалиста. Проверьте backend/OPENAI_API_KEY и повторите.");
+      setError("Сервис временно занят. Повторите через пару секунд.");
       setMessages((prev) => [
         ...prev,
-        {
-          id: `assistant-fallback-${Date.now()}`,
-          role: "assistant",
-          content:
-            "Сбой связи с сервером. Пока продолжим вручную: опишите одну конкретную ситуацию за последние 24 часа и ваше действие в этой ситуации.",
-        },
+        { id: `f-${Date.now()}`, role: "assistant", content: "Добавьте конкретные факты: сроки, действия и результат." },
       ]);
     } finally {
-      setIsSending(false);
+      setSending(false);
     }
   };
 
-  return (
-    <div style={{ display: "grid", gap: 16 }}>
-      <section className="card pad">
-        <div className="badge">После оплаты • Полноценный AI-прием</div>
-        <h1 className="h2" style={{ marginTop: 10 }}>Личный кабинет психологической терапии MPU</h1>
-        <p className="p" style={{ marginTop: 8 }}>
-          Это не демо: здесь идет реальная сессия через backend + GPT API по вашей диагностике.
-        </p>
+  const quick = (kind: "sample" | "check" | "short" | "de") => {
+    const map = {
+      sample: "Покажи пример ответа:",
+      check: "Проверь мой ответ:",
+      short: "Сделай мой ответ короче:",
+      de: "Переведи ответ на немецкий:",
+    } as const;
+    void send(`${map[kind]} ${input || "Мой ответ"}`);
+  };
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 14 }}>
+  return (
+    <main className="cabinet-v2-main">
+      <section className="cabinet-v2-hero">
+        <div>
+          <h1 className="cabinet-v2-title">Рабочий кабинет подготовки к MPU</h1>
+          <p className="cabinet-v2-subtitle">Все шаги подготовки в одном месте.</p>
+        </div>
+        <div className="cabinet-v2-chips">
           <span className="chip">План: {PLAN_LABEL[plan]}</span>
-          <span className="chip">Риск: {riskLevel === "high" ? "Высокий" : "Умеренный"}</span>
-          <span className="chip">Фокус: {focus[0]}</span>
-          {submissionId ? <span className="chip">ID диагностики: {submissionId}</span> : null}
+          <span className="chip">Этап: 2/4</span>
+          <span className="chip">Направление: {focus}</span>
         </div>
       </section>
 
-      {!hasDiagnostic ? (
-        <section className="card pad soft">
-          <h2 className="h3">Нет данных диагностики</h2>
-          <p className="p" style={{ marginTop: 8 }}>
-            Для персональной терапии сначала заполните диагностику, чтобы ИИ получил исходный клинический контекст.
+      <section className="cabinet-v2-status" id="readiness">
+        <div className="cabinet-v2-status-top">
+          <h2 className="h3">Статус подготовки</h2>
+          <span className="cabinet-v2-score">{readiness}/100</span>
+        </div>
+        <div className="cabinet-v2-progress">
+          <div style={{ width: `${readiness}%` }} />
+        </div>
+        <p className="small">Дальше: короткая тренировка и один уверенный повтор ответа.</p>
+      </section>
+
+      <div className="cabinet-v2-columns">
+        <section className="cabinet-v2-block" id="plan">
+          <h2 className="h3">План на сегодня</h2>
+          <div className="cabinet-v2-task-list">
+            {tasks.map((t) => (
+              <label key={t.id} className="cabinet-v2-task-item">
+                <input
+                  type="checkbox"
+                  checked={t.done}
+                  onChange={() => {
+                    setTasks((prev) => prev.map((x) => (x.id === t.id ? { ...x, done: !x.done } : x)));
+                    setReadiness((v) => Math.min(100, v + (t.done ? -2 : 2)));
+                  }}
+                />
+                <span>{t.text}</span>
+              </label>
+            ))}
+          </div>
+          <p className="small">
+            Выполнено: {completed}/{tasks.length}
           </p>
-          <div style={{ marginTop: 12 }}>
-            <Link href="/diagnostic">
-              <Button>Пройти диагностику</Button>
-            </Link>
-          </div>
-        </section>
-      ) : null}
-
-      <div className="grid2">
-        <section className="card pad">
-          <h2 className="h3">Клиническая карта случая</h2>
-          <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
-            {focus.map((item) => (
-              <div key={item} className="card pad" style={{ boxShadow: "none" }}>
-                <div className="badge">Терапевтический фокус</div>
-                <p className="p" style={{ marginTop: 8 }}>{item}</p>
-              </div>
-            ))}
-          </div>
-          <div className="hr" />
-          <div className="small">При признаках острого кризиса необходимо обращаться в экстренные службы по месту нахождения.</div>
         </section>
 
-        <section className="card pad">
-          <h2 className="h3">Сессия со специалистом AI</h2>
-          <div style={{ display: "grid", gap: 10, marginTop: 12, maxHeight: 430, overflow: "auto", paddingRight: 6 }}>
+        <section className="cabinet-v2-block" id="training">
+          <h2 className="h3">Тренировка интервью</h2>
+
+          <div className="cabinet-v2-actions">
+            <Button variant="secondary" size="sm" onClick={() => quick("sample")}>
+              Пример
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => quick("check")}>
+              Проверить
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => quick("short")}>
+              Короче
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => quick("de")}>
+              На немецкий
+            </Button>
+          </div>
+
+          <div className="cabinet-v2-chat">
             {messages.map((m) => (
-              <div
-                key={m.id}
-                className="card pad"
-                style={{
-                  boxShadow: "none",
-                  borderColor: m.role === "assistant" ? "rgba(34,197,94,.38)" : "rgba(255,255,255,.14)",
-                  background: m.role === "assistant" ? "rgba(34,197,94,.08)" : "rgba(255,255,255,.05)",
-                }}
-              >
-                <div className="badge">{m.role === "assistant" ? "AI-специалист" : "Вы"}</div>
-                <p className="p" style={{ marginTop: 8, whiteSpace: "pre-wrap" }}>{m.content}</p>
+              <div key={m.id} className="cabinet-v2-msg">
+                <div className="badge">{m.role === "assistant" ? "Эксперт" : "Вы"}</div>
+                <p className="p">{m.content}</p>
               </div>
             ))}
           </div>
 
-          <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+          <div className="cabinet-v2-input-wrap">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  void sendMessage();
-                }
-              }}
-              placeholder="Напишите состояние, мысли, эмоции, события и что хотите изменить..."
-              style={{
-                width: "100%",
-                minHeight: 110,
-                resize: "vertical",
-                borderRadius: 14,
-                border: "1px solid rgba(255,255,255,.14)",
-                background: "rgba(0,0,0,.26)",
-                color: "var(--text)",
-                padding: 12,
-                outline: "none",
-              }}
+              placeholder="Введите ваш ответ..."
+              className="cabinet-v2-input"
             />
-            <Button onClick={() => void sendMessage()} disabled={isSending || !input.trim()}>
-              {isSending ? "Специалист формирует ответ..." : "Отправить в терапию"}
+            <Button onClick={() => void send()} disabled={sending || !input.trim()}>
+              {sending ? "Идет проверка..." : "Отправить ответ"}
             </Button>
-            {apiError ? <p className="help">{apiError}</p> : null}
+            {error ? (
+              <p className="help" style={{ color: "#9a4040" }}>
+                {error}
+              </p>
+            ) : null}
           </div>
         </section>
       </div>
-    </div>
+    </main>
   );
 }

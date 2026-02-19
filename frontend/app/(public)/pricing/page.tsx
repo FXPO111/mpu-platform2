@@ -116,6 +116,9 @@ export default function PricingPage() {
 
     setLoadingPlan(plan);
     try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("checkout_email", normalizedEmail);
+      }
       const apiUrl = toPublicApiUrl("/api/public/checkout");
       const origin = typeof window !== "undefined" ? window.location.origin : "";
       const res = await fetch(apiUrl, {

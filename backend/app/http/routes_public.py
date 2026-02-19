@@ -176,28 +176,27 @@ def public_therapy_reply(payload: PublicTherapyReplyIn, db: Session = Depends(ge
     risk_level = "moderate"
 
     if payload.diagnostic_submission_id:
+        diag = None
         try:
             diag_id = UUID(payload.diagnostic_submission_id)
-        except ValueError as exc:
-            raise APIError("BAD_DIAGNOSTIC_ID", "Invalid diagnostic_submission_id", status_code=422) from exc
+            diag = repo.get_diagnostic_submission(diag_id)
+        except ValueError:
+            diag = None
 
-        diag = repo.get_diagnostic_submission(diag_id)
-        if not diag:
-            raise APIError("DIAGNOSTIC_NOT_FOUND", "Diagnostic submission not found", status_code=404)
-
-        diagnostic_context = {
-            "reasons": diag.reasons,
-            "goal": diag.goal,
-            "situation": diag.situation,
-            "history": diag.history,
-            "focus": [
-                f"Триггер: {diag.reasons[0]}" if diag.reasons else "Стабилизация",
-                f"Цель: {diag.goal[:160]}",
-                "Снижение риска срыва",
-            ],
-        }
-        plan = diag.recommended_plan
-        risk_level = "high" if len(diag.history or "") > 160 else "moderate"
+        if diag:
+            diagnostic_context = {
+                "reasons": diag.reasons,
+                "goal": diag.goal,
+                "situation": diag.situation,
+                "history": diag.history,
+                "focus": [
+                    f"Триггер: {diag.reasons[0]}" if diag.reasons else "Стабилизация",
+                    f"Цель: {diag.goal[:160]}",
+                    "Снижение риска срыва",
+                ],
+            }
+            plan = diag.recommended_plan
+            risk_level = "high" if len(diag.history or "") > 160 else "moderate"
 
     reply = generate_therapy_reply(
         locale=_normalize_locale(payload.locale),
