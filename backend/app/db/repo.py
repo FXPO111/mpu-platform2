@@ -12,6 +12,7 @@ from app.domain.models import (
     AIMessage,
     AISession,
     Booking,
+    DiagnosticSubmission,
     Entitlement,
     Order,
     PaymentEvent,
@@ -177,6 +178,31 @@ class Repo:
 
     def list_products(self) -> list[Product]:
         return list(self.db.scalars(select(Product).where(Product.active.is_(True))).all())
+
+    def create_diagnostic_submission(
+        self,
+        reasons: list[str],
+        situation: str,
+        history: str,
+        goal: str,
+        recommended_plan: str,
+        other_reason: str | None = None,
+        user_id: UUID | None = None,
+        meta_json: dict | None = None,
+    ) -> DiagnosticSubmission:
+        row = DiagnosticSubmission(
+            user_id=user_id,
+            reasons=reasons,
+            other_reason=other_reason,
+            situation=situation,
+            history=history,
+            goal=goal,
+            recommended_plan=recommended_plan,
+            meta_json=meta_json or {},
+        )
+        self.db.add(row)
+        self.db.flush()
+        return row
 
     def find_order_by_provider_ref(self, provider_ref: str) -> Order | None:
         return self.db.scalar(select(Order).where(Order.provider_ref == provider_ref))
