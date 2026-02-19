@@ -10,7 +10,6 @@ function resolveBackendCandidates(): string[] {
 
   add(process.env.BACKEND_API_BASE_URL);
 
-  // Safe fallbacks for local/dev/container topologies.
   add("http://localhost:8000");
   add("http://127.0.0.1:8000");
   add("http://host.docker.internal:8000");
@@ -34,7 +33,7 @@ export async function POST(request: NextRequest) {
 
   for (const baseUrl of backendCandidates) {
     try {
-      const response = await fetch(`${baseUrl}/api/public/checkout`, {
+      const response = await fetch(`${baseUrl}/api/public/therapy/reply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

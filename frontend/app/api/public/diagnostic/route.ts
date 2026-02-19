@@ -16,7 +16,7 @@ function resolveBackendCandidates(): string[] {
   add("http://host.docker.internal:8000");
   add("http://backend:8000");
 
-  return [...unique];
+  return Array.from(unique);
 }
 
 export async function POST(request: NextRequest) {
