@@ -1,187 +1,222 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 
+type EventName =
+  | "cta_start_diagnostic_click"
+  | "faq_open_question_1"
+  | "faq_open_question_2"
+  | "faq_open_question_3"
+  | "faq_open_question_4"
+  | "faq_open_question_5"
+  | "faq_open_question_6"
+  | "faq_open_question_7"
+  | "faq_open_question_8";
+
+function track(event: EventName, payload?: Record<string, unknown>) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent("analytics:event", { detail: { event, ...payload } }));
+  const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
+  if (gtag) gtag("event", event, payload || {});
+}
+
+const STEPS = [
+  ["1", "Диагностика", "Фиксируем вашу ситуацию, документы, сроки и ключевые риски."],
+  ["2", "План", "Собираем понятный маршрут подготовки со сроками и контрольными точками."],
+  ["3", "Тренировка интервью", "Отрабатываем вопросы эксперта и улучшаем формулировки ответов."],
+  ["4", "Финальная проверка", "Проводим итоговый контроль готовности перед МПУ и отмечаем, что повторить."],
+] as const;
+
+const SCENARIOS = [
+  ["Алкоголь", "Причины, изменения, самоконтроль, документы и типовые вопросы."],
+  ["Наркотики", "Последовательность событий, отказ, контроль и устойчивость формулировок."],
+  ["Штрафные пункты", "Поведение, выводы, профилактика и стабильность ответов."],
+  ["Поведение", "Мотивация изменений, триггеры и доказуемость прогресса."],
+] as const;
+
+const PROCESS_CARDS = [
+  "Разбираем последовательность событий и убираем противоречия, чтобы история звучала ровно и уверенно.",
+  "Показываем слабые места в ответах и подсказываем, какие формулировки нужно доработать перед следующим этапом.",
+  "Проводим тренировки интервью, включая уточняющие вопросы, чтобы ответы были спокойными и устойчивыми.",
+  "Фиксируем прогресс по документам и этапам, чтобы до финальной проверки оставался понятный список действий.",
+] as const;
+
+const RESULTS = [
+  "Структуру вашей истории без противоречий.",
+  "Рекомендованные формулировки и список фраз, которых лучше избегать.",
+  "Тренировки интервью с разбором ответов.",
+  "План действий по неделям с отметками прогресса.",
+  "Чеклист документов под вашу ситуацию.",
+  "Итоговую оценку рисков перед МПУ.",
+] as const;
+
+const PRIVACY_CARDS = [
+  "Информация хранится только в рабочем кабинете и используется исключительно для подготовки.",
+  "Собираются только те сведения, которые действительно нужны для анализа ситуации и формирования плана.",
+  "По каждому этапу видны сроки, выполненные шаги и оставшиеся задачи без скрытых статусов.",
+  "Начать можно сразу через диагностику: без обязательных звонков и без долгих ожиданий запуска.",
+] as const;
+
+const FAQ = [
+  [
+    "Сколько времени занимает подготовка?",
+    "Обычно от нескольких недель до нескольких месяцев. Срок зависит от исходной ситуации, объёма уже подготовленных материалов и того, насколько последовательно выполняются шаги программы.",
+  ],
+  [
+    "Подойдёт ли мне формат, если сложно сформулировать историю?",
+    "Да. На этапе диагностики и в процессе тренировок история собирается в понятную логику: что произошло, какие выводы сделаны, какие изменения подтверждаются фактами и документами.",
+  ],
+  [
+    "Это разовая консультация?",
+    "Нет. Это рабочий кабинет подготовки: план, регулярные тренировки интервью, контроль качества ответов и финальная проверка готовности перед МПУ.",
+  ],
+  [
+    "Что происходит после оплаты?",
+    "После оплаты сразу открывается доступ к кабинету, маршруту подготовки и материалам. Пользователь видит ближайшие шаги и может начать работу без дополнительных согласований.",
+  ],
+  [
+    "Как защищены данные?",
+    "Данные не публикуются и используются только в рамках подготовки. Информация хранится в закрытом рабочем контуре и не передаётся в публичные источники.",
+  ],
+  [
+    "Можно ли пройти подготовку полностью онлайн?",
+    "Да. Диагностика, план, тренировки интервью и контроль прогресса доступны онлайн в рабочем кабинете в любое удобное время.",
+  ],
+  [
+    "Какие ситуации покрываются?",
+    "Основные направления: Алкоголь, Наркотики, Штрафные пункты и Поведение. При необходимости маршрут адаптируется под смежные обстоятельства.",
+  ],
+  [
+    "Если уже был опыт подготовки ранее, это поможет?",
+    "Да. Повторный запуск позволяет увидеть пробелы прошлого подхода, убрать рискованные формулировки и сосредоточиться на точках, которые влияют на итоговый результат.",
+  ],
+] as const;
+
 export default function HomePage() {
+  const [openFaq, setOpenFaq] = useState(0);
+
   return (
-    <div style={{ display: "grid", gap: 18 }}>
-      {/* HERO */}
-      <section className="section">
-        <div className="hero-grid">
-          <div className="card pad hero-main">
-            <div className="badge">MPU AI • подготовка и консультации</div>
-
-            <h1 className="h1" style={{ marginTop: 14 }}>
-              Подготовка к MPU как система: диагностика → план → тренировка интервью
-            </h1>
-
-            <p className="p" style={{ marginTop: 12, fontSize: 16 }}>
-              ИИ собирает факты по вашему кейсу, строит персональный план и прогоняет через симуляцию интервью.
-              Если риск высокий — предложит созвон с экспертом (Zoom).
-            </p>
-
-            <div className="chips">
-              <span className="chip">конфиденциально</span>
-              <span className="chip">структура реального интервью</span>
-              <span className="chip">история и прогресс в кабинете</span>
-              <span className="chip">эскалация к эксперту по триггерам</span>
-            </div>
-
-            <div className="hero-actions">
-              <Link href="/start"><Button size="lg">Начать диагностику</Button></Link>
-              <Link href="/booking"><Button size="lg" variant="secondary">Записаться к эксперту</Button></Link>
-              <Link href="/pricing"><Button size="lg" variant="ghost">Тарифы</Button></Link>
-            </div>
-          </div>
-
-          <div className="card pad hero-side">
-            <div className="badge">Что вы получите</div>
-
-            <div className="hr" />
-
-            <div style={{ display: "grid", gap: 12 }}>
-              <div className="card pad soft">
-                <div className="badge">Персональный план</div>
-                <p className="p" style={{ marginTop: 8 }}>
-                  Что говорить, что подтверждать документами, где слабые места, что подготовить заранее.
-                </p>
-              </div>
-
-              <div className="card pad soft">
-                <div className="badge">Trainer-интервью</div>
-                <p className="p" style={{ marginTop: 8 }}>
-                  Симуляция вопросов, follow-up, оценка ответов, рекомендации как исправить формулировки.
-                </p>
-              </div>
-
-              <div className="card pad soft">
-                <div className="badge">Триггеры на Zoom</div>
-                <p className="p" style={{ marginTop: 8 }}>
-                  Если кейс “красный” — система предложит консультацию и сформирует список вопросов эксперту.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section className="section">
-        <div className="section-head">
-          <div>
-            <div className="badge">Как работает</div>
-            <h2 className="h2" style={{ marginTop: 10 }}>Флоу, который ведёт к результату</h2>
-          </div>
-          <Link href="/how-it-works"><Button variant="ghost">Подробнее</Button></Link>
-        </div>
-
-        <div className="steps">
-          <div className="faq-item">
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span className="step-num">1</span>
-              <p className="faq-q">Диагностика</p>
-            </div>
-            <p className="faq-a">Сбор фактов: причина, сроки, поведение после случая, терапия/курсы, документы.</p>
-          </div>
-
-          <div className="faq-item">
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span className="step-num">2</span>
-              <p className="faq-q">План</p>
-            </div>
-            <p className="faq-a">Структура истории, чек-лист доказательств изменений, список рисков и действий.</p>
-          </div>
-
-          <div className="faq-item">
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span className="step-num">3</span>
-              <p className="faq-q">Тренировка</p>
-            </div>
-            <p className="faq-a">Интервью-симуляция: вопросы, follow-up, рекомендации по формулировкам.</p>
-          </div>
-
-          <div className="faq-item">
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span className="step-num">4</span>
-              <p className="faq-q">Эксперт</p>
-            </div>
-            <p className="faq-a">Если риск высокий — Zoom, запись, подготовленные системой вопросы и документы.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* FEATURES */}
-      <section className="section">
-        <div className="badge">Для чего это</div>
-        <h2 className="h2" style={{ marginTop: 10 }}>Закрываем типовые причины провала</h2>
-
-        <div className="features">
-          <div className="card pad soft">
-            <div className="badge">Нет структуры рассказа</div>
-            <p className="p" style={{ marginTop: 8 }}>
-              ИИ выстраивает хронологию и “смысл” изменений, чтобы ответы звучали логично и доказуемо.
-            </p>
-          </div>
-
-          <div className="card pad soft">
-            <div className="badge">Слабые доказательства</div>
-            <p className="p" style={{ marginTop: 8 }}>
-              Чек-лист документов/действий: что подтвердить, как и чем, чтобы не было дыр.
-            </p>
-          </div>
-
-          <div className="card pad soft">
-            <div className="badge">Провал на follow-up</div>
-            <p className="p" style={{ marginTop: 8 }}>
-              Trainer давит уточняющими вопросами — так же, как на реальном интервью.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="section">
-        <div className="card pad cta">
-          <div className="badge">Старт</div>
-          <h2 className="h2" style={{ marginTop: 10 }}>
-            Начать можно сейчас — 10–15 минут на диагностику
-          </h2>
-          <p className="p" style={{ marginTop: 10 }}>
-            Дальше система сама предложит: план, тренер, или консультацию в Zoom если кейс рискованный.
+    <div className="public-page-stack premium-home">
+      <section className="section" id="hero">
+        <div className="premium-hero card pad premium-hero-compact">
+          <h1 className="h1 premium-hero-title">Подготовка к МПУ без хаоса: разбор ситуации, тренировка интервью, финальная проверка</h1>
+          <p className="lead mt-12 premium-hero-sub">
+            Помогаем пройти путь подготовки последовательно: от диагностики и плана до практики и контроля готовности.
+            Всё в одном рабочем кабинете.
           </p>
 
-          <div className="hero-actions">
-            <Link href="/start"><Button size="lg">Начать диагностику</Button></Link>
-            <Link href="/pricing"><Button size="lg" variant="secondary">Посмотреть тарифы</Button></Link>
+          <div className="hero-actions hero-actions-clean">
+            <Link href="/diagnostic" onClick={() => track("cta_start_diagnostic_click", { place: "hero" })}>
+              <Button className="btn-hero-flat" size="lg">Начать диагностику</Button>
+            </Link>
+            <Link href="/pricing"><Button className="btn-hero-flat" size="lg" variant="secondary">Посмотреть тарифы</Button></Link>
+          </div>
+
+          <div className="cards3 mt-16">
+            <article className="card pad soft">
+              <h3 className="h3">Старт после оплаты</h3>
+              <p className="p mt-8">Кабинет и программа активируются автоматически.</p>
+            </article>
+            <article className="card pad soft">
+              <h3 className="h3">Тренировки интервью</h3>
+              <p className="p mt-8">Вопросы и разбор формулировок, чтобы ответы были устойчивыми.</p>
+            </article>
+            <article className="card pad soft">
+              <h3 className="h3">Контроль готовности</h3>
+              <p className="p mt-8">Финальный чек и перечень пунктов для доработки перед МПУ.</p>
+            </article>
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
+      <section className="section" id="program">
+        <h2 className="h2">Этапы подготовки</h2>
+        <div className="journey-grid journey-grid-4 mt-16 steps-grid">
+          {STEPS.map(([n, title, text]) => (
+            <article className="journey-card" key={title}>
+              <div className="journey-top">
+                <span className="journey-num">{n}</span>
+                <p className="faq-q">{title}</p>
+              </div>
+              <p className="faq-a">{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className="section">
-        <div className="badge">FAQ</div>
-        <h2 className="h2" style={{ marginTop: 10 }}>Коротко о важном</h2>
+        <h2 className="h2">Сценарии подготовки</h2>
+        <div className="journey-grid journey-grid-4 mt-16">
+          {SCENARIOS.map(([title, text]) => (
+            <article className="journey-card" key={title}>
+              <p className="faq-q">{title}</p>
+              <p className="faq-a mt-8">{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
-        <div className="faq">
-          <div className="faq-item">
-            <p className="faq-q">ИИ заменяет эксперта?</p>
-            <p className="faq-a">
-              Нет. Он систематизирует кейс, строит план и тренирует интервью. Эксперт подключается по триггерам риска.
-            </p>
-          </div>
+      <section className="section">
+        <h2 className="h2">Как проходит подготовка</h2>
+        <div className="journey-grid journey-grid-4 mt-16 process-grid-wide">
+          {PROCESS_CARDS.map((text, idx) => (
+            <article className="journey-card" key={idx}>
+              <p className="faq-a process-copy">{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
-          <div className="faq-item">
-            <p className="faq-q">Можно начать без документов?</p>
-            <p className="faq-a">
-              Да. Диагностика стартует с фактов, а дальше система выдаст список, что нужно собрать.
-            </p>
-          </div>
+      <section className="section">
+        <h2 className="h2">Что вы получите</h2>
+        <div className="journey-grid mt-16 result-grid">
+          {RESULTS.map((item) => (
+            <article className="journey-card" key={item}>
+              <p className="faq-a clamp-2">{item}</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
-          <div className="faq-item">
-            <p className="faq-q">Как это выглядит в кабинете?</p>
-            <p className="faq-a">
-              Кейсы, прогресс, план, файлы, тренировки, история. Всё по одному делу — в одном месте.
-            </p>
-          </div>
+      <section className="section">
+        <h2 className="h2">Конфиденциальность</h2>
+        <div className="journey-grid journey-grid-4 mt-16 process-grid-wide">
+          {PRIVACY_CARDS.map((text, idx) => (
+            <article className="journey-card" key={idx}>
+              <p className="faq-a process-copy">{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section" id="faq">
+        <h2 className="h2">FAQ</h2>
+        <div className="faq-accordion mt-16">
+          {FAQ.map(([q, a], idx) => {
+            const open = openFaq === idx;
+            return (
+              <article className="faq-acc-item" key={q}>
+                <button
+                  className="faq-acc-btn"
+                  onClick={() => {
+                    setOpenFaq(open ? -1 : idx);
+                    if (!open) track(`faq_open_question_${idx + 1}` as EventName);
+                  }}
+                  type="button"
+                >
+                  <span>{q}</span>
+                  <span className="faq-chevron-wrap" aria-hidden>
+                    <svg viewBox="0 0 24 24" className={`faq-chevron ${open ? "open" : ""}`}>
+                      <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                </button>
+                {open ? <p className="faq-acc-body faq-acc-body-long">{a}</p> : null}
+              </article>
+            );
+          })}
         </div>
       </section>
     </div>
