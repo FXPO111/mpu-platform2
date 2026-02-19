@@ -2448,14 +2448,29 @@ body:has(main.public-design-refactor) .footer::before{
 /* 32. DIAGNOSTIC WIZARD PRO REFACTOR */
 .diagnostic-layout{
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
   gap: 16px;
   align-items: start;
+  width: 100%;
+  max-width: 100%;
 }
 
 .diagnostic-main,
 .diagnostic-side{
   border-radius: 16px !important;
+}
+
+.diagnostic-main,
+.diagnostic-side,
+.diag-help-item,
+.diag-help-detail{
+  min-width: 0;
+}
+
+.diagnostic-main,
+.diagnostic-side{
+  width: 100%;
+  overflow: hidden;
 }
 
 .diagnostic-head{
@@ -2552,7 +2567,7 @@ body:has(.diagnostic-page) .header-actions a[href="/diagnostic"]{
   display: none;
 }
 
-@media (max-width: 980px){
+@media (max-width: 1240px){
   .diagnostic-layout{
     grid-template-columns: 1fr;
   }
@@ -2562,4 +2577,70 @@ body:has(.diagnostic-page) .header-actions a[href="/diagnostic"]{
   .diag-chip-grid{
     grid-template-columns: 1fr;
   }
+}
+
+/* 32.1 DIAGNOSTIC INTERACTION POLISH */
+.diag-progress > span{
+  transition: width .32s ease;
+}
+
+.diag-step,
+.diag-step-num,
+.diag-step-label{
+  transition: color .22s ease, background-color .22s ease, border-color .22s ease, transform .22s ease;
+}
+
+.diag-step.active .diag-step-label{
+  transform: translateY(-1px);
+}
+
+.diag-help-grid{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.diag-help-item{
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid rgba(10,20,14,.14);
+  background: rgba(255,255,255,.88);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  text-align: left;
+  color: #1c3328;
+  font-weight: 600;
+}
+
+.diag-help-dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(22,163,74,.36);
+  flex: 0 0 auto;
+}
+
+.diag-help-item.active{
+  border-color: rgba(22,163,74,.42);
+  background: rgba(34,197,94,.12);
+}
+
+.diag-help-item.active .diag-help-dot{
+  background: #16a34a;
+}
+
+.diag-help-detail{
+  border-radius: 12px;
+  border: 1px solid rgba(10,20,14,.12);
+  background: rgba(255,255,255,.86);
+  min-height: 138px;
+  padding: 12px;
+  display: grid;
+  align-content: start;
+}
+
+@media (max-width: 980px){
+  .diag-help-detail{ min-height: 110px; }
 }

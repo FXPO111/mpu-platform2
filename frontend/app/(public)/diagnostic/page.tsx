@@ -10,6 +10,25 @@ type PlanKey = "start" | "pro" | "intensive";
 const STEP_TITLES = ["Тема", "Ситуация", "История", "Цель"] as const;
 const REASONS = ["Алкоголь", "Наркотики", "Пункты / штрафы", "Поведение / инцидент", "Другое"] as const;
 
+const HELP_ITEMS = [
+  {
+    title: "Что оцениваем на этом шаге",
+    text: "Определяем исходную причину и фокус подготовки. Это помогает сразу исключить лишние темы и собрать правильный маршрут.",
+  },
+  {
+    title: "Как писать ответы",
+    text: "Коротко и по делу: 1–3 предложения на шаг. Достаточно базовой логики без деталей, которые вы не хотите раскрывать.",
+  },
+  {
+    title: "Что получите после заполнения",
+    text: "Сформируем персональную структуру подготовки: приоритетные темы, зоны риска и рекомендации по формулировкам.",
+  },
+  {
+    title: "Конфиденциальность и сохранение",
+    text: "Черновик сохраняется автоматически в вашем браузере. Ответы используются только для подготовки и не публикуются.",
+  },
+] as const;
+
 function detectPlan(payload: { reasons: string[]; situation: string; history: string; goal: string; other: string }): PlanKey {
   const text = [payload.reasons.join(" "), payload.other, payload.situation, payload.history, payload.goal].join(" ").toLowerCase();
   const intenseKeywords = ["повтор", "отказ", "сложно", "долго", "стресс", "срочно", "конфликт", "инцидент"];
@@ -22,6 +41,7 @@ function detectPlan(payload: { reasons: string[]; situation: string; history: st
 
 export default function DiagnosticPage() {
   const [step, setStep] = useState(0);
+  const [helpIdx, setHelpIdx] = useState(0);
   const [reasons, setReasons] = useState<string[]>([]);
   const [otherReason, setOtherReason] = useState("");
   const [situation, setSituation] = useState("");
@@ -61,7 +81,11 @@ export default function DiagnosticPage() {
     );
   }, [step, reasons, otherReason, situation, history, goal]);
 
-  const progress = useMemo(() => Math.round(((step + 1) / STEP_TITLES.length) * 100), [step]);
+  useEffect(() => {
+    setHelpIdx(step);
+  }, [step]);
+
+  const progress = useMemo(() => Math.round((step / (STEP_TITLES.length - 1)) * 100), [step]);
   const minutesLeft = useMemo(() => Math.max(1, 4 - step), [step]);
 
   const recommended = useMemo(
@@ -81,7 +105,11 @@ export default function DiagnosticPage() {
   }, [step, reasons, otherReason, situation, history, goal]);
 
   const toggleReason = (reason: string) => {
-    setReasons((prev) => (prev.includes(reason) ? prev.filter((x) => x !== reason) : [...prev, reason]));
+    setReasons((prev) => {
+      if (prev.includes(reason)) return prev.filter((x) => x !== reason);
+      if (prev.length >= 2) return [reason];
+      return [...prev, reason];
+    });
   };
 
   const saveResult = () => {
@@ -111,6 +139,7 @@ export default function DiagnosticPage() {
               </div>
             ))}
           </div>
+
           <div className="diag-progress mt-10" aria-hidden>
             <span style={{ width: `${progress}%` }} />
           </div>
@@ -118,7 +147,7 @@ export default function DiagnosticPage() {
           {step === 0 ? (
             <div className="mt-16 stack">
               <h2 className="h3">Какая основная причина MPU?</h2>
-              <p className="small">Можно выбрать несколько.</p>
+              <p className="small">Можно выбрать несколько, но не более двух вариантов.</p>
               <div className="diag-chip-grid">
                 {REASONS.map((reason) => {
                   const active = reasons.includes(reason);
@@ -137,9 +166,7 @@ export default function DiagnosticPage() {
 
               {reasons.includes("Другое") ? (
                 <div className="field mt-8">
-                  <label className="label" htmlFor="diag-other">
-                    Уточните в 1–2 словах
-                  </label>
+                  <label className="label" htmlFor="diag-other">Уточните в 1–2 словах</label>
                   <Input
                     id="diag-other"
                     className="diag-input"
@@ -160,9 +187,7 @@ export default function DiagnosticPage() {
                 value={situation}
                 onChange={(e) => setSituation(e.target.value)}
               />
-              <p className="help">
-                Пример: “Сейчас собираю документы и хочу подготовиться к интервью без ошибок в формулировках”.
-              </p>
+              <p className="help">Пример: «Сейчас собираю документы и хочу подготовиться к интервью без ошибок в формулировках».</p>
             </div>
           ) : null}
 
@@ -175,7 +200,7 @@ export default function DiagnosticPage() {
                 value={history}
                 onChange={(e) => setHistory(e.target.value)}
               />
-              <p className="help">Пример: “Есть базовые документы, но нет уверенности в структуре ответов и порядке шагов”.</p>
+              <p className="help">Пример: «Есть базовые документы, но нет уверенности в структуре ответов и порядке шагов».</p>
             </div>
           ) : null}
 
@@ -183,47 +208,43 @@ export default function DiagnosticPage() {
             <div className="mt-16 stack">
               <h2 className="h3">Какая цель по срокам?</h2>
               <p className="small">Коротко (1–3 предложения). Без деталей, которые вы не хотите указывать.</p>
-              <textarea className="input diag-textarea" value={goal} onChange={(e) => setGoal(e.target.value)} />
-              <p className="help">Пример: “Хочу пройти полную подготовку в ближайшие 6–8 недель с финальной проверкой”.</p>
+              <textarea
+                className="input diag-textarea"
+                value={goal}
+                onChange={(e) => setGoal(e.target.value)}
+              />
+              <p className="help">Пример: «Хочу пройти полную подготовку в ближайшие 6–8 недель с финальной проверкой».</p>
             </div>
           ) : null}
 
           <div className="hero-actions mt-16">
-            <Button variant="ghost" disabled={step === 0} onClick={() => setStep((v) => Math.max(0, v - 1))}>
-              Назад
-            </Button>
+            <Button variant="ghost" disabled={step === 0} onClick={() => setStep((v) => Math.max(0, v - 1))}>Назад</Button>
             {step < STEP_TITLES.length - 1 ? (
-              <Button
-                disabled={!canNext}
-                onClick={() => setStep((v) => Math.min(STEP_TITLES.length - 1, v + 1))}
-              >
-                Далее
-              </Button>
+              <Button disabled={!canNext} onClick={() => setStep((v) => Math.min(STEP_TITLES.length - 1, v + 1))}>Далее</Button>
             ) : (
-              <Button disabled={!canNext} onClick={saveResult}>
-                Показать результат
-              </Button>
+              <Button disabled={!canNext} onClick={saveResult}>Показать результат</Button>
             )}
           </div>
         </article>
 
         <aside className="card pad diagnostic-side">
-          <h3 className="h3">После диагностики</h3>
-          <ul className="diag-side-list mt-12">
-            <li>
-              <strong>Результат:</strong> персональный план подготовки, список тем с рисками, рекомендации по
-              формулировкам.
-            </li>
-            <li>
-              <strong>Время:</strong> 3–6 минут.
-            </li>
-            <li>
-              <strong>Конфиденциальность:</strong> ответы используются только для подготовки.
-            </li>
-            <li>
-              <strong>Можно продолжить позже:</strong> черновик сохраняется автоматически.
-            </li>
-          </ul>
+          <h3 className="h3">Помощь</h3>
+          <div className="diag-help-grid mt-12">
+            {HELP_ITEMS.map((item, idx) => (
+              <button
+                key={item.title}
+                type="button"
+                className={`diag-help-item ${helpIdx === idx ? "active" : ""}`}
+                onClick={() => setHelpIdx(idx)}
+              >
+                <span className="diag-help-dot" />
+                <span>{item.title}</span>
+              </button>
+            ))}
+          </div>
+          <div className="diag-help-detail mt-12">
+            <p className="p">{HELP_ITEMS[helpIdx].text}</p>
+          </div>
         </aside>
       </section>
 
@@ -231,17 +252,12 @@ export default function DiagnosticPage() {
         <section className="card pad soft">
           <h2 className="h3">Результат диагностики</h2>
           <p className="p mt-10">
-            Рекомендуемый формат подготовки:{" "}
-            <strong>{recommended === "start" ? "Start" : recommended === "pro" ? "Pro" : "Intensive"}</strong>.
+            Рекомендуемый формат подготовки: <strong>{recommended === "start" ? "Start" : recommended === "pro" ? "Pro" : "Intensive"}</strong>.
             Вы можете перейти к оплате или выбрать другой вариант вручную.
           </p>
           <div className="hero-actions">
-            <Link href={`/pricing?plan=${recommended}`}>
-              <Button>Выбрать формат и оплатить</Button>
-            </Link>
-            <Link href="/pricing">
-              <Button variant="secondary">Смотреть все тарифы</Button>
-            </Link>
+            <Link href={`/pricing?plan=${recommended}`}><Button>Выбрать формат и оплатить</Button></Link>
+            <Link href="/pricing"><Button variant="secondary">Смотреть все тарифы</Button></Link>
           </div>
         </section>
       ) : null}
