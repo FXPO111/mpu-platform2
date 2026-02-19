@@ -117,12 +117,15 @@ export default function PricingPage() {
     setLoadingPlan(plan);
     try {
       const apiUrl = toPublicApiUrl("/api/public/checkout");
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
       const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           plan,
           email: normalizedEmail,
+          success_url: origin ? `${origin}/dashboard?checkout=success` : undefined,
+          cancel_url: origin ? `${origin}/pricing?checkout=cancelled` : undefined,
         }),
       });
 

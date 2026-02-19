@@ -1,5 +1,6 @@
 from secrets import token_urlsafe
 from typing import Literal
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
@@ -8,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.db.repo import Repo
 from app.db.session import get_db
 from app.domain.models import APIError
+from app.integrations.llm_openai import generate_therapy_reply
 from app.integrations.payments_stripe import StripeError, create_checkout_session, is_stripe_configured
 from app.security.auth import hash_password
 from app.settings import settings
@@ -38,12 +40,32 @@ class PublicCheckoutIn(BaseModel):
     plan: Literal["start", "pro", "intensive"]
     email: str = Field(min_length=5, max_length=320)
     name: str | None = Field(default=None, max_length=120)
+    success_url: str | None = Field(default=None, max_length=2000)
+    cancel_url: str | None = Field(default=None, max_length=2000)
 
 
 class PublicCheckoutOut(BaseModel):
     order_id: str
     checkout_session_id: str
     checkout_url: str | None
+
+
+class PublicTherapyHistoryItem(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str = Field(min_length=1, max_length=8000)
+
+
+class PublicTherapyReplyIn(BaseModel):
+    message: str = Field(min_length=2, max_length=8000)
+    diagnostic_submission_id: str | None = Field(default=None)
+    locale: str = Field(default="ru", max_length=5)
+    history: list[PublicTherapyHistoryItem] = Field(default_factory=list, max_length=30)
+
+
+class PublicTherapyReplyOut(BaseModel):
+    reply: str
+    plan: str
+    risk_level: str
 
 
 def detect_plan(payload: DiagnosticSubmitIn) -> str:
@@ -56,6 +78,27 @@ def detect_plan(payload: DiagnosticSubmitIn) -> str:
     if any(k in text for k in pro_keywords):
         return "pro"
     return "start"
+
+
+
+
+def _safe_redirect_url(value: str | None) -> str | None:
+    if not value:
+        return None
+    candidate = value.strip()
+    if not candidate:
+        return None
+    if not (candidate.startswith("http://") or candidate.startswith("https://")):
+        raise APIError("BAD_REDIRECT_URL", "Redirect URL must be absolute http(s) URL", status_code=422)
+    return candidate
+
+def _normalize_locale(locale: str) -> str:
+    loc = (locale or "ru").strip().lower()
+    if loc.startswith("de"):
+        return "de"
+    if loc.startswith("en"):
+        return "en"
+    return "ru"
 
 
 @router.get("/expert")
@@ -109,6 +152,54 @@ def submit_diagnostic(payload: DiagnosticSubmitIn, request: Request, db: Session
     return DiagnosticSubmitOut(id=str(row.id), recommended_plan=row.recommended_plan)
 
 
+@router.post("/therapy/reply", response_model=PublicTherapyReplyOut)
+def public_therapy_reply(payload: PublicTherapyReplyIn, db: Session = Depends(get_db)):
+    repo = Repo(db)
+
+    diagnostic_context: dict[str, str | list[str]] = {
+        "reasons": [],
+        "goal": "",
+        "situation": "",
+        "history": "",
+        "focus": ["Стабилизация", "Осознанность", "Ответственное поведение"],
+    }
+    plan = "start"
+    risk_level = "moderate"
+
+    if payload.diagnostic_submission_id:
+        try:
+            diag_id = UUID(payload.diagnostic_submission_id)
+        except ValueError as exc:
+            raise APIError("BAD_DIAGNOSTIC_ID", "Invalid diagnostic_submission_id", status_code=422) from exc
+
+        diag = repo.get_diagnostic_submission(diag_id)
+        if not diag:
+            raise APIError("DIAGNOSTIC_NOT_FOUND", "Diagnostic submission not found", status_code=404)
+
+        diagnostic_context = {
+            "reasons": diag.reasons,
+            "goal": diag.goal,
+            "situation": diag.situation,
+            "history": diag.history,
+            "focus": [
+                f"Триггер: {diag.reasons[0]}" if diag.reasons else "Стабилизация",
+                f"Цель: {diag.goal[:160]}",
+                "Снижение риска срыва",
+            ],
+        }
+        plan = diag.recommended_plan
+        risk_level = "high" if len(diag.history or "") > 160 else "moderate"
+
+    reply = generate_therapy_reply(
+        locale=_normalize_locale(payload.locale),
+        diagnostic_context=diagnostic_context,
+        history=[m.model_dump() for m in payload.history],
+        user_message=payload.message,
+    )
+
+    return PublicTherapyReplyOut(reply=reply, plan=plan, risk_level=risk_level)
+
+
 @router.post("/checkout", response_model=PublicCheckoutOut)
 def public_checkout(payload: PublicCheckoutIn, db: Session = Depends(get_db)):
     repo = Repo(db)
@@ -150,6 +241,8 @@ def public_checkout(payload: PublicCheckoutIn, db: Session = Depends(get_db)):
             stripe_price_id=product.stripe_price_id,
             frontend_url=settings.frontend_url,
             customer_email=user.email,
+            success_url_override=_safe_redirect_url(payload.success_url),
+            cancel_url_override=_safe_redirect_url(payload.cancel_url),
         )
     except StripeError as exc:
         db.rollback()
