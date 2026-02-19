@@ -2444,3 +2444,122 @@ body:has(main.public-design-refactor) .footer::before{
   .support-split{ grid-template-columns: 1fr; }
   .support-media{ min-height: 320px; }
 }
+
+/* 32. DIAGNOSTIC WIZARD PRO REFACTOR */
+.diagnostic-layout{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+.diagnostic-main,
+.diagnostic-side{
+  border-radius: 16px !important;
+}
+
+.diagnostic-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.diagnostic-stepper{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.diag-step{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64776c;
+  font-size: 13px;
+}
+
+.diag-step-num{
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(10,20,14,.18);
+  background: rgba(255,255,255,.9);
+  font-weight: 700;
+}
+
+.diag-step.active{ color: #102118; }
+.diag-step.active .diag-step-num{
+  background: #22c55e;
+  color: #fff;
+  border-color: #16a34a;
+}
+
+.diag-progress{
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(10,20,14,.09);
+  overflow: hidden;
+}
+.diag-progress > span{
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.diag-chip-grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.diag-chip{
+  min-height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(10,20,14,.16);
+  background: rgba(255,255,255,.92);
+  color: #102118;
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.diag-chip.active{
+  background: rgba(34,197,94,.14);
+  border-color: rgba(22,163,74,.42);
+}
+
+.diag-textarea{
+  min-height: 110px;
+  resize: vertical;
+}
+
+.diag-side-list{
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+  color: #2d4338;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+body:has(.diagnostic-page) .header-actions a[href="/diagnostic"]{
+  display: none;
+}
+
+@media (max-width: 980px){
+  .diagnostic-layout{
+    grid-template-columns: 1fr;
+  }
+  .diagnostic-stepper{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .diag-chip-grid{
+    grid-template-columns: 1fr;
+  }
+}
