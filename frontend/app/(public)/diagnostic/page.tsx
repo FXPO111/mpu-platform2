@@ -137,7 +137,9 @@ export default function DiagnosticPage() {
 
               {reasons.includes("Другое") ? (
                 <div className="field mt-8">
-                  <label className="label" htmlFor="diag-other">Уточните в 1–2 словах</label>
+                  <label className="label" htmlFor="diag-other">
+                    Уточните в 1–2 словах
+                  </label>
                   <Input
                     id="diag-other"
                     className="diag-input"
@@ -158,7 +160,9 @@ export default function DiagnosticPage() {
                 value={situation}
                 onChange={(e) => setSituation(e.target.value)}
               />
-              <p className="help">Пример: “Сейчас собираю документы и хочу подготовиться к интервью без ошибок в формулировках”.</p>
+              <p className="help">
+                Пример: “Сейчас собираю документы и хочу подготовиться к интервью без ошибок в формулировках”.
+              </p>
             </div>
           ) : null}
 
@@ -179,21 +183,26 @@ export default function DiagnosticPage() {
             <div className="mt-16 stack">
               <h2 className="h3">Какая цель по срокам?</h2>
               <p className="small">Коротко (1–3 предложения). Без деталей, которые вы не хотите указывать.</p>
-              <textarea
-                className="input diag-textarea"
-                value={goal}
-                onChange={(e) => setGoal(e.target.value)}
-              />
+              <textarea className="input diag-textarea" value={goal} onChange={(e) => setGoal(e.target.value)} />
               <p className="help">Пример: “Хочу пройти полную подготовку в ближайшие 6–8 недель с финальной проверкой”.</p>
             </div>
           ) : null}
 
           <div className="hero-actions mt-16">
-            <Button variant="ghost" disabled={step === 0} onClick={() => setStep((v) => Math.max(0, v - 1))}>Назад</Button>
+            <Button variant="ghost" disabled={step === 0} onClick={() => setStep((v) => Math.max(0, v - 1))}>
+              Назад
+            </Button>
             {step < STEP_TITLES.length - 1 ? (
-              <Button disabled={!canNext} onClick={() => setStep((v) => Math.min(STEP_TITLES.length - 1, v + 1))}>Далее</Button>
+              <Button
+                disabled={!canNext}
+                onClick={() => setStep((v) => Math.min(STEP_TITLES.length - 1, v + 1))}
+              >
+                Далее
+              </Button>
             ) : (
-              <Button disabled={!canNext} onClick={saveResult}>Показать результат</Button>
+              <Button disabled={!canNext} onClick={saveResult}>
+                Показать результат
+              </Button>
             )}
           </div>
         </article>
@@ -201,10 +210,19 @@ export default function DiagnosticPage() {
         <aside className="card pad diagnostic-side">
           <h3 className="h3">После диагностики</h3>
           <ul className="diag-side-list mt-12">
-            <li><strong>Результат:</strong> персональный план подготовки, список тем с рисками, рекомендации по формулировкам.</li>
-            <li><strong>Время:</strong> 3–6 минут.</li>
-            <li><strong>Конфиденциальность:</strong> ответы используются только для подготовки.</li>
-            <li><strong>Можно продолжить позже:</strong> черновик сохраняется автоматически.</li>
+            <li>
+              <strong>Результат:</strong> персональный план подготовки, список тем с рисками, рекомендации по
+              формулировкам.
+            </li>
+            <li>
+              <strong>Время:</strong> 3–6 минут.
+            </li>
+            <li>
+              <strong>Конфиденциальность:</strong> ответы используются только для подготовки.
+            </li>
+            <li>
+              <strong>Можно продолжить позже:</strong> черновик сохраняется автоматически.
+            </li>
           </ul>
         </aside>
       </section>
@@ -213,12 +231,17 @@ export default function DiagnosticPage() {
         <section className="card pad soft">
           <h2 className="h3">Результат диагностики</h2>
           <p className="p mt-10">
-            Рекомендуемый формат подготовки: <strong>{recommended === "start" ? "Start" : recommended === "pro" ? "Pro" : "Intensive"}</strong>.
+            Рекомендуемый формат подготовки:{" "}
+            <strong>{recommended === "start" ? "Start" : recommended === "pro" ? "Pro" : "Intensive"}</strong>.
             Вы можете перейти к оплате или выбрать другой вариант вручную.
           </p>
           <div className="hero-actions">
-            <Link href={`/pricing?plan=${recommended}`}><Button>Выбрать формат и оплатить</Button></Link>
-            <Link href="/pricing"><Button variant="secondary">Смотреть все тарифы</Button></Link>
+            <Link href={`/pricing?plan=${recommended}`}>
+              <Button>Выбрать формат и оплатить</Button>
+            </Link>
+            <Link href="/pricing">
+              <Button variant="secondary">Смотреть все тарифы</Button>
+            </Link>
           </div>
         </section>
       ) : null}
