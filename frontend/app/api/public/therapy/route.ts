@@ -12,7 +12,6 @@ function resolveBackendCandidates(): string[] {
 
   add(process.env.BACKEND_API_BASE_URL);
 
-  // Prefer docker/k8s service names before localhost to avoid long host-level hangs.
   add("http://backend:8000");
   add("http://host.docker.internal:8000");
   add("http://localhost:8000");
@@ -47,7 +46,7 @@ export async function POST(request: NextRequest) {
   for (const baseUrl of backendCandidates) {
     try {
       const response = await fetchWithTimeout(
-        `${baseUrl}/api/public/checkout`,
+        `${baseUrl}/api/public/therapy/reply`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
