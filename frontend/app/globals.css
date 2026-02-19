@@ -1490,6 +1490,33 @@ body{
   gap: 14px;
 }
 
+
+.pricing-grid-equal{
+  align-items: stretch;
+}
+
+.pricing-plan-card{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.pricing-plan-note{
+  min-height: 20px;
+}
+
+.pricing-plan-note.is-empty{
+  visibility: hidden;
+}
+
+.pricing-plan-actions{
+  margin-top: auto;
+}
+
+.pricing-email-field{
+  max-width: 420px;
+}
+
 .clean-plan{
   border-radius: 22px;
 }
@@ -2450,7 +2477,7 @@ body:has(main.public-design-refactor) .footer::before{
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
   width: 100%;
   max-width: 100%;
 }
@@ -2470,7 +2497,13 @@ body:has(main.public-design-refactor) .footer::before{
 .diagnostic-main,
 .diagnostic-side{
   width: 100%;
+  height: 100%;
   overflow: hidden;
+}
+
+.diagnostic-side{
+  display: flex;
+  flex-direction: column;
 }
 
 .diagnostic-head{
@@ -2635,12 +2668,7 @@ body:has(.diagnostic-page) .header-actions a[href="/diagnostic"]{
   border-radius: 12px;
   border: 1px solid rgba(10,20,14,.12);
   background: rgba(255,255,255,.86);
-  min-height: 138px;
   padding: 12px;
   display: grid;
   align-content: start;
-}
-
-@media (max-width: 980px){
-  .diag-help-detail{ min-height: 110px; }
 }

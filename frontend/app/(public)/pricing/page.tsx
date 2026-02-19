@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
 type PlanKey = "start" | "pro" | "intensive";
 
@@ -64,6 +64,9 @@ function track(event: "view_pricing_section" | "select_plan_start" | "select_pla
 export default function PricingPage() {
   const params = useSearchParams();
   const [recommended, setRecommended] = useState<PlanKey>("pro");
+  const [email, setEmail] = useState("");
+  const [loadingPlan, setLoadingPlan] = useState<PlanKey | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -102,20 +105,72 @@ export default function PricingPage() {
     [],
   );
 
+  const startCheckout = async (plan: PlanKey) => {
+    setError(null);
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !normalizedEmail.includes("@")) {
+      setError("Укажите email — туда придет подтверждение оплаты.");
+      return;
+    }
+
+    setLoadingPlan(plan);
+    try {
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+      const res = await fetch(`${apiBase}/api/public/checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          plan,
+          email: normalizedEmail,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("checkout_failed");
+      }
+
+      const data = (await res.json()) as {
+        checkout_url?: string;
+      };
+
+      track(eventByPlan[plan]);
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+        return;
+      }
+      setError("Не получили ссылку на оплату. Попробуйте еще раз.");
+    } catch {
+      setError("Не удалось запустить оплату. Проверьте сервер и Stripe-настройки.");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
   return (
     <div className="public-page-stack pricing-clean" id="pricing" ref={rootRef}>
       <section className="card pad pricing-clean-hero">
         <h1 className="h1">Выберите формат подготовки</h1>
         <p className="lead mt-12">Начните с диагностики — рекомендованный вариант уже отмечен на основе результата.</p>
+        <div className="field mt-16 pricing-email-field">
+          <label className="label" htmlFor="pricing-email">Email для оплаты</label>
+          <Input
+            id="pricing-email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
       </section>
 
-      <section className="plan-grid clean-grid">
+      <section className="plan-grid clean-grid pricing-grid-equal">
         {PLANS.map((plan) => {
           const isRecommended = plan.key === recommended;
+          const isLoading = loadingPlan === plan.key;
           return (
-            <article key={plan.key} className={`clean-plan card pad ${isRecommended ? "clean-plan-featured" : ""}`}>
+            <article key={plan.key} className={`clean-plan card pad pricing-plan-card ${isRecommended ? "clean-plan-featured" : ""}`}>
               <h2 className="h3">{plan.title}</h2>
-              {isRecommended ? <p className="small mt-8">Рекомендуемый формат</p> : null}
+              <p className={`small mt-8 pricing-plan-note ${isRecommended ? "" : "is-empty"}`} aria-hidden={!isRecommended}>Рекомендуемый формат</p>
 
               <div className="plan-price-wrap">
                 <div className="plan-price">{plan.price}</div>
@@ -128,17 +183,22 @@ export default function PricingPage() {
                 ))}
               </ul>
 
-              <div className="hero-actions mt-16">
-                <Link href="/dashboard" className="w-full" onClick={() => track(eventByPlan[plan.key])}>
-                  <Button className="w-full" variant={isRecommended ? "primary" : "secondary"}>
-                    Выбрать {plan.title} и оплатить
-                  </Button>
-                </Link>
+              <div className="hero-actions mt-16 pricing-plan-actions">
+                <Button
+                  className="w-full"
+                  variant={isRecommended ? "primary" : "secondary"}
+                  disabled={isLoading}
+                  onClick={() => startCheckout(plan.key)}
+                >
+                  {isLoading ? "Переходим к оплате..." : `Выбрать ${plan.title} и оплатить`}
+                </Button>
               </div>
             </article>
           );
         })}
       </section>
+
+      {error ? <p className="help">{error}</p> : null}
 
       <p className="small">
         Результат зависит от исходных данных и выполнения программы. Подготовка снижает риск провала за счёт структуры,
