@@ -190,7 +190,9 @@ export default function DashboardPage() {
     <div style={{ display: "grid", gap: 16 }}>
       <section className="card pad">
         <div className="badge">После оплаты • Полноценный AI-прием</div>
-        <h1 className="h2" style={{ marginTop: 10 }}>Личный кабинет психологической терапии MPU</h1>
+        <h1 className="h2" style={{ marginTop: 10 }}>
+          Личный кабинет психологической терапии MPU
+        </h1>
         <p className="p" style={{ marginTop: 8 }}>
           Это не демо: здесь идет реальная сессия через backend + GPT API по вашей диагностике.
         </p>
@@ -224,12 +226,16 @@ export default function DashboardPage() {
             {focus.map((item) => (
               <div key={item} className="card pad" style={{ boxShadow: "none" }}>
                 <div className="badge">Терапевтический фокус</div>
-                <p className="p" style={{ marginTop: 8 }}>{item}</p>
+                <p className="p" style={{ marginTop: 8 }}>
+                  {item}
+                </p>
               </div>
             ))}
           </div>
           <div className="hr" />
-          <div className="small">При признаках острого кризиса необходимо обращаться в экстренные службы по месту нахождения.</div>
+          <div className="small">
+            При признаках острого кризиса необходимо обращаться в экстренные службы по месту нахождения.
+          </div>
         </section>
 
         <section className="card pad">
@@ -246,7 +252,9 @@ export default function DashboardPage() {
                 }}
               >
                 <div className="badge">{m.role === "assistant" ? "AI-специалист" : "Вы"}</div>
-                <p className="p" style={{ marginTop: 8, whiteSpace: "pre-wrap" }}>{m.content}</p>
+                <p className="p" style={{ marginTop: 8, whiteSpace: "pre-wrap" }}>
+                  {m.content}
+                </p>
               </div>
             ))}
           </div>
