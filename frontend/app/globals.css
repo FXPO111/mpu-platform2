@@ -2868,3 +2868,32 @@ body:has(.diagnostic-page) .header-actions a[href="/diagnostic"]{
 @media (max-width: 980px) {
   .cabinet-v2-columns { grid-template-columns: 1fr; }
 }
+
+
+.cabinet-v2-shell,
+.cabinet-v2-shell .h1,
+.cabinet-v2-shell .h2,
+.cabinet-v2-shell .h3,
+.cabinet-v2-shell .p,
+.cabinet-v2-shell .small,
+.cabinet-v2-shell .badge,
+.cabinet-v2-shell label,
+.cabinet-v2-shell span,
+.cabinet-v2-shell div,
+.cabinet-v2-shell p {
+  color: #111111;
+}
+
+.cabinet-v2-shell .small { color: #1d1d1d; }
+.cabinet-v2-shell .badge { border-color: #d7d7d7; background: #f7f7f7; }
+
+.cabinet-v2-overview-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 980px) {
+  .cabinet-v2-overview-grid { grid-template-columns: 1fr; }
+}
+

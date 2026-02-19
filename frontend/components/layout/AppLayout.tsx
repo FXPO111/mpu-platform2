@@ -24,12 +24,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </Link>
 
           <nav className="cabinet-v2-nav" aria-label="Кабинет">
-            <NavLink href="/dashboard" exact>
+            <NavLink href="/dashboard?view=overview" exact>
               Обзор
             </NavLink>
-            <NavLink href="/dashboard#plan">План</NavLink>
-            <NavLink href="/dashboard#training">Тренировка</NavLink>
-            <NavLink href="/dashboard#readiness">Готовность</NavLink>
+            <NavLink href="/dashboard?view=plan">План</NavLink>
+            <NavLink href="/dashboard?view=training">Тренировка</NavLink>
+            <NavLink href="/dashboard?view=readiness">Готовность</NavLink>
           </nav>
 
           <div className="cabinet-v2-email" title={email}>

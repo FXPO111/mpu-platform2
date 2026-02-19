@@ -1,17 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { toPublicApiUrl } from "@/lib/public-api-base";
 
 type PlanKey = "start" | "pro" | "intensive";
 type ChatMessage = { id: string; role: "assistant" | "user"; content: string };
 type Task = { id: string; text: string; done: boolean };
+type DashboardView = "overview" | "plan" | "training" | "readiness";
 
 const STORAGE = {
   submissionId: "diagnostic_submission_id",
   plan: "recommended_plan",
-  session: "prep_session_v5",
+  session: "prep_session_v6",
   diagnostic: "diagnostic_answers",
 };
 
@@ -22,7 +24,15 @@ function isUuid(v: string | null): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
 }
 
+function toView(v: string | null): DashboardView {
+  if (v === "plan" || v === "training" || v === "readiness" || v === "overview") return v;
+  return "overview";
+}
+
 export default function DashboardPage() {
+  const params = useSearchParams();
+  const view = toView(params.get("view"));
+
   const [plan, setPlan] = useState<PlanKey>("start");
   const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -61,11 +71,7 @@ export default function DashboardPage() {
     }
 
     setMessages([
-      {
-        id: "m0",
-        role: "assistant",
-        content: "Начнем. Расскажите коротко, что изменилось в вашей жизни за последний год.",
-      },
+      { id: "m0", role: "assistant", content: "Начнем. Расскажите коротко, что изменилось в вашей жизни за последний год." },
     ]);
     setTasks([
       { id: "t1", text: "Короткий ответ о причинах прошлых ошибок", done: false },
@@ -81,6 +87,8 @@ export default function DashboardPage() {
   }, [messages, tasks, readiness]);
 
   const completed = useMemo(() => tasks.filter((t) => t.done).length, [tasks]);
+  const stability = useMemo(() => Math.min(100, 45 + completed * 15), [completed]);
+  const consistency = useMemo(() => Math.min(100, readiness + Math.floor(completed * 2)), [readiness, completed]);
 
   const send = async (prefill?: string) => {
     const text = (prefill ?? input).trim();
@@ -96,7 +104,6 @@ export default function DashboardPage() {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 12000);
       let res: Response;
-
       try {
         res = await fetch(toPublicApiUrl("/api/public/therapy"), {
           method: "POST",
@@ -128,12 +135,11 @@ export default function DashboardPage() {
     }
   };
 
-  const quick = (kind: "sample" | "check" | "short" | "de") => {
+  const quick = (kind: "check" | "risk" | "strong") => {
     const map = {
-      sample: "Покажи пример ответа:",
       check: "Проверь мой ответ:",
-      short: "Сделай мой ответ короче:",
-      de: "Переведи ответ на немецкий:",
+      risk: "Найди противоречия и риски:",
+      strong: "Усиль аргументы в ответе:",
     } as const;
     void send(`${map[kind]} ${input || "Мой ответ"}`);
   };
@@ -143,7 +149,7 @@ export default function DashboardPage() {
       <section className="cabinet-v2-hero">
         <div>
           <h1 className="cabinet-v2-title">Рабочий кабинет подготовки к MPU</h1>
-          <p className="cabinet-v2-subtitle">Все шаги подготовки в одном месте.</p>
+          <p className="cabinet-v2-subtitle">Маршрут подготовки, практика ответов и текущий прогресс.</p>
         </div>
         <div className="cabinet-v2-chips">
           <span className="chip">План: {PLAN_LABEL[plan]}</span>
@@ -152,18 +158,57 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="cabinet-v2-status" id="readiness">
-        <div className="cabinet-v2-status-top">
-          <h2 className="h3">Статус подготовки</h2>
-          <span className="cabinet-v2-score">{readiness}/100</span>
-        </div>
-        <div className="cabinet-v2-progress">
-          <div style={{ width: `${readiness}%` }} />
-        </div>
-        <p className="small">Дальше: короткая тренировка и один уверенный повтор ответа.</p>
-      </section>
+      {view === "overview" ? (
+        <section className="cabinet-v2-overview-grid">
+          <div className="cabinet-v2-status" id="readiness">
+            <div className="cabinet-v2-status-top">
+              <h2 className="h3">Общий прогресс</h2>
+              <span className="cabinet-v2-score">{readiness}/100</span>
+            </div>
+            <div className="cabinet-v2-progress">
+              <div style={{ width: `${readiness}%` }} />
+            </div>
+            <p className="small">Дальше: короткая тренировка и один уверенный повтор ответа.</p>
+          </div>
 
-      <div className="cabinet-v2-columns">
+          <div className="cabinet-v2-status">
+            <div className="cabinet-v2-status-top">
+              <h2 className="h3">Стабильность ответов</h2>
+              <span className="cabinet-v2-score">{stability}%</span>
+            </div>
+            <div className="cabinet-v2-progress">
+              <div style={{ width: `${stability}%` }} />
+            </div>
+            <p className="small">Чем выше показатель, тем увереннее и ровнее ответы на интервью.</p>
+          </div>
+
+          <div className="cabinet-v2-status">
+            <div className="cabinet-v2-status-top">
+              <h2 className="h3">Согласованность истории</h2>
+              <span className="cabinet-v2-score">{consistency}%</span>
+            </div>
+            <div className="cabinet-v2-progress">
+              <div style={{ width: `${consistency}%` }} />
+            </div>
+            <p className="small">Проверка на противоречия между разными ответами и блоками интервью.</p>
+          </div>
+
+          <div className="cabinet-v2-status">
+            <div className="cabinet-v2-status-top">
+              <h2 className="h3">Дневной ритм</h2>
+              <span className="cabinet-v2-score">
+                {completed}/{tasks.length}
+              </span>
+            </div>
+            <div className="cabinet-v2-progress">
+              <div style={{ width: `${(completed / Math.max(tasks.length, 1)) * 100}%` }} />
+            </div>
+            <p className="small">Выполнение коротких ежедневных шагов повышает качество подготовки.</p>
+          </div>
+        </section>
+      ) : null}
+
+      {view === "plan" ? (
         <section className="cabinet-v2-block" id="plan">
           <h2 className="h3">План на сегодня</h2>
           <div className="cabinet-v2-task-list">
@@ -185,22 +230,21 @@ export default function DashboardPage() {
             Выполнено: {completed}/{tasks.length}
           </p>
         </section>
+      ) : null}
 
+      {view === "training" ? (
         <section className="cabinet-v2-block" id="training">
           <h2 className="h3">Тренировка интервью</h2>
 
           <div className="cabinet-v2-actions">
-            <Button variant="secondary" size="sm" onClick={() => quick("sample")}>
-              Пример
-            </Button>
             <Button variant="secondary" size="sm" onClick={() => quick("check")}>
-              Проверить
+              Проверить ответ
             </Button>
-            <Button variant="secondary" size="sm" onClick={() => quick("short")}>
-              Короче
+            <Button variant="secondary" size="sm" onClick={() => quick("risk")}>
+              Найти риски
             </Button>
-            <Button variant="secondary" size="sm" onClick={() => quick("de")}>
-              На немецкий
+            <Button variant="secondary" size="sm" onClick={() => quick("strong")}>
+              Усилить ответ
             </Button>
           </div>
 
@@ -230,7 +274,30 @@ export default function DashboardPage() {
             ) : null}
           </div>
         </section>
-      </div>
+      ) : null}
+
+      {view === "readiness" ? (
+        <section className="cabinet-v2-block" id="readiness">
+          <h2 className="h3">Контроль готовности</h2>
+          <div className="cabinet-v2-task-list">
+            <div className="cabinet-v2-task-item">
+              <span>Общий прогресс: {readiness}/100</span>
+            </div>
+            <div className="cabinet-v2-task-item">
+              <span>Стабильность ответов: {stability}%</span>
+            </div>
+            <div className="cabinet-v2-task-item">
+              <span>Согласованность истории: {consistency}%</span>
+            </div>
+            <div className="cabinet-v2-task-item">
+              <span>
+                Шагов выполнено: {completed}/{tasks.length}
+              </span>
+            </div>
+          </div>
+          <p className="small">Если все показатели выше 75, можно переходить к финальному прогону интервью.</p>
+        </section>
+      ) : null}
     </main>
   );
 }
