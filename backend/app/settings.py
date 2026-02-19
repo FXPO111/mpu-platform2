@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import Any
 
 from pydantic import field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Annotated
+
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -13,7 +15,7 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:3000"
 
     # CORS (comma-separated or JSON list)
-    cors_allow_origins: list[str] = ["http://localhost:3000"]
+    cors_allow_origins: Annotated[list[str], NoDecode] = ["http://localhost:3000"]
 
     @field_validator("cors_allow_origins", mode="before")
     @classmethod
