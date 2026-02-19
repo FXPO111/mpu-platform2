@@ -2311,3 +2311,87 @@ body:has(main.public-design-refactor) .faq-chevron-wrap{
   body:has(main.public-design-refactor) .premium-hero.premium-hero-compact{ padding: 24px !important; }
   body:has(main.public-design-refactor) .premium-hero-title{ max-width: 100% !important; font-size: clamp(30px, 7vw, 40px) !important; }
 }
+
+/* 30. PUBLIC LIGHT HOTFIX — footer, scrollbar, pricing, diagnostic */
+body:has(main.public-design-refactor){
+  scrollbar-color: #22c55e #dce9df;
+}
+
+body:has(main.public-design-refactor) *::-webkit-scrollbar-track{
+  background: #dce9df;
+}
+
+body:has(main.public-design-refactor) *::-webkit-scrollbar-thumb{
+  background: linear-gradient(180deg, #22c55e, #16a34a);
+  border: 2px solid #dce9df;
+}
+
+body:has(main.public-design-refactor) *::-webkit-scrollbar-thumb:hover{
+  background: linear-gradient(180deg, #16a34a, #15803d);
+}
+
+body:has(main.public-design-refactor) .footer{
+  margin-top: 24px;
+  padding: 20px 0 28px;
+  background: rgba(255,255,255,.68);
+  border-top: 1px solid rgba(10,20,14,.12);
+}
+
+body:has(main.public-design-refactor) .footer-grid{
+  border-top: 1px solid rgba(10,20,14,.10);
+  padding-top: 14px;
+}
+
+body:has(main.public-design-refactor) .footer .badge{
+  background: rgba(34,197,94,.12);
+  border-color: rgba(34,197,94,.22);
+  color: #245439;
+}
+
+body:has(main.public-design-refactor) .footer-bottom{
+  border-top: 1px solid rgba(10,20,14,.10);
+  color: #42564a;
+}
+
+body:has(main.public-design-refactor) .plan-list,
+body:has(main.public-design-refactor) .plan-list li,
+body:has(main.public-design-refactor) .plan-list li::marker,
+body:has(main.public-design-refactor) .clean-plan .small,
+body:has(main.public-design-refactor) .clean-plan .p{
+  color: #1f372a !important;
+}
+
+body:has(main.public-design-refactor) .plan-list li{
+  opacity: .92;
+}
+
+body:has(main.public-design-refactor) .start-page-xl .input,
+body:has(main.public-design-refactor) .public-page-stack .input{
+  background: rgba(255,255,255,.96) !important;
+  border-color: rgba(10,20,14,.18) !important;
+  color: #102118 !important;
+}
+
+body:has(main.public-design-refactor) .start-page-xl .input::placeholder,
+body:has(main.public-design-refactor) .public-page-stack .input::placeholder{
+  color: #6f8176 !important;
+}
+
+body:has(main.public-design-refactor) .start-page-xl .input:hover,
+body:has(main.public-design-refactor) .public-page-stack .input:hover{
+  background: #fff !important;
+  border-color: rgba(34,197,94,.35) !important;
+}
+
+body:has(main.public-design-refactor) .start-page-xl .input:focus,
+body:has(main.public-design-refactor) .public-page-stack .input:focus{
+  border-color: rgba(22,163,74,.50) !important;
+  box-shadow: 0 0 0 3px rgba(34,197,94,.18) !important;
+}
+
+body:has(main.public-design-refactor) .start-page-xl .label,
+body:has(main.public-design-refactor) .start-page-xl .help,
+body:has(main.public-design-refactor) .public-page-stack .label,
+body:has(main.public-design-refactor) .public-page-stack .help{
+  color: #42564a !important;
+}
