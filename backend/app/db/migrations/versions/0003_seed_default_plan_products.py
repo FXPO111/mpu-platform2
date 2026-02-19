@@ -20,7 +20,8 @@ SEED_TAG = "default_plans_v1"
 
 
 def _upsert(code: str, plan: str, name: str, price_cents: int) -> None:
-    op.execute(
+    bind = op.get_bind()
+    bind.execute(
         sa.text(
             """
             INSERT INTO products (id, code, type, name_de, name_en, price_cents, currency, stripe_price_id, metadata, active)
@@ -56,7 +57,8 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.execute(
+    bind = op.get_bind()
+    bind.execute(
         sa.text(
             """
             DELETE FROM products
