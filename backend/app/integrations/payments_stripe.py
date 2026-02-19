@@ -51,6 +51,8 @@ def create_checkout_session(
     stripe_price_id: Optional[str],
     frontend_url: str,
     customer_email: Optional[str] = None,
+    success_url_override: Optional[str] = None,
+    cancel_url_override: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Creates Stripe Checkout Session.
@@ -58,8 +60,11 @@ def create_checkout_session(
     """
     init_stripe(secret_key)
 
-    success_url = f"{frontend_url}/dashboard?checkout=success&order_id={order_id}"
-    cancel_url = f"{frontend_url}/pricing?checkout=cancelled"
+    default_success_url = f"{frontend_url}/dashboard?checkout=success&order_id={order_id}"
+    default_cancel_url = f"{frontend_url}/pricing?checkout=cancelled"
+
+    success_url = (success_url_override or "").strip() or default_success_url
+    cancel_url = (cancel_url_override or "").strip() or default_cancel_url
 
     line_item: Dict[str, Any]
     if stripe_price_id:

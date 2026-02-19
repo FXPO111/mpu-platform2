@@ -207,6 +207,9 @@ class Repo:
         self.db.flush()
         return row
 
+    def get_diagnostic_submission(self, submission_id: UUID) -> DiagnosticSubmission | None:
+        return self.db.get(DiagnosticSubmission, submission_id)
+
     def find_order_by_provider_ref(self, provider_ref: str) -> Order | None:
         return self.db.scalar(select(Order).where(Order.provider_ref == provider_ref))
 

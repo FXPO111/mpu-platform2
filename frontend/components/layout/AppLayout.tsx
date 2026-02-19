@@ -1,66 +1,46 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { NavLink } from "@/components/nav/NavLink";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
+  const [email, setEmail] = useState("client@mpu");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const fromCheckout = localStorage.getItem("checkout_email")?.trim().toLowerCase();
+    if (fromCheckout && fromCheckout.includes("@")) {
+      setEmail(fromCheckout);
+    }
+  }, []);
+
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <div className="brand" style={{ marginBottom: 14 }}>
-          <span className="brand-dot" />
-          <Link href="/dashboard">MPU AI</Link>
-        </div>
-
-        <div className="box">
-          <div className="badge">Баланс: 0 • План: MVP</div>
-          <div className="sidebar-nav">
-            <NavLink href="/dashboard" exact>
-              Dashboard
-            </NavLink>
-            <NavLink href="/booking" exact>
-              Booking
-            </NavLink>
-            <NavLink href="/trainer" exact>
-              Trainer
-            </NavLink>
-            <NavLink href="/admin" exact>
-              Admin
-            </NavLink>
-          </div>
-
-          <div className="hr" />
-
-          <Link href="/pricing">
-            <Button variant="primary" size="sm" style={{ width: "100%" }}>
-              Пополнить / Тарифы
-            </Button>
+    <div className="cabinet-v2-shell">
+      <header className="cabinet-v2-header">
+        <div className="container cabinet-v2-header-inner">
+          <Link href="/dashboard" className="cabinet-v2-brand">
+            <span className="cabinet-v2-dot" /> MPU Praxis
           </Link>
-        </div>
-      </aside>
 
-      <div>
-        <div className="topbar">
-          <div className="container topbar-inner">
-            <div style={{ width: "min(520px, 100%)" }}>
-              <Input placeholder="Поиск по кейсам, пользователям, сессиям…" />
-            </div>
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-              <span className="badge">user@mpu</span>
-              <Button variant="ghost" size="sm">
-                Выход
-              </Button>
-            </div>
+          <nav className="cabinet-v2-nav" aria-label="Кабинет">
+            <NavLink href="/dashboard?view=overview" exact>
+              Обзор
+            </NavLink>
+            <NavLink href="/dashboard?view=plan">План</NavLink>
+            <NavLink href="/dashboard?view=training">Тренировка</NavLink>
+            <NavLink href="/dashboard?view=readiness">Готовность</NavLink>
+          </nav>
+
+          <div className="cabinet-v2-email" title={email}>
+            {email}
           </div>
         </div>
+      </header>
 
-        <div className="content">
-          <div className="container page">{children}</div>
-        </div>
-      </div>
+      <main className="content">
+        <div className="container page">{children}</div>
+      </main>
     </div>
   );
 }
