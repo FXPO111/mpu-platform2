@@ -93,11 +93,12 @@ export default function PricingPage() {
   }, []);
 
   const eventByPlan = useMemo(
-    () => ({
-      start: "select_plan_start",
-      pro: "select_plan_pro",
-      intensive: "select_plan_intensive",
-    }) as const,
+    () =>
+      ({
+        start: "select_plan_start",
+        pro: "select_plan_pro",
+        intensive: "select_plan_intensive",
+      }) as const,
     [],
   );
 
@@ -115,10 +116,12 @@ export default function PricingPage() {
             <article key={plan.key} className={`clean-plan card pad ${isRecommended ? "clean-plan-featured" : ""}`}>
               <h2 className="h3">{plan.title}</h2>
               {isRecommended ? <p className="small mt-8">Рекомендуемый формат</p> : null}
+
               <div className="plan-price-wrap">
                 <div className="plan-price">{plan.price}</div>
                 <div className="small">{plan.period}</div>
               </div>
+
               <ul className="plan-list mt-16">
                 {plan.items.map((item) => (
                   <li key={item}>{item}</li>
@@ -126,11 +129,7 @@ export default function PricingPage() {
               </ul>
 
               <div className="hero-actions mt-16">
-                <Link
-                  href="/dashboard"
-                  className="w-full"
-                  onClick={() => track(eventByPlan[plan.key])}
-                >
+                <Link href="/dashboard" className="w-full" onClick={() => track(eventByPlan[plan.key])}>
                   <Button className="w-full" variant={isRecommended ? "primary" : "secondary"}>
                     Выбрать {plan.title} и оплатить
                   </Button>
