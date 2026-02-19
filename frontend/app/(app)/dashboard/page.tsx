@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { toPublicApiUrl } from "@/lib/public-api-base";
 
 type PlanKey = "start" | "pro" | "intensive";
 
@@ -14,10 +15,21 @@ type DiagnosticAnswers = {
   goal?: string;
 };
 
-type Message = {
+type ChatMessage = {
   id: string;
-  role: "ai" | "user";
-  text: string;
+  role: "assistant" | "user";
+  content: string;
+};
+
+type TherapySessionState = {
+  messages: ChatMessage[];
+};
+
+const STORAGE_KEYS = {
+  diagnostic: "diagnostic_answers",
+  recommendedPlan: "recommended_plan",
+  submissionId: "diagnostic_submission_id",
+  session: "therapy_session_v2",
 };
 
 const PLAN_LABEL: Record<PlanKey, string> = {
@@ -26,148 +38,223 @@ const PLAN_LABEL: Record<PlanKey, string> = {
   intensive: "Intensive",
 };
 
-function resolveFocus(answers: DiagnosticAnswers): string[] {
-  const reasons = answers.reasons ?? [];
-  const focus = [
-    reasons[0] ? `Триггер: ${reasons[0]}` : "Стабилизация эмоций",
-    answers.goal ? `Цель: ${answers.goal}` : "Фокус на безопасных шагах",
-    answers.situation ? "Разбор текущей ситуации" : "Определение контекста",
-  ];
-
-  if (answers.otherReason?.trim()) {
-    focus.push(`Доп. фактор: ${answers.otherReason.trim()}`);
-  }
-
-  return focus;
+function normalizePlan(value: string | null): PlanKey {
+  if (value === "start" || value === "pro" || value === "intensive") return value;
+  return "start";
 }
 
-function makeAiReply(userText: string, focus: string[]) {
-  const normalized = userText.toLowerCase();
-
-  if (normalized.includes("трев") || normalized.includes("страх")) {
-    return "Понимаю, что тревога сейчас сильная. Давайте зафиксируем: что из происходящего вы можете контролировать сегодня, а что пока нет?";
+function safeParseDiagnostic(raw: string | null): DiagnosticAnswers {
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw) as DiagnosticAnswers;
+  } catch {
+    return {};
   }
+}
 
-  if (normalized.includes("не знаю") || normalized.includes("не понимаю")) {
-    return "Это нормально. Предлагаю микрошаг: опишите одну конкретную ситуацию за последние 24 часа, где было сложнее всего, и мы разложим её на части.";
-  }
+function buildFocus(diagnostic: DiagnosticAnswers): string[] {
+  const reasons = diagnostic.reasons ?? [];
+  return [
+    reasons[0] ? `Триггер: ${reasons[0]}` : "Триггер: эмоциональная перегрузка",
+    diagnostic.goal ? `Цель: ${diagnostic.goal}` : "Цель: стабильное состояние перед MPU",
+    diagnostic.situation ? "Разбор актуальной ситуации" : "Формирование безопасной поведенческой модели",
+  ];
+}
 
-  return `Хороший шаг. Я зафиксировал это в вашем плане. Дальше предлагаю короткое упражнение по теме «${focus[0]}»: 3 минуты на факты, чувства и действие на сегодня.`;
+function getInitialAssistantMessage(focus: string[]): ChatMessage {
+  return {
+    id: "assistant-initial",
+    role: "assistant",
+    content:
+      "Добро пожаловать в персональный терапевтический кабинет. Я ваш ИИ-специалист и веду полный индивидуальный прием. " +
+      `Сегодня начинаем с фокуса «${focus[0]}». Оцените состояние по шкале 1–10 и опишите, что сейчас тяжелее всего.`,
+  };
 }
 
 export default function DashboardPage() {
-  const diagnosticRaw = typeof window !== "undefined" ? localStorage.getItem("diagnostic_answers") : null;
-  const submissionId = typeof window !== "undefined" ? localStorage.getItem("diagnostic_submission_id") : null;
-  const recommendedRaw = typeof window !== "undefined" ? localStorage.getItem("recommended_plan") : null;
-
-  const diagnostic = useMemo<DiagnosticAnswers>(() => {
-    if (!diagnosticRaw) return {};
-    try {
-      return JSON.parse(diagnosticRaw) as DiagnosticAnswers;
-    } catch {
-      return {};
-    }
-  }, [diagnosticRaw]);
-
-  const plan = (recommendedRaw === "start" || recommendedRaw === "pro" || recommendedRaw === "intensive"
-    ? recommendedRaw
-    : "start") as PlanKey;
-
-  const focus = useMemo(() => resolveFocus(diagnostic), [diagnostic]);
-
+  const [diagnostic, setDiagnostic] = useState<DiagnosticAnswers>({});
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [plan, setPlan] = useState<PlanKey>("start");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "ai-1",
-      role: "ai",
-      text: "Привет. Я изучил вашу диагностику и собрал персональный план. Начнем с короткой проверки состояния: как вы сейчас себя чувствуете по шкале 1–10?",
-    },
-  ]);
+  const [isSending, setIsSending] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [riskLevel, setRiskLevel] = useState("moderate");
 
-  const sendMessage = () => {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const parsedDiagnostic = safeParseDiagnostic(localStorage.getItem(STORAGE_KEYS.diagnostic));
+    const storedPlan = normalizePlan(localStorage.getItem(STORAGE_KEYS.recommendedPlan));
+    const storedSubmissionId = localStorage.getItem(STORAGE_KEYS.submissionId);
+
+    setDiagnostic(parsedDiagnostic);
+    setPlan(storedPlan);
+    setSubmissionId(storedSubmissionId);
+
+    const focus = buildFocus(parsedDiagnostic);
+    const storedSession = localStorage.getItem(STORAGE_KEYS.session);
+    if (storedSession) {
+      try {
+        const parsed = JSON.parse(storedSession) as TherapySessionState;
+        if (parsed.messages?.length) {
+          setMessages(parsed.messages);
+          return;
+        }
+      } catch {
+        // ignore broken state
+      }
+    }
+
+    setMessages([getInitialAssistantMessage(focus)]);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!messages.length) return;
+    localStorage.setItem(STORAGE_KEYS.session, JSON.stringify({ messages }));
+  }, [messages]);
+
+  const focus = useMemo(() => buildFocus(diagnostic), [diagnostic]);
+
+  const hasDiagnostic = Boolean(
+    (diagnostic.reasons && diagnostic.reasons.length) || diagnostic.situation || diagnostic.history || diagnostic.goal,
+  );
+
+  const sendMessage = async () => {
     const trimmed = input.trim();
-    if (!trimmed) return;
+    if (!trimmed || isSending) return;
 
-    const userMessage: Message = {
+    const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
       role: "user",
-      text: trimmed,
+      content: trimmed,
     };
 
-    const aiMessage: Message = {
-      id: `ai-${Date.now()}`,
-      role: "ai",
-      text: makeAiReply(trimmed, focus),
-    };
-
-    setMessages((prev) => [...prev, userMessage, aiMessage]);
+    const nextMessages = [...messages, userMessage];
+    setMessages(nextMessages);
     setInput("");
-  };
+    setIsSending(true);
+    setApiError(null);
 
-  const riskLevel = diagnostic.history && diagnostic.history.length > 140 ? "Повышенный" : "Умеренный";
+    try {
+      const apiUrl = toPublicApiUrl("/api/public/therapy");
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: trimmed,
+          diagnostic_submission_id: submissionId,
+          locale: "ru",
+          history: nextMessages.slice(-12).map((m) => ({ role: m.role, content: m.content })),
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || `HTTP ${res.status}`);
+      }
+
+      const data = (await res.json()) as { reply: string; plan: PlanKey; risk_level: string };
+
+      setRiskLevel(data.risk_level || "moderate");
+      if (data.plan === "start" || data.plan === "pro" || data.plan === "intensive") {
+        setPlan(data.plan);
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `assistant-${Date.now()}`,
+          role: "assistant",
+          content: data.reply,
+        },
+      ]);
+    } catch {
+      setApiError("Не удалось получить ответ специалиста. Проверьте backend/OPENAI_API_KEY и повторите.");
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `assistant-fallback-${Date.now()}`,
+          role: "assistant",
+          content:
+            "Сбой связи с сервером. Пока продолжим вручную: опишите одну конкретную ситуацию за последние 24 часа и ваше действие в этой ситуации.",
+        },
+      ]);
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <div style={{ display: "grid", gap: 16 }}>
-      <div className="card pad">
-        <div className="badge">После оплаты • Dashboard</div>
-        <h1 className="h2" style={{ marginTop: 10 }}>Индивидуальный терапевтический маршрут</h1>
+      <section className="card pad">
+        <div className="badge">После оплаты • Полноценный AI-прием</div>
+        <h1 className="h2" style={{ marginTop: 10 }}>
+          Личный кабинет психологической терапии MPU
+        </h1>
         <p className="p" style={{ marginTop: 8 }}>
-          Диагностика сохранена. AI подбирает персональный подход и ведет с вами ежедневную психологическую практику.
+          Это не демо: здесь идет реальная сессия через backend + GPT API по вашей диагностике.
         </p>
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
+
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 14 }}>
           <span className="chip">План: {PLAN_LABEL[plan]}</span>
-          <span className="chip">Риск: {riskLevel}</span>
-          {submissionId ? <span className="chip">ID: {submissionId}</span> : null}
+          <span className="chip">Риск: {riskLevel === "high" ? "Высокий" : "Умеренный"}</span>
+          <span className="chip">Фокус: {focus[0]}</span>
+          {submissionId ? <span className="chip">ID диагностики: {submissionId}</span> : null}
         </div>
-      </div>
+      </section>
+
+      {!hasDiagnostic ? (
+        <section className="card pad soft">
+          <h2 className="h3">Нет данных диагностики</h2>
+          <p className="p" style={{ marginTop: 8 }}>
+            Для персональной терапии сначала заполните диагностику, чтобы ИИ получил исходный клинический контекст.
+          </p>
+          <div style={{ marginTop: 12 }}>
+            <Link href="/diagnostic">
+              <Button>Пройти диагностику</Button>
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       <div className="grid2">
         <section className="card pad">
-          <h2 className="h3">Профиль на основе диагностики</h2>
-          <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-            <div className="card pad" style={{ boxShadow: "none" }}>
-              <div className="badge">Фокус терапии</div>
-              <ul style={{ margin: "10px 0 0", paddingLeft: 18, color: "var(--muted)", lineHeight: 1.6 }}>
-                {focus.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="card pad" style={{ boxShadow: "none" }}>
-              <div className="badge">Что AI делает дальше</div>
-              <div className="p" style={{ marginTop: 8 }}>
-                1) Ежедневный check-in. 2) Упражнения на саморегуляцию. 3) Разбор триггеров и формирование новых реакций.
+          <h2 className="h3">Клиническая карта случая</h2>
+          <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+            {focus.map((item) => (
+              <div key={item} className="card pad" style={{ boxShadow: "none" }}>
+                <div className="badge">Терапевтический фокус</div>
+                <p className="p" style={{ marginTop: 8 }}>
+                  {item}
+                </p>
               </div>
-            </div>
+            ))}
           </div>
-
           <div className="hr" />
           <div className="small">
-            Важно: это цифровая психологическая поддержка и тренировка навыков, не экстренная помощь.
-          </div>
-          <div style={{ marginTop: 12 }}>
-            <Link href="/booking">
-              <Button variant="secondary">Запланировать сессию с куратором</Button>
-            </Link>
+            При признаках острого кризиса необходимо обращаться в экстренные службы по месту нахождения.
           </div>
         </section>
 
         <section className="card pad">
-          <h2 className="h3">AI-терапия: первая сессия</h2>
-          <div style={{ display: "grid", gap: 10, marginTop: 14, maxHeight: 420, overflow: "auto", paddingRight: 4 }}>
+          <h2 className="h3">Сессия со специалистом AI</h2>
+          <div style={{ display: "grid", gap: 10, marginTop: 12, maxHeight: 430, overflow: "auto", paddingRight: 6 }}>
             {messages.map((m) => (
               <div
                 key={m.id}
                 className="card pad"
                 style={{
                   boxShadow: "none",
-                  borderColor: m.role === "ai" ? "rgba(34,197,94,.35)" : "rgba(255,255,255,.12)",
-                  background: m.role === "ai" ? "rgba(34,197,94,.08)" : "rgba(255,255,255,.04)",
+                  borderColor: m.role === "assistant" ? "rgba(34,197,94,.38)" : "rgba(255,255,255,.14)",
+                  background: m.role === "assistant" ? "rgba(34,197,94,.08)" : "rgba(255,255,255,.05)",
                 }}
               >
-                <div className="badge">{m.role === "ai" ? "AI-психолог" : "Вы"}</div>
-                <p className="p" style={{ marginTop: 8 }}>{m.text}</p>
+                <div className="badge">{m.role === "assistant" ? "AI-специалист" : "Вы"}</div>
+                <p className="p" style={{ marginTop: 8, whiteSpace: "pre-wrap" }}>
+                  {m.content}
+                </p>
               </div>
             ))}
           </div>
@@ -176,10 +263,16 @@ export default function DashboardPage() {
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Опишите текущее состояние, мысль или сложную ситуацию..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  void sendMessage();
+                }
+              }}
+              placeholder="Напишите состояние, мысли, эмоции, события и что хотите изменить..."
               style={{
                 width: "100%",
-                minHeight: 90,
+                minHeight: 110,
                 resize: "vertical",
                 borderRadius: 14,
                 border: "1px solid rgba(255,255,255,.14)",
@@ -189,7 +282,10 @@ export default function DashboardPage() {
                 outline: "none",
               }}
             />
-            <Button onClick={sendMessage}>Отправить и продолжить сессию</Button>
+            <Button onClick={() => void sendMessage()} disabled={isSending || !input.trim()}>
+              {isSending ? "Специалист формирует ответ..." : "Отправить в терапию"}
+            </Button>
+            {apiError ? <p className="help">{apiError}</p> : null}
           </div>
         </section>
       </div>
