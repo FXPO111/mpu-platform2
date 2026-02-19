@@ -47,9 +47,7 @@ class PublicCheckoutOut(BaseModel):
 
 
 def detect_plan(payload: DiagnosticSubmitIn) -> str:
-    text = " ".join(
-        payload.reasons + [payload.other_reason or "", payload.situation, payload.history, payload.goal]
-    ).lower()
+    text = " ".join(payload.reasons + [payload.other_reason or "", payload.situation, payload.history, payload.goal]).lower()
     intense_keywords = ["повтор", "отказ", "сложно", "долго", "стресс", "срочно", "конфликт", "инцидент"]
     pro_keywords = ["документ", "план", "трениров", "ошиб", "формулиров", "подготов"]
 
@@ -88,17 +86,7 @@ def products(db: Session = Depends(get_db)):
 def slots(db: Session = Depends(get_db)):
     repo = Repo(db)
     rows = repo.list_open_slots()
-    return {
-        "data": [
-            {
-                "id": str(s.id),
-                "starts_at_utc": s.starts_at_utc.isoformat(),
-                "duration_min": s.duration_min,
-                "title": s.title,
-            }
-            for s in rows
-        ]
-    }
+    return {"data": [{"id": str(s.id), "starts_at_utc": s.starts_at_utc.isoformat(), "duration_min": s.duration_min, "title": s.title} for s in rows]}
 
 
 @router.post("/diagnostic", response_model=DiagnosticSubmitOut)
