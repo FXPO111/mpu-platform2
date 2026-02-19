@@ -128,6 +128,24 @@ export default function PricingPage() {
 
       if (!res.ok) {
         const errText = await res.text();
+        let errorCode: string | undefined;
+        try {
+          const parsed = JSON.parse(errText) as { error?: { code?: string } };
+          errorCode = parsed.error?.code;
+        } catch {
+          // ignore non-json backend errors
+        }
+
+        if (errorCode === "PRODUCT_NOT_FOUND") {
+          throw new Error("PRODUCT_NOT_FOUND");
+        }
+        if (errorCode === "STRIPE_NOT_CONFIGURED") {
+          throw new Error("STRIPE_NOT_CONFIGURED");
+        }
+        if (errorCode === "CHECKOUT_FAILED") {
+          throw new Error("CHECKOUT_FAILED");
+        }
+
         throw new Error(errText || `HTTP ${res.status}`);
       }
 
@@ -141,8 +159,17 @@ export default function PricingPage() {
         return;
       }
       setError("Не получили ссылку на оплату. Попробуйте еще раз.");
-    } catch {
-      setError("Не удалось запустить оплату. Проверьте сервер и Stripe-настройки.");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "";
+      if (errorMessage === "PRODUCT_NOT_FOUND") {
+        setError("Тариф не настроен на сервере (нет продукта).");
+      } else if (errorMessage === "STRIPE_NOT_CONFIGURED") {
+        setError("Оплата временно недоступна (Stripe не настроен).");
+      } else if (errorMessage === "CHECKOUT_FAILED") {
+        setError("Не удалось запустить оплату. Проверьте Stripe-настройки.");
+      } else {
+        setError("Не удалось запустить оплату. Проверьте сервер и Stripe-настройки.");
+      }
     } finally {
       setLoadingPlan(null);
     }
