@@ -40,6 +40,8 @@ class PublicCheckoutIn(BaseModel):
     plan: Literal["start", "pro", "intensive"]
     email: str = Field(min_length=5, max_length=320)
     name: str | None = Field(default=None, max_length=120)
+    success_url: str | None = Field(default=None, max_length=2000)
+    cancel_url: str | None = Field(default=None, max_length=2000)
 
 
 class PublicCheckoutOut(BaseModel):
@@ -76,6 +78,17 @@ def detect_plan(payload: DiagnosticSubmitIn) -> str:
     if any(k in text for k in pro_keywords):
         return "pro"
     return "start"
+
+
+def _safe_redirect_url(value: str | None) -> str | None:
+    if not value:
+        return None
+    candidate = value.strip()
+    if not candidate:
+        return None
+    if not (candidate.startswith("http://") or candidate.startswith("https://")):
+        raise APIError("BAD_REDIRECT_URL", "Redirect URL must be absolute http(s) URL", status_code=422)
+    return candidate
 
 
 def _normalize_locale(locale: str) -> str:
@@ -115,7 +128,17 @@ def products(db: Session = Depends(get_db)):
 def slots(db: Session = Depends(get_db)):
     repo = Repo(db)
     rows = repo.list_open_slots()
-    return {"data": [{"id": str(s.id), "starts_at_utc": s.starts_at_utc.isoformat(), "duration_min": s.duration_min, "title": s.title} for s in rows]}
+    return {
+        "data": [
+            {
+                "id": str(s.id),
+                "starts_at_utc": s.starts_at_utc.isoformat(),
+                "duration_min": s.duration_min,
+                "title": s.title,
+            }
+            for s in rows
+        ]
+    }
 
 
 @router.post("/diagnostic", response_model=DiagnosticSubmitOut)
@@ -227,6 +250,8 @@ def public_checkout(payload: PublicCheckoutIn, db: Session = Depends(get_db)):
             stripe_price_id=product.stripe_price_id,
             frontend_url=settings.frontend_url,
             customer_email=user.email,
+            success_url_override=_safe_redirect_url(payload.success_url),
+            cancel_url_override=_safe_redirect_url(payload.cancel_url),
         )
     except StripeError as exc:
         db.rollback()
