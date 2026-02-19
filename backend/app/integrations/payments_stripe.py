@@ -9,9 +9,33 @@ class StripeError(Exception):
     pass
 
 
+def is_stripe_configured(secret_key: str | None) -> bool:
+    if not secret_key:
+        return False
+
+    normalized = secret_key.strip()
+    if not normalized:
+        return False
+
+    placeholder_values = {
+        "sk_test",
+        "sk_live",
+        "sk_test_xxx",
+        "sk_live_xxx",
+        "change-me",
+        "changeme",
+    }
+    if normalized in placeholder_values:
+        return False
+
+    if normalized.endswith("_xxx"):
+        return False
+
+    return normalized.startswith("sk_test_") or normalized.startswith("sk_live_")
+
+
 def init_stripe(secret_key: str) -> None:
-    if not secret_key or secret_key.startswith("sk_") is False:
-        # допускаем dev-ключ, но не пустоту
+    if not is_stripe_configured(secret_key):
         raise StripeError("Stripe secret key is not configured")
     stripe.api_key = secret_key
 
@@ -41,14 +65,12 @@ def create_checkout_session(
     if stripe_price_id:
         line_item = {"price": stripe_price_id, "quantity": 1}
     else:
-        # MVP fallback: build price_data on the fly
         line_item = {
             "price_data": {
                 "currency": currency.lower(),
                 "unit_amount": int(unit_amount_cents),
                 "product_data": {
                     "name": product_name,
-                    # чтобы в Stripe можно было отличать продукты
                     "metadata": {"product_id": product_id},
                 },
             },
@@ -70,7 +92,6 @@ def create_checkout_session(
     except Exception as e:
         raise StripeError(f"Failed to create checkout session: {e}") from e
 
-    # stripe returns a StripeObject; make it serializable for API response
     return {"id": session["id"], "url": session.get("url")}
 
 
@@ -95,5 +116,4 @@ def construct_event(
     except Exception as e:
         raise StripeError(f"Webhook parse error: {e}") from e
 
-    # Convert StripeObject to plain dict
     return event.to_dict()

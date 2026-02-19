@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.db.repo import Repo
 from app.db.session import get_db
 from app.domain.models import APIError
-from app.integrations.payments_stripe import StripeError, create_checkout_session
+from app.integrations.payments_stripe import StripeError, create_checkout_session, is_stripe_configured
 from app.security.auth import hash_password
 from app.settings import settings
 
@@ -115,7 +115,15 @@ def public_checkout(payload: PublicCheckoutIn, db: Session = Depends(get_db)):
     product_code = PLAN_TO_PRODUCT_CODE[payload.plan]
     product = repo.get_product_by_code(product_code)
     if not product:
-        raise APIError("PRODUCT_NOT_FOUND", f"Product for plan '{payload.plan}' not found", status_code=404)
+        raise APIError(
+            "PRODUCT_NOT_FOUND",
+            "Product is not configured",
+            {"expected_codes": sorted(PLAN_TO_PRODUCT_CODE.values())},
+            status_code=404,
+        )
+
+    if not is_stripe_configured(settings.stripe_secret_key):
+        raise APIError("STRIPE_NOT_CONFIGURED", "Stripe keys are missing", status_code=503)
 
     user = repo.get_user_by_email(payload.email)
     if not user:
@@ -145,7 +153,7 @@ def public_checkout(payload: PublicCheckoutIn, db: Session = Depends(get_db)):
         )
     except StripeError as exc:
         db.rollback()
-        raise APIError("CHECKOUT_FAILED", str(exc), status_code=502) from exc
+        raise APIError("CHECKOUT_FAILED", "Stripe checkout failed", status_code=502) from exc
 
     order.provider_ref = session["id"]
     db.commit()
