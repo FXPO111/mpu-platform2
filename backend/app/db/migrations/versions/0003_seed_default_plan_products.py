@@ -6,7 +6,6 @@ Create Date: 2026-02-19
 """
 
 from uuid import uuid4
-import json
 
 from alembic import op
 import sqlalchemy as sa
@@ -17,14 +16,15 @@ down_revision = "0002_diagnostic_submissions"
 branch_labels = None
 depends_on = None
 
-
 SEED_TAG = "default_plans_v1"
 
 
 def _upsert(code: str, plan: str, name: str, price_cents: int) -> None:
     bind = op.get_bind()
-    upsert_stmt = sa.text(
-        """
+
+    upsert_stmt = (
+        sa.text(
+            """
             INSERT INTO products (id, code, type, name_de, name_en, price_cents, currency, stripe_price_id, metadata, active)
             VALUES (
               :id,
@@ -50,10 +50,17 @@ def _upsert(code: str, plan: str, name: str, price_cents: int) -> None:
                    ),
               active = COALESCE(products.active, true)
             """
-    ).bindparams(
-        sa.bindparam("id", type_=postgresql.UUID(as_uuid=False)),
-        sa.bindparam("metadata", type_=postgresql.JSONB),
+        )
+        .bindparams(
+            sa.bindparam("id", type_=postgresql.UUID(as_uuid=False)),
+            sa.bindparam("code", type_=sa.Text()),
+            sa.bindparam("name", type_=sa.Text()),
+            sa.bindparam("price_cents", type_=sa.Integer()),
+            sa.bindparam("plan", type_=sa.Text()),
+            sa.bindparam("seed_tag", type_=sa.Text()),
+        )
     )
+
     bind.execute(
         upsert_stmt,
         {
@@ -82,6 +89,6 @@ def downgrade() -> None:
             WHERE code IN ('PLAN_START', 'PLAN_PRO', 'PLAN_INTENSIVE')
               AND COALESCE(metadata::jsonb->>'seed_tag', '') = :seed_tag
             """
-        ),
+        ).bindparams(sa.bindparam("seed_tag", type_=sa.Text())),
         {"seed_tag": SEED_TAG},
     )
