@@ -154,7 +154,9 @@ export default function PricingPage() {
         <h1 className="h1">Выберите формат подготовки</h1>
         <p className="lead mt-12">Начните с диагностики — рекомендованный вариант уже отмечен на основе результата.</p>
         <div className="field mt-16 pricing-email-field">
-          <label className="label" htmlFor="pricing-email">Email для оплаты</label>
+          <label className="label" htmlFor="pricing-email">
+            Email для оплаты
+          </label>
           <Input
             id="pricing-email"
             type="email"
@@ -170,9 +172,14 @@ export default function PricingPage() {
           const isRecommended = plan.key === recommended;
           const isLoading = loadingPlan === plan.key;
           return (
-            <article key={plan.key} className={`clean-plan card pad pricing-plan-card ${isRecommended ? "clean-plan-featured" : ""}`}>
+            <article
+              key={plan.key}
+              className={`clean-plan card pad pricing-plan-card ${isRecommended ? "clean-plan-featured" : ""}`}
+            >
               <h2 className="h3">{plan.title}</h2>
-              <p className={`small mt-8 pricing-plan-note ${isRecommended ? "" : "is-empty"}`} aria-hidden={!isRecommended}>Рекомендуемый формат</p>
+              <p className={`small mt-8 pricing-plan-note ${isRecommended ? "" : "is-empty"}`} aria-hidden={!isRecommended}>
+                Рекомендуемый формат
+              </p>
 
               <div className="plan-price-wrap">
                 <div className="plan-price">{plan.price}</div>

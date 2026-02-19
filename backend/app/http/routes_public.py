@@ -74,7 +74,12 @@ def expert():
 def products(db: Session = Depends(get_db)):
     repo = Repo(db)
     rows = repo.list_products()
-    return {"data": [{"id": str(p.id), "code": p.code, "price_cents": p.price_cents, "currency": p.currency, "type": p.type} for p in rows]}
+    return {
+        "data": [
+            {"id": str(p.id), "code": p.code, "price_cents": p.price_cents, "currency": p.currency, "type": p.type}
+            for p in rows
+        ]
+    }
 
 
 @router.get("/slots")

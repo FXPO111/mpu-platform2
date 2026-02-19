@@ -145,10 +145,7 @@ export default function DiagnosticPage() {
 
       const data = (await res.json()) as { id: string; recommended_plan: PlanKey };
 
-      localStorage.setItem(
-        "diagnostic_answers",
-        JSON.stringify({ reasons, otherReason, situation, history, goal }),
-      );
+      localStorage.setItem("diagnostic_answers", JSON.stringify({ reasons, otherReason, situation, history, goal }));
       localStorage.setItem("recommended_plan", data.recommended_plan ?? recommended);
       localStorage.setItem("diagnostic_submission_id", data.id);
       setSubmissionId(data.id);
@@ -205,7 +202,9 @@ export default function DiagnosticPage() {
 
               {reasons.includes("Другое") ? (
                 <div className="field mt-8">
-                  <label className="label" htmlFor="diag-other">Уточните в 1–2 словах</label>
+                  <label className="label" htmlFor="diag-other">
+                    Уточните в 1–2 словах
+                  </label>
                   <Input
                     id="diag-other"
                     className="diag-input"
@@ -221,11 +220,7 @@ export default function DiagnosticPage() {
             <div className="mt-16 stack">
               <h2 className="h3">Опишите текущую ситуацию</h2>
               <p className="small">Коротко (1–3 предложения). Без деталей, которые вы не хотите указывать.</p>
-              <textarea
-                className="input diag-textarea"
-                value={situation}
-                onChange={(e) => setSituation(e.target.value)}
-              />
+              <textarea className="input diag-textarea" value={situation} onChange={(e) => setSituation(e.target.value)} />
               <p className="help">Пример: «Сейчас собираю документы и хочу подготовиться к интервью без ошибок в формулировках».</p>
             </div>
           ) : null}
@@ -234,11 +229,7 @@ export default function DiagnosticPage() {
             <div className="mt-16 stack">
               <h2 className="h3">Что уже сделано по подготовке?</h2>
               <p className="small">Коротко (1–3 предложения). Без деталей, которые вы не хотите указывать.</p>
-              <textarea
-                className="input diag-textarea"
-                value={history}
-                onChange={(e) => setHistory(e.target.value)}
-              />
+              <textarea className="input diag-textarea" value={history} onChange={(e) => setHistory(e.target.value)} />
               <p className="help">Пример: «Есть базовые документы, но нет уверенности в структуре ответов и порядке шагов».</p>
             </div>
           ) : null}
@@ -247,21 +238,23 @@ export default function DiagnosticPage() {
             <div className="mt-16 stack">
               <h2 className="h3">Какая цель по срокам?</h2>
               <p className="small">Коротко (1–3 предложения). Без деталей, которые вы не хотите указывать.</p>
-              <textarea
-                className="input diag-textarea"
-                value={goal}
-                onChange={(e) => setGoal(e.target.value)}
-              />
+              <textarea className="input diag-textarea" value={goal} onChange={(e) => setGoal(e.target.value)} />
               <p className="help">Пример: «Хочу пройти полную подготовку в ближайшие 6–8 недель с финальной проверкой».</p>
             </div>
           ) : null}
 
           <div className="hero-actions mt-16">
-            <Button variant="ghost" disabled={step === 0} onClick={() => setStep((v) => Math.max(0, v - 1))}>Назад</Button>
+            <Button variant="ghost" disabled={step === 0} onClick={() => setStep((v) => Math.max(0, v - 1))}>
+              Назад
+            </Button>
             {step < STEP_TITLES.length - 1 ? (
-              <Button disabled={!canNext} onClick={() => setStep((v) => Math.min(STEP_TITLES.length - 1, v + 1))}>Далее</Button>
+              <Button disabled={!canNext} onClick={() => setStep((v) => Math.min(STEP_TITLES.length - 1, v + 1))}>
+                Далее
+              </Button>
             ) : (
-              <Button disabled={!canNext || isSaving} onClick={saveResult}>{isSaving ? "Сохраняем..." : "Показать результат"}</Button>
+              <Button disabled={!canNext || isSaving} onClick={saveResult}>
+                {isSaving ? "Сохраняем..." : "Показать результат"}
+              </Button>
             )}
           </div>
 
@@ -293,13 +286,20 @@ export default function DiagnosticPage() {
         <section className="card pad soft">
           <h2 className="h3">Результат диагностики</h2>
           <p className="p mt-10">
-            Рекомендуемый формат подготовки: <strong>{(resultPlan ?? recommended) === "start" ? "Start" : (resultPlan ?? recommended) === "pro" ? "Pro" : "Intensive"}</strong>.
-            Вы можете перейти к оплате или выбрать другой вариант вручную.
+            Рекомендуемый формат подготовки:{" "}
+            <strong>
+              {(resultPlan ?? recommended) === "start" ? "Start" : (resultPlan ?? recommended) === "pro" ? "Pro" : "Intensive"}
+            </strong>
+            . Вы можете перейти к оплате или выбрать другой вариант вручную.
           </p>
           {submissionId ? <p className="help mt-8">ID диагностики: {submissionId}</p> : null}
           <div className="hero-actions">
-            <Link href={`/pricing?plan=${resultPlan ?? recommended}`}><Button>Выбрать формат и оплатить</Button></Link>
-            <Link href="/pricing"><Button variant="secondary">Смотреть все тарифы</Button></Link>
+            <Link href={`/pricing?plan=${resultPlan ?? recommended}`}>
+              <Button>Выбрать формат и оплатить</Button>
+            </Link>
+            <Link href="/pricing">
+              <Button variant="secondary">Смотреть все тарифы</Button>
+            </Link>
           </div>
         </section>
       ) : null}
