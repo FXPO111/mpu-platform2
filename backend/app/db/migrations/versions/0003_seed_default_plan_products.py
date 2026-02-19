@@ -25,16 +25,27 @@ def _upsert(code: str, plan: str, name: str, price_cents: int) -> None:
         sa.text(
             """
             INSERT INTO products (id, code, type, name_de, name_en, price_cents, currency, stripe_price_id, metadata, active)
-            VALUES (CAST(:id AS uuid), :code, 'program', :name, :name, :price_cents, 'EUR', NULL, CAST(:metadata AS jsonb), true)
+            VALUES (
+              :id,
+              :code,
+              'program',
+              :name,
+              :name,
+              :price_cents,
+              'EUR',
+              NULL,
+              jsonb_build_object('plan', :plan, 'seed_tag', :seed_tag),
+              true
+            )
             ON CONFLICT (code) DO UPDATE SET
               type = CASE WHEN products.type IS NULL OR products.type = '' THEN EXCLUDED.type ELSE products.type END,
               name_de = CASE WHEN products.name_de IS NULL OR products.name_de = '' THEN EXCLUDED.name_de ELSE products.name_de END,
               name_en = CASE WHEN products.name_en IS NULL OR products.name_en = '' THEN EXCLUDED.name_en ELSE products.name_en END,
               currency = CASE WHEN products.currency IS NULL OR products.currency = '' THEN EXCLUDED.currency ELSE products.currency END,
-              metadata = COALESCE(products.metadata, '{}'::jsonb)
+              metadata = COALESCE(products.metadata::jsonb, '{}'::jsonb)
                 || jsonb_build_object(
-                     'plan', COALESCE(products.metadata->>'plan', EXCLUDED.metadata->>'plan'),
-                     'seed_tag', COALESCE(products.metadata->>'seed_tag', :seed_tag)
+                     'plan', COALESCE(products.metadata::jsonb->>'plan', EXCLUDED.metadata::jsonb->>'plan'),
+                     'seed_tag', COALESCE(products.metadata::jsonb->>'seed_tag', :seed_tag)
                    ),
               active = COALESCE(products.active, true)
             """
@@ -42,10 +53,10 @@ def _upsert(code: str, plan: str, name: str, price_cents: int) -> None:
         {
             "id": str(uuid4()),
             "code": code,
+            "plan": plan,
             "name": name,
             "price_cents": price_cents,
             "seed_tag": SEED_TAG,
-            "metadata": f'{{"plan":"{plan}","seed_tag":"{SEED_TAG}"}}',
         },
     )
 
@@ -63,7 +74,7 @@ def downgrade() -> None:
             """
             DELETE FROM products
             WHERE code IN ('PLAN_START', 'PLAN_PRO', 'PLAN_INTENSIVE')
-              AND COALESCE(metadata->>'seed_tag', '') = :seed_tag
+              AND COALESCE(metadata::jsonb->>'seed_tag', '') = :seed_tag
             """
         ),
         {"seed_tag": SEED_TAG},
