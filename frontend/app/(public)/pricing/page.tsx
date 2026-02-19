@@ -115,7 +115,9 @@ export default function PricingPage() {
 
     setLoadingPlan(plan);
     try {
-      const res = await fetch("/api/public/checkout", {
+      const publicApiBase = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
+      const apiUrl = publicApiBase ? `${publicApiBase}/api/public/checkout` : "/api/public/checkout";
+      const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -175,10 +177,7 @@ export default function PricingPage() {
               className={`clean-plan card pad pricing-plan-card ${isRecommended ? "clean-plan-featured" : ""}`}
             >
               <h2 className="h3">{plan.title}</h2>
-              <p
-                className={`small mt-8 pricing-plan-note ${isRecommended ? "" : "is-empty"}`}
-                aria-hidden={!isRecommended}
-              >
+              <p className={`small mt-8 pricing-plan-note ${isRecommended ? "" : "is-empty"}`} aria-hidden={!isRecommended}>
                 Рекомендуемый формат
               </p>
 

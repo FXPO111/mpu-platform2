@@ -130,7 +130,9 @@ export default function DiagnosticPage() {
     };
 
     try {
-      const res = await fetch("/api/public/diagnostic", {
+      const publicApiBase = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
+      const apiUrl = publicApiBase ? `${publicApiBase}/api/public/diagnostic` : "/api/public/diagnostic";
+      const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -143,10 +145,7 @@ export default function DiagnosticPage() {
 
       const data = (await res.json()) as { id: string; recommended_plan: PlanKey };
 
-      localStorage.setItem(
-        "diagnostic_answers",
-        JSON.stringify({ reasons, otherReason, situation, history, goal }),
-      );
+      localStorage.setItem("diagnostic_answers", JSON.stringify({ reasons, otherReason, situation, history, goal }));
       localStorage.setItem("recommended_plan", data.recommended_plan ?? recommended);
       localStorage.setItem("diagnostic_submission_id", data.id);
       setSubmissionId(data.id);
@@ -221,14 +220,8 @@ export default function DiagnosticPage() {
             <div className="mt-16 stack">
               <h2 className="h3">Опишите текущую ситуацию</h2>
               <p className="small">Коротко (1–3 предложения). Без деталей, которые вы не хотите указывать.</p>
-              <textarea
-                className="input diag-textarea"
-                value={situation}
-                onChange={(e) => setSituation(e.target.value)}
-              />
-              <p className="help">
-                Пример: «Сейчас собираю документы и хочу подготовиться к интервью без ошибок в формулировках».
-              </p>
+              <textarea className="input diag-textarea" value={situation} onChange={(e) => setSituation(e.target.value)} />
+              <p className="help">Пример: «Сейчас собираю документы и хочу подготовиться к интервью без ошибок в формулировках».</p>
             </div>
           ) : null}
 
@@ -237,9 +230,7 @@ export default function DiagnosticPage() {
               <h2 className="h3">Что уже сделано по подготовке?</h2>
               <p className="small">Коротко (1–3 предложения). Без деталей, которые вы не хотите указывать.</p>
               <textarea className="input diag-textarea" value={history} onChange={(e) => setHistory(e.target.value)} />
-              <p className="help">
-                Пример: «Есть базовые документы, но нет уверенности в структуре ответов и порядке шагов».
-              </p>
+              <p className="help">Пример: «Есть базовые документы, но нет уверенности в структуре ответов и порядке шагов».</p>
             </div>
           ) : null}
 
@@ -248,9 +239,7 @@ export default function DiagnosticPage() {
               <h2 className="h3">Какая цель по срокам?</h2>
               <p className="small">Коротко (1–3 предложения). Без деталей, которые вы не хотите указывать.</p>
               <textarea className="input diag-textarea" value={goal} onChange={(e) => setGoal(e.target.value)} />
-              <p className="help">
-                Пример: «Хочу пройти полную подготовку в ближайшие 6–8 недель с финальной проверкой».
-              </p>
+              <p className="help">Пример: «Хочу пройти полную подготовку в ближайшие 6–8 недель с финальной проверкой».</p>
             </div>
           ) : null}
 
@@ -299,11 +288,7 @@ export default function DiagnosticPage() {
           <p className="p mt-10">
             Рекомендуемый формат подготовки:{" "}
             <strong>
-              {(resultPlan ?? recommended) === "start"
-                ? "Start"
-                : (resultPlan ?? recommended) === "pro"
-                  ? "Pro"
-                  : "Intensive"}
+              {(resultPlan ?? recommended) === "start" ? "Start" : (resultPlan ?? recommended) === "pro" ? "Pro" : "Intensive"}
             </strong>
             . Вы можете перейти к оплате или выбрать другой вариант вручную.
           </p>
