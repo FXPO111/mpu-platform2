@@ -1,4 +1,4 @@
-from app.http.routes_public import DiagnosticSubmitIn, detect_plan
+from app.http.routes_public import PLAN_TO_PRODUCT_CODE, DiagnosticSubmitIn, detect_plan
 
 
 def test_detect_plan_intensive():
@@ -21,3 +21,9 @@ def test_detect_plan_start_default():
     )
 
     assert detect_plan(payload) == "start"
+
+
+def test_plan_mapping_for_checkout():
+    assert PLAN_TO_PRODUCT_CODE["start"] == "PLAN_START"
+    assert PLAN_TO_PRODUCT_CODE["pro"] == "PLAN_PRO"
+    assert PLAN_TO_PRODUCT_CODE["intensive"] == "PLAN_INTENSIVE"

@@ -176,6 +176,9 @@ class Repo:
     def get_product(self, product_id: UUID) -> Product | None:
         return self.db.get(Product, product_id)
 
+    def get_product_by_code(self, code: str) -> Product | None:
+        return self.db.scalar(select(Product).where(Product.code == code, Product.active.is_(True)))
+
     def list_products(self) -> list[Product]:
         return list(self.db.scalars(select(Product).where(Product.active.is_(True))).all())
 

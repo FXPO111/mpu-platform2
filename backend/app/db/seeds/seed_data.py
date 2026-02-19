@@ -19,6 +19,9 @@ def seed_rubrics(db: Session):
 
 def seed_products(db: Session):
     db.add_all([
+        Product(code="PLAN_START", type="program", name_de="Start", name_en="Start", price_cents=7900, currency="EUR", metadata_json={"plan": "start"}),
+        Product(code="PLAN_PRO", type="program", name_de="Pro", name_en="Pro", price_cents=16900, currency="EUR", metadata_json={"plan": "pro"}),
+        Product(code="PLAN_INTENSIVE", type="program", name_de="Intensive", name_en="Intensive", price_cents=28900, currency="EUR", metadata_json={"plan": "intensive"}),
         Product(code="AI_PACK_50", type="ai_pack", name_de="AI 50", name_en="AI 50", price_cents=4900, currency="EUR", metadata_json={"credits": 50}),
         Product(code="CALL_60", type="booking", name_de="Beratung 60", name_en="Consultation 60", price_cents=9900, currency="EUR", metadata_json={}),
     ])

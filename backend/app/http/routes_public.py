@@ -1,11 +1,64 @@
+<<<<<<< codex/fix-column-height-discrepancy-kfvrsw
+from secrets import token_urlsafe
+from typing import Literal
+
+=======
+>>>>>>> main
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.db.repo import Repo
 from app.db.session import get_db
+from app.domain.models import APIError
+from app.integrations.payments_stripe import StripeError, create_checkout_session
+from app.security.auth import hash_password
+from app.settings import settings
 
 router = APIRouter(prefix="/api/public", tags=["public"])
+
+PLAN_TO_PRODUCT_CODE: dict[str, str] = {
+    "start": "PLAN_START",
+    "pro": "PLAN_PRO",
+    "intensive": "PLAN_INTENSIVE",
+}
+
+
+class DiagnosticSubmitIn(BaseModel):
+    reasons: list[str] = Field(default_factory=list, min_length=1, max_length=2)
+    other_reason: str | None = Field(default=None, max_length=120)
+    situation: str = Field(min_length=12, max_length=2000)
+    history: str = Field(min_length=12, max_length=2000)
+    goal: str = Field(min_length=8, max_length=2000)
+
+
+class DiagnosticSubmitOut(BaseModel):
+    id: str
+    recommended_plan: str
+
+
+class PublicCheckoutIn(BaseModel):
+    plan: Literal["start", "pro", "intensive"]
+    email: str = Field(min_length=5, max_length=320)
+    name: str | None = Field(default=None, max_length=120)
+
+
+class PublicCheckoutOut(BaseModel):
+    order_id: str
+    checkout_session_id: str
+    checkout_url: str | None
+
+
+def detect_plan(payload: DiagnosticSubmitIn) -> str:
+    text = " ".join(payload.reasons + [payload.other_reason or "", payload.situation, payload.history, payload.goal]).lower()
+    intense_keywords = ["повтор", "отказ", "сложно", "долго", "стресс", "срочно", "конфликт", "инцидент"]
+    pro_keywords = ["документ", "план", "трениров", "ошиб", "формулиров", "подготов"]
+
+    if any(k in text for k in intense_keywords):
+        return "intensive"
+    if any(k in text for k in pro_keywords):
+        return "pro"
+    return "start"
 
 
 class DiagnosticSubmitIn(BaseModel):
@@ -77,3 +130,54 @@ def submit_diagnostic(payload: DiagnosticSubmitIn, request: Request, db: Session
     )
     db.commit()
     return DiagnosticSubmitOut(id=str(row.id), recommended_plan=row.recommended_plan)
+<<<<<<< codex/fix-column-height-discrepancy-kfvrsw
+
+
+@router.post("/checkout", response_model=PublicCheckoutOut)
+def public_checkout(payload: PublicCheckoutIn, db: Session = Depends(get_db)):
+    repo = Repo(db)
+    product_code = PLAN_TO_PRODUCT_CODE[payload.plan]
+    product = repo.get_product_by_code(product_code)
+    if not product:
+        raise APIError("PRODUCT_NOT_FOUND", f"Product for plan '{payload.plan}' not found", status_code=404)
+
+    user = repo.get_user_by_email(payload.email)
+    if not user:
+        name = (payload.name or payload.email.split("@")[0] or "Client")[:120]
+        user = repo.create_user(
+            email=payload.email,
+            password_hash=hash_password(token_urlsafe(24)),
+            name=name,
+            locale="de",
+        )
+
+    order = repo.create_order(user.id, product, provider_ref=f"tmp_{token_urlsafe(18)}")
+    order.provider = "stripe"
+    order.status = "pending"
+
+    try:
+        session = create_checkout_session(
+            secret_key=settings.stripe_secret_key,
+            order_id=str(order.id),
+            product_id=str(product.id),
+            product_name=product.name_de,
+            unit_amount_cents=product.price_cents,
+            currency=product.currency,
+            stripe_price_id=product.stripe_price_id,
+            frontend_url=settings.frontend_url,
+            customer_email=user.email,
+        )
+    except StripeError as exc:
+        db.rollback()
+        raise APIError("CHECKOUT_FAILED", str(exc), status_code=502) from exc
+
+    order.provider_ref = session["id"]
+    db.commit()
+
+    return PublicCheckoutOut(
+        order_id=str(order.id),
+        checkout_session_id=session["id"],
+        checkout_url=session.get("url"),
+    )
+=======
+>>>>>>> main

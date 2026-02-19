@@ -1490,6 +1490,33 @@ body{
   gap: 14px;
 }
 
+
+.pricing-grid-equal{
+  align-items: stretch;
+}
+
+.pricing-plan-card{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.pricing-plan-note{
+  min-height: 20px;
+}
+
+.pricing-plan-note.is-empty{
+  visibility: hidden;
+}
+
+.pricing-plan-actions{
+  margin-top: auto;
+}
+
+.pricing-email-field{
+  max-width: 420px;
+}
+
 .clean-plan{
   border-radius: 22px;
 }
