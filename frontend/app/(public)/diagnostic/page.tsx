@@ -1,0 +1,227 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+
+type PlanKey = "start" | "pro" | "intensive";
+
+const STEP_TITLES = ["Тема", "Ситуация", "История", "Цель"] as const;
+const REASONS = ["Алкоголь", "Наркотики", "Пункты / штрафы", "Поведение / инцидент", "Другое"] as const;
+
+function detectPlan(payload: { reasons: string[]; situation: string; history: string; goal: string; other: string }): PlanKey {
+  const text = [payload.reasons.join(" "), payload.other, payload.situation, payload.history, payload.goal].join(" ").toLowerCase();
+  const intenseKeywords = ["повтор", "отказ", "сложно", "долго", "стресс", "срочно", "конфликт", "инцидент"];
+  const proKeywords = ["документ", "план", "трениров", "ошиб", "формулиров", "подготов"];
+
+  if (intenseKeywords.some((k) => text.includes(k))) return "intensive";
+  if (proKeywords.some((k) => text.includes(k))) return "pro";
+  return "start";
+}
+
+export default function DiagnosticPage() {
+  const [step, setStep] = useState(0);
+  const [reasons, setReasons] = useState<string[]>([]);
+  const [otherReason, setOtherReason] = useState("");
+  const [situation, setSituation] = useState("");
+  const [history, setHistory] = useState("");
+  const [goal, setGoal] = useState("");
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = localStorage.getItem("diagnostic_draft_v2");
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as {
+        step?: number;
+        reasons?: string[];
+        otherReason?: string;
+        situation?: string;
+        history?: string;
+        goal?: string;
+      };
+      setStep(Math.min(Math.max(parsed.step ?? 0, 0), 3));
+      setReasons(parsed.reasons ?? []);
+      setOtherReason(parsed.otherReason ?? "");
+      setSituation(parsed.situation ?? "");
+      setHistory(parsed.history ?? "");
+      setGoal(parsed.goal ?? "");
+    } catch {
+      // ignore broken draft
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(
+      "diagnostic_draft_v2",
+      JSON.stringify({ step, reasons, otherReason, situation, history, goal }),
+    );
+  }, [step, reasons, otherReason, situation, history, goal]);
+
+  const progress = useMemo(() => Math.round(((step + 1) / STEP_TITLES.length) * 100), [step]);
+  const minutesLeft = useMemo(() => Math.max(1, 4 - step), [step]);
+
+  const recommended = useMemo(
+    () => detectPlan({ reasons, situation, history, goal, other: otherReason }),
+    [reasons, situation, history, goal, otherReason],
+  );
+
+  const canNext = useMemo(() => {
+    if (step === 0) {
+      if (reasons.length === 0) return false;
+      if (reasons.includes("Другое") && otherReason.trim().length < 2) return false;
+      return true;
+    }
+    if (step === 1) return situation.trim().length >= 12;
+    if (step === 2) return history.trim().length >= 12;
+    return goal.trim().length >= 8;
+  }, [step, reasons, otherReason, situation, history, goal]);
+
+  const toggleReason = (reason: string) => {
+    setReasons((prev) => (prev.includes(reason) ? prev.filter((x) => x !== reason) : [...prev, reason]));
+  };
+
+  const saveResult = () => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(
+      "diagnostic_answers",
+      JSON.stringify({ reasons, otherReason, situation, history, goal }),
+    );
+    localStorage.setItem("recommended_plan", recommended);
+    setDone(true);
+  };
+
+  return (
+    <div className="public-page-stack diagnostic-page">
+      <section className="diagnostic-layout">
+        <article className="card pad diagnostic-main">
+          <div className="diagnostic-head">
+            <h1 className="h2">Диагностика</h1>
+            <p className="small">Осталось ~{minutesLeft} мин</p>
+          </div>
+
+          <div className="diagnostic-stepper mt-12">
+            {STEP_TITLES.map((title, idx) => (
+              <div key={title} className={`diag-step ${idx <= step ? "active" : ""}`}>
+                <span className="diag-step-num">{idx + 1}</span>
+                <span className="diag-step-label">{title}</span>
+              </div>
+            ))}
+          </div>
+          <div className="diag-progress mt-10" aria-hidden>
+            <span style={{ width: `${progress}%` }} />
+          </div>
+
+          {step === 0 ? (
+            <div className="mt-16 stack">
+              <h2 className="h3">Какая основная причина MPU?</h2>
+              <p className="small">Можно выбрать несколько.</p>
+              <div className="diag-chip-grid">
+                {REASONS.map((reason) => {
+                  const active = reasons.includes(reason);
+                  return (
+                    <button
+                      type="button"
+                      key={reason}
+                      className={`diag-chip ${active ? "active" : ""}`}
+                      onClick={() => toggleReason(reason)}
+                    >
+                      {reason}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {reasons.includes("Другое") ? (
+                <div className="field mt-8">
+                  <label className="label" htmlFor="diag-other">Уточните в 1–2 словах</label>
+                  <Input
+                    id="diag-other"
+                    className="diag-input"
+                    value={otherReason}
+                    onChange={(e) => setOtherReason(e.target.value)}
+                  />
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          {step === 1 ? (
+            <div className="mt-16 stack">
+              <h2 className="h3">Опишите текущую ситуацию</h2>
+              <p className="small">Коротко (1–3 предложения). Без деталей, которые вы не хотите указывать.</p>
+              <textarea
+                className="input diag-textarea"
+                value={situation}
+                onChange={(e) => setSituation(e.target.value)}
+              />
+              <p className="help">Пример: “Сейчас собираю документы и хочу подготовиться к интервью без ошибок в формулировках”.</p>
+            </div>
+          ) : null}
+
+          {step === 2 ? (
+            <div className="mt-16 stack">
+              <h2 className="h3">Что уже сделано по подготовке?</h2>
+              <p className="small">Коротко (1–3 предложения). Без деталей, которые вы не хотите указывать.</p>
+              <textarea
+                className="input diag-textarea"
+                value={history}
+                onChange={(e) => setHistory(e.target.value)}
+              />
+              <p className="help">Пример: “Есть базовые документы, но нет уверенности в структуре ответов и порядке шагов”.</p>
+            </div>
+          ) : null}
+
+          {step === 3 ? (
+            <div className="mt-16 stack">
+              <h2 className="h3">Какая цель по срокам?</h2>
+              <p className="small">Коротко (1–3 предложения). Без деталей, которые вы не хотите указывать.</p>
+              <textarea
+                className="input diag-textarea"
+                value={goal}
+                onChange={(e) => setGoal(e.target.value)}
+              />
+              <p className="help">Пример: “Хочу пройти полную подготовку в ближайшие 6–8 недель с финальной проверкой”.</p>
+            </div>
+          ) : null}
+
+          <div className="hero-actions mt-16">
+            <Button variant="ghost" disabled={step === 0} onClick={() => setStep((v) => Math.max(0, v - 1))}>Назад</Button>
+            {step < STEP_TITLES.length - 1 ? (
+              <Button disabled={!canNext} onClick={() => setStep((v) => Math.min(STEP_TITLES.length - 1, v + 1))}>Далее</Button>
+            ) : (
+              <Button disabled={!canNext} onClick={saveResult}>Показать результат</Button>
+            )}
+          </div>
+        </article>
+
+        <aside className="card pad diagnostic-side">
+          <h3 className="h3">После диагностики</h3>
+          <ul className="diag-side-list mt-12">
+            <li><strong>Результат:</strong> персональный план подготовки, список тем с рисками, рекомендации по формулировкам.</li>
+            <li><strong>Время:</strong> 3–6 минут.</li>
+            <li><strong>Конфиденциальность:</strong> ответы используются только для подготовки.</li>
+            <li><strong>Можно продолжить позже:</strong> черновик сохраняется автоматически.</li>
+          </ul>
+        </aside>
+      </section>
+
+      {done ? (
+        <section className="card pad soft">
+          <h2 className="h3">Результат диагностики</h2>
+          <p className="p mt-10">
+            Рекомендуемый формат подготовки: <strong>{recommended === "start" ? "Start" : recommended === "pro" ? "Pro" : "Intensive"}</strong>.
+            Вы можете перейти к оплате или выбрать другой вариант вручную.
+          </p>
+          <div className="hero-actions">
+            <Link href={`/pricing?plan=${recommended}`}><Button>Выбрать формат и оплатить</Button></Link>
+            <Link href="/pricing"><Button variant="secondary">Смотреть все тарифы</Button></Link>
+          </div>
+        </section>
+      ) : null}
+    </div>
+  );
+}
