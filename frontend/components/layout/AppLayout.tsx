@@ -30,7 +30,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <NavLink href="/dashboard?view=dossier">Досье</NavLink>
             <NavLink href="/dashboard?view=evidence">Доказательства</NavLink>
           </nav>
-
           <div className="cabinet-v2-email" title={email}>{email}</div>
         </div>
       </header>

@@ -2733,7 +2733,7 @@ body:has(.diagnostic-page) .header-actions a[href="/diagnostic"]{
 /* Cabinet v2: light, minimal, stable layout */
 .cabinet-v2-shell {
   min-height: 100vh;
-  background: #edf2f0;
+  background: #edf2f0;  
   color: #182a23;
 }
 
@@ -2791,7 +2791,6 @@ body:has(.diagnostic-page) .header-actions a[href="/diagnostic"]{
 .cabinet-v2-score { font-weight: 700; color: #142620; font-size: 14px; }
 .cabinet-v2-progress { margin-top: 10px; height: 7px; background: #d8e1dc; border-radius: 999px; overflow: hidden; }
 .cabinet-v2-progress > div { height: 100%; border-radius: 999px; background: #c7d8cf; }
-
 .cabinet-v2-columns { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 12px; align-items: start; }
 
 .cabinet-v2-task-list { display: grid; gap: 8px; margin-top: 10px; }
@@ -2935,7 +2934,6 @@ body:has(.diagnostic-page) .header-actions a[href="/diagnostic"]{
 @media (max-width: 980px) {
   .cabinet-v2-overview-grid { grid-template-columns: 1fr; }
   .cabinet-v2-circle-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
 
 .cabinet-v2-route-grid {
   display: grid;
@@ -3087,3 +3085,4 @@ body:has(.diagnostic-page) .header-actions a[href="/diagnostic"]{
   .cabinet-v2-route-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .cabinet-v2-inline-fields { grid-template-columns: 1fr; }
 }
+
