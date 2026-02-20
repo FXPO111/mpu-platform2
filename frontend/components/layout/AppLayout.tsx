@@ -26,7 +26,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <nav className="cabinet-v2-nav" aria-label="Кабинет">
             <NavLink href="/dashboard?view=overview" exact>Обзор</NavLink>
             <NavLink href="/dashboard?view=route">Маршрут</NavLink>
-            <NavLink href="/dashboard?view=sessions">Сессии</NavLink>
             <NavLink href="/dashboard?view=exam">Экзамен</NavLink>
             <NavLink href="/dashboard?view=dossier">Досье</NavLink>
             <NavLink href="/dashboard?view=evidence">Доказательства</NavLink>
