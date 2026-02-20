@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import os
+from typing import Any
+
+from openai import OpenAI
 
 from app.settings import settings
 
@@ -117,3 +120,114 @@ def generate_assistant_reply(mode: str, question: str, user_answer: str, locale:
         pass
 
     return _fallback(mode=mode, question=question, locale=locale)
+
+
+def _therapy_fallback(locale: str, focus: list[str]) -> str:
+    focus_text = focus[0] if focus else "стабилизация состояния"
+    loc = (locale or "ru").strip().lower()
+    if loc.startswith("de"):
+        return (
+            "Ich bin bei Ihnen. Für den heutigen Schritt konzentrieren wir uns auf innere Stabilität. "
+            f"Fokus: {focus_text}. "
+            "Beschreiben Sie bitte: 1) was passiert ist, 2) was Sie dabei gedacht haben, "
+            "3) welche kleine sichere Handlung Sie heute machen."
+        )
+    if loc.startswith("en"):
+        return (
+            "I am with you. For today, we focus on stabilization. "
+            f"Focus: {focus_text}. "
+            "Please describe: 1) what happened, 2) what you thought, 3) one small safe action you can do today."
+        )
+    return (
+        "Я рядом и веду вас по шагам. Сегодня фокус — стабилизация и снижение внутреннего напряжения. "
+        f"Текущий акцент: {focus_text}. "
+        "Опишите, пожалуйста: 1) что произошло, 2) какая мысль была в моменте, "
+        "3) какое одно безопасное действие вы сделаете сегодня."
+    )
+
+
+def generate_therapy_reply(
+    *,
+    locale: str,
+    diagnostic_context: dict[str, Any],
+    history: list[dict[str, str]],
+    user_message: str,
+) -> str:
+    if not getattr(settings, "openai_api_key", None):
+        return _therapy_fallback(locale=locale, focus=diagnostic_context.get("focus", []))
+
+    loc = (locale or "ru").strip().lower()
+    is_ru = loc.startswith("ru")
+
+    if is_ru:
+        system = (
+            "Ты — опытный специалист по подготовке к MPU с психологическим профилем. "
+            "Веди консультацию спокойно, без сложных терминов и без упоминания технологий. "
+            "Главная цель: снизить тревогу, закрепить ответственность, подготовить клиента к интервью MPU. "
+            "Используй контекст диагностики и отвечай на русском. "
+            "Формат ответа строго такой: "
+            "1) Короткая поддержка (1-2 предложения). "
+            "2) Практический разбор ситуации клиента (2-4 предложения, по делу). "
+            "3) Блок 'Что сказать на собеседовании MPU' — 2-3 готовые формулировки. "
+            "4) Блок 'Задание до следующего шага' — нумерованный список из 2-4 действий. "
+            "5) Один короткий вопрос для продолжения. "
+            "Не давай юридических гарантий и не выдумывай факты."
+        )
+    elif loc.startswith("de"):
+        system = (
+            "Du bist ein erfahrener KI-Psychologe für MPU-Klienten. "
+            "Führe eine volle therapeutische Sitzung mit Empathie und klarer Struktur. "
+            "Ziel: Anspannung reduzieren, Verantwortung stärken, realistischen Veränderungsplan aufbauen. "
+            "Nutze Diagnostik-Kontext. Antworte auf Deutsch. "
+            "Format: Validierung, kurze Analyse, konkrete 2-4 Schritte, eine präzise Folgefrage."
+        )
+    else:
+        system = (
+            "You are an experienced AI psychologist for MPU clients. "
+            "Run a full therapy-style session with empathy and professional structure. "
+            "Goal: reduce distress, increase responsibility, build realistic behavior change plan. "
+            "Use diagnostic context. "
+            "Format: validation, concise analysis, concrete 2-4 step exercise, one precise follow-up question."
+        )
+
+    snippets: list[str] = []
+    for msg in history[-8:]:
+        role = "Клиент" if msg.get("role") == "user" else "Эксперт"
+        snippets.append(f"{role}: {msg.get('content', '').strip()}")
+
+    user_input = (
+        f"Контекст диагностики: {diagnostic_context}\n\n"
+        f"Недавняя история диалога:\n" + "\n".join(snippets) + "\n\n"
+        f"Текущее сообщение клиента:\n{user_message.strip()}"
+    )
+
+    model = getattr(settings, "openai_model", None) or DEFAULT_MODEL
+    client = OpenAI(api_key=settings.openai_api_key)
+
+    try:
+        resp = client.responses.create(
+            model=model,
+            instructions=system,
+            input=user_input,
+        )
+        text = getattr(resp, "output_text", None)
+        if text and str(text).strip():
+            return str(text).strip()
+    except Exception:
+        pass
+
+    try:
+        resp = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user_input},
+            ],
+        )
+        content = resp.choices[0].message.content
+        if content and content.strip():
+            return content.strip()
+    except Exception:
+        pass
+
+    return _therapy_fallback(locale=locale, focus=diagnostic_context.get("focus", []))
