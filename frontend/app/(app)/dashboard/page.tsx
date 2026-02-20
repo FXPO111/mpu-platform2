@@ -8,13 +8,20 @@ import { toPublicApiUrl } from "@/lib/public-api-base";
 type PlanKey = "start" | "pro" | "intensive";
 type ChatMessage = { id: string; role: "assistant" | "user"; content: string };
 type Task = { id: string; text: string; done: boolean };
+
 type DayStatus = "empty" | "partial" | "done";
 type DashboardView = "overview" | "route" | "sessions" | "exam" | "dossier" | "evidence";
 
 type Artifact = { id: "case" | "risk" | "interview" | "evidence"; title: string; pct: number };
 type Flag = { id: string; title: string; severity: "high" | "medium"; view: DashboardView };
 
-type SessionCard = { id: number; title: string; goal: string; result: string; status: "not_started" | "in_progress" | "done" };
+type SessionCard = {
+  id: number;
+  title: string;
+  goal: string;
+  result: string;
+  status: "not_started" | "in_progress" | "done";
+};
 
 type DayRun = {
   day: number;
@@ -180,9 +187,13 @@ export default function DashboardPage() {
 
   const artifacts = useMemo<Artifact[]>(() => {
     const casePct = calcPct([dossier.reason, dossier.responsibility, dossier.changes, dossier.shortStory, dossier.redZones]);
-    const riskPct = Math.round(((evidence.abstinence !== "none" ? 1 : 0) + (evidence.therapy !== "none" ? 1 : 0) + (evidence.doctor !== "none" ? 1 : 0)) / 3 * 100);
+    const riskPct = Math.round(
+      (((evidence.abstinence !== "none" ? 1 : 0) + (evidence.therapy !== "none" ? 1 : 0) + (evidence.doctor !== "none" ? 1 : 0)) / 3) * 100,
+    );
     const interviewPct = Math.min(100, Math.round((examHistory.length / 12) * 100));
-    const evidencePct = Math.round(((evidence.abstinence === "ready" ? 1 : 0) + (evidence.therapy === "ready" ? 1 : 0) + (evidence.doctor === "ready" ? 1 : 0)) / 3 * 100);
+    const evidencePct = Math.round(
+      (((evidence.abstinence === "ready" ? 1 : 0) + (evidence.therapy === "ready" ? 1 : 0) + (evidence.doctor === "ready" ? 1 : 0)) / 3) * 100,
+    );
     return [
       { id: "case", title: "Case File", pct: casePct },
       { id: "risk", title: "Prevention Plan", pct: riskPct },
@@ -193,8 +204,10 @@ export default function DashboardPage() {
 
   const flags = useMemo<Flag[]>(() => {
     const arr: Flag[] = [];
-    if (!dossier.responsibility || dossier.responsibility.length < 20) arr.push({ id: "f1", title: "Слабая формулировка ответственности", severity: "high", view: "dossier" });
-    if (evidence.abstinence === "none") arr.push({ id: "f2", title: "Нет подтверждения abstinenznachweis", severity: "high", view: "evidence" });
+    if (!dossier.responsibility || dossier.responsibility.length < 20)
+      arr.push({ id: "f1", title: "Слабая формулировка ответственности", severity: "high", view: "dossier" });
+    if (evidence.abstinence === "none")
+      arr.push({ id: "f2", title: "Нет подтверждения abstinenznachweis", severity: "high", view: "evidence" });
     if (examHistory.length < 3) arr.push({ id: "f3", title: "Недостаточно прогонов экзамена", severity: "medium", view: "exam" });
     return arr;
   }, [dossier.responsibility, evidence.abstinence, examHistory.length]);
@@ -263,7 +276,10 @@ export default function DashboardPage() {
       setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: "assistant", content: data.reply }]);
     } catch {
       setError("Сервис временно занят. Повторите через пару секунд.");
-      setMessages((prev) => [...prev, { id: `f-${Date.now()}`, role: "assistant", content: "Добавьте факты: ситуация, действие, результат." }]);
+      setMessages((prev) => [
+        ...prev,
+        { id: `f-${Date.now()}`, role: "assistant", content: "Добавьте факты: ситуация, действие, результат." },
+      ]);
     } finally {
       setSending(false);
     }
@@ -298,20 +314,31 @@ export default function DashboardPage() {
         <>
           <section className="cabinet-v2-overview-grid">
             <div className="cabinet-v2-status">
-              <div className="cabinet-v2-status-top"><h2 className="h3">Общий прогресс</h2><span className="cabinet-v2-score">{overallProgress}/100</span></div>
-              <div className="cabinet-v2-progress"><div style={{ width: `${overallProgress}%` }} /></div>
+              <div className="cabinet-v2-status-top">
+                <h2 className="h3">Общий прогресс</h2>
+                <span className="cabinet-v2-score">{overallProgress}/100</span>
+              </div>
+              <div className="cabinet-v2-progress">
+                <div style={{ width: `${overallProgress}%` }} />
+              </div>
               <p className="small">Модель: артефакты 45% + экзамен 30% + сессии 15% + дневной ритм 10%.</p>
             </div>
             <div className="cabinet-v2-status">
               <h2 className="h3">Следующий шаг</h2>
               <p className="small">Один целевой шаг на сегодня: без перегруза.</p>
-              <a href={nextStepHref} style={{ marginTop: 12, display: "inline-block" }}><Button>Начать</Button></a>
+              <a href={nextStepHref} style={{ marginTop: 12, display: "inline-block" }}>
+                <Button>Начать</Button>
+              </a>
             </div>
             <div className="cabinet-v2-status">
               <h2 className="h3">Папка готовности</h2>
               <div className="cabinet-v2-task-list" style={{ marginTop: 8 }}>
                 {artifacts.map((a) => (
-                  <a key={a.id} href={`/dashboard?view=${a.id === "evidence" ? "evidence" : "dossier"}`} className="cabinet-v2-task-item">
+                  <a
+                    key={a.id}
+                    href={`/dashboard?view=${a.id === "evidence" ? "evidence" : "dossier"}`}
+                    className="cabinet-v2-task-item"
+                  >
                     <span>{a.title}</span>
                     <strong>{a.pct}%</strong>
                   </a>
@@ -321,12 +348,18 @@ export default function DashboardPage() {
             <div className="cabinet-v2-status">
               <h2 className="h3">Красные флаги</h2>
               <div className="cabinet-v2-task-list" style={{ marginTop: 8 }}>
-                {flags.length ? flags.map((f) => (
-                  <a key={f.id} href={`/dashboard?view=${f.view}`} className="cabinet-v2-task-item">
-                    <span>{f.title}</span>
-                    <strong>{f.severity === "high" ? "Высокий" : "Средний"}</strong>
-                  </a>
-                )) : <div className="cabinet-v2-task-item"><span>Активных флагов нет</span></div>}
+                {flags.length ? (
+                  flags.map((f) => (
+                    <a key={f.id} href={`/dashboard?view=${f.view}`} className="cabinet-v2-task-item">
+                      <span>{f.title}</span>
+                      <strong>{f.severity === "high" ? "Высокий" : "Средний"}</strong>
+                    </a>
+                  ))
+                ) : (
+                  <div className="cabinet-v2-task-item">
+                    <span>Активных флагов нет</span>
+                  </div>
+                )}
               </div>
             </div>
           </section>
@@ -347,90 +380,180 @@ export default function DashboardPage() {
             <div>
               <p className="small">Пройдено дней</p>
               <strong>{completedDays} из 30</strong>
-              <div className="cabinet-v2-progress-track"><span style={{ width: `${Math.round((completedDays / 30) * 100)}%` }} /></div>
+              <div className="cabinet-v2-progress-track">
+                <span style={{ width: `${Math.round((completedDays / 30) * 100)}%` }} />
+              </div>
             </div>
           </div>
 
           <div className="cabinet-v2-stage-line" role="list" aria-label="Этапы дня">
-            <div className={`cabinet-v2-stage-pill ${activeDayStep === 1 ? "active" : activeDayRun?.checkin.done ? "done" : ""}`}>1. Оценка состояния</div>
-            <div className={`cabinet-v2-stage-pill ${activeDayStep === 2 ? "active" : activeDayRun?.task.done ? "done" : ""}`}>2. Задача дня</div>
-            <div className={`cabinet-v2-stage-pill ${activeDayStep === 3 ? "active" : activeDayRun?.exam.done ? "done" : ""}`}>3. Мини-экзамен</div>
+            <div
+              className={`cabinet-v2-stage-pill ${activeDayStep === 1 ? "active" : activeDayRun?.checkin.done ? "done" : ""}`}
+            >
+              1. Оценка состояния
+            </div>
+            <div
+              className={`cabinet-v2-stage-pill ${activeDayStep === 2 ? "active" : activeDayRun?.task.done ? "done" : ""}`}
+            >
+              2. Задача дня
+            </div>
+            <div
+              className={`cabinet-v2-stage-pill ${activeDayStep === 3 ? "active" : activeDayRun?.exam.done ? "done" : ""}`}
+            >
+              3. Мини-экзамен
+            </div>
           </div>
 
           {activeDayRun ? (
             <div className="cabinet-v2-dayrun">
               <h3 className="h3">День {activeDayRun.day}</h3>
-              <p className="small" style={{ marginTop: 2 }}>Шаг {activeDayStep}/3</p>
+              <p className="small" style={{ marginTop: 2 }}>
+                Шаг {activeDayStep}/3
+              </p>
               <div className="cabinet-v2-task-list" style={{ marginTop: 10 }}>
                 {activeDayStep === 1 ? (
-                <div className="cabinet-v2-task-item cabinet-v2-stage-panel">
-                  <div style={{ width: "100%" }}>
-                    <strong>Оценка состояния</strong>
-                    <p className="small">Отметьте состояние по шкале и добавьте 1–2 предложения по самочувствию.</p>
-                    <div className="cabinet-v2-inline-fields">
-                      <label className="cabinet-v2-range-field">
-                        <span>Тревога</span>
-                        <input
-                          type="range"
-                          min={1}
-                          max={10}
-                          value={activeDayRun.checkin.anxiety}
-                          style={rangeFillStyle(activeDayRun.checkin.anxiety)}
-                          onChange={(e) => setDayRuns((prev) => prev.map((r) => r.day === activeDay ? { ...r, checkin: { ...r.checkin, anxiety: Number(e.target.value) || 1 } } : r))}
-                        />
-                        <strong>{activeDayRun.checkin.anxiety}/10</strong>
-                      </label>
-                      <label className="cabinet-v2-range-field">
-                        <span>Напряжение</span>
-                        <input
-                          type="range"
-                          min={1}
-                          max={10}
-                          value={activeDayRun.checkin.tension}
-                          style={rangeFillStyle(activeDayRun.checkin.tension)}
-                          onChange={(e) => setDayRuns((prev) => prev.map((r) => r.day === activeDay ? { ...r, checkin: { ...r.checkin, tension: Number(e.target.value) || 1 } } : r))}
-                        />
-                        <strong>{activeDayRun.checkin.tension}/10</strong>
-                      </label>
-                      <label className="cabinet-v2-range-field">
-                        <span>Уверенность</span>
-                        <input
-                          type="range"
-                          min={1}
-                          max={10}
-                          value={activeDayRun.checkin.confidence}
-                          style={rangeFillStyle(activeDayRun.checkin.confidence)}
-                          onChange={(e) => setDayRuns((prev) => prev.map((r) => r.day === activeDay ? { ...r, checkin: { ...r.checkin, confidence: Number(e.target.value) || 1 } } : r))}
-                        />
-                        <strong>{activeDayRun.checkin.confidence}/10</strong>
-                      </label>
+                  <div className="cabinet-v2-task-item cabinet-v2-stage-panel">
+                    <div style={{ width: "100%" }}>
+                      <strong>Оценка состояния</strong>
+                      <p className="small">Отметьте состояние по шкале и добавьте 1–2 предложения по самочувствию.</p>
+                      <div className="cabinet-v2-inline-fields">
+                        <label className="cabinet-v2-range-field">
+                          <span>Тревога</span>
+                          <input
+                            type="range"
+                            min={1}
+                            max={10}
+                            value={activeDayRun.checkin.anxiety}
+                            style={rangeFillStyle(activeDayRun.checkin.anxiety)}
+                            onChange={(e) =>
+                              setDayRuns((prev) =>
+                                prev.map((r) =>
+                                  r.day === activeDay ? { ...r, checkin: { ...r.checkin, anxiety: Number(e.target.value) || 1 } } : r,
+                                ),
+                              )
+                            }
+                          />
+                          <strong>{activeDayRun.checkin.anxiety}/10</strong>
+                        </label>
+                        <label className="cabinet-v2-range-field">
+                          <span>Напряжение</span>
+                          <input
+                            type="range"
+                            min={1}
+                            max={10}
+                            value={activeDayRun.checkin.tension}
+                            style={rangeFillStyle(activeDayRun.checkin.tension)}
+                            onChange={(e) =>
+                              setDayRuns((prev) =>
+                                prev.map((r) =>
+                                  r.day === activeDay ? { ...r, checkin: { ...r.checkin, tension: Number(e.target.value) || 1 } } : r,
+                                ),
+                              )
+                            }
+                          />
+                          <strong>{activeDayRun.checkin.tension}/10</strong>
+                        </label>
+                        <label className="cabinet-v2-range-field">
+                          <span>Уверенность</span>
+                          <input
+                            type="range"
+                            min={1}
+                            max={10}
+                            value={activeDayRun.checkin.confidence}
+                            style={rangeFillStyle(activeDayRun.checkin.confidence)}
+                            onChange={(e) =>
+                              setDayRuns((prev) =>
+                                prev.map((r) =>
+                                  r.day === activeDay
+                                    ? { ...r, checkin: { ...r.checkin, confidence: Number(e.target.value) || 1 } }
+                                    : r,
+                                ),
+                              )
+                            }
+                          />
+                          <strong>{activeDayRun.checkin.confidence}/10</strong>
+                        </label>
+                      </div>
+                      <textarea
+                        className="cabinet-v2-input"
+                        value={activeDayRun.checkin.note}
+                        onChange={(e) =>
+                          setDayRuns((prev) =>
+                            prev.map((r) => (r.day === activeDay ? { ...r, checkin: { ...r.checkin, note: e.target.value } } : r)),
+                          )
+                        }
+                        placeholder="Коротко: что было сегодня самым сложным и как вы справились"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          setDayRuns((prev) =>
+                            prev.map((r) => (r.day === activeDay ? { ...r, checkin: { ...r.checkin, done: true } } : r)),
+                          )
+                        }
+                      >
+                        Сохранить и дальше
+                      </Button>
                     </div>
-                    <textarea className="cabinet-v2-input" value={activeDayRun.checkin.note} onChange={(e) => setDayRuns((prev) => prev.map((r) => r.day === activeDay ? { ...r, checkin: { ...r.checkin, note: e.target.value } } : r))} placeholder="Коротко: что было сегодня самым сложным и как вы справились" />
-                    <Button size="sm" onClick={() => setDayRuns((prev) => prev.map((r) => r.day === activeDay ? { ...r, checkin: { ...r.checkin, done: true } } : r))}>Сохранить и дальше</Button>
                   </div>
-                </div>
                 ) : null}
 
                 {activeDayStep === 2 ? (
-                <div className="cabinet-v2-task-item cabinet-v2-stage-panel">
-                  <div style={{ width: "100%" }}>
-                    <strong>Задача дня</strong>
-                    <p className="small">Один короткий фокус на сегодня.</p>
-                    <textarea className="cabinet-v2-input" value={activeDayRun.task.text} onChange={(e) => setDayRuns((prev) => prev.map((r) => r.day === activeDay ? { ...r, task: { ...r.task, text: e.target.value } } : r))} />
-                    <Button size="sm" onClick={() => setDayRuns((prev) => prev.map((r) => r.day === activeDay ? { ...r, task: { ...r.task, done: true } } : r))}>Сохранить и дальше</Button>
+                  <div className="cabinet-v2-task-item cabinet-v2-stage-panel">
+                    <div style={{ width: "100%" }}>
+                      <strong>Задача дня</strong>
+                      <p className="small">Один короткий фокус на сегодня.</p>
+                      <textarea
+                        className="cabinet-v2-input"
+                        value={activeDayRun.task.text}
+                        onChange={(e) =>
+                          setDayRuns((prev) =>
+                            prev.map((r) => (r.day === activeDay ? { ...r, task: { ...r.task, text: e.target.value } } : r)),
+                          )
+                        }
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          setDayRuns((prev) =>
+                            prev.map((r) => (r.day === activeDay ? { ...r, task: { ...r.task, done: true } } : r)),
+                          )
+                        }
+                      >
+                        Сохранить и дальше
+                      </Button>
+                    </div>
                   </div>
-                </div>
                 ) : null}
 
                 {activeDayStep === 3 ? (
-                <div className="cabinet-v2-task-item cabinet-v2-stage-panel">
-                  <div style={{ width: "100%" }}>
-                    <strong>Мини-экзамен</strong>
-                    <p className="small">Вопрос: {EXAM_QUESTIONS[(activeDay - 1) % EXAM_QUESTIONS.length]}</p>
-                    <textarea className="cabinet-v2-input" value={activeDayRun.exam.answers[0] || ""} onChange={(e) => setDayRuns((prev) => prev.map((r) => r.day === activeDay ? { ...r, exam: { ...r.exam, answers: [e.target.value] } } : r))} />
-                    <Button size="sm" onClick={() => setDayRuns((prev) => prev.map((r) => r.day === activeDay ? { ...r, exam: { ...r.exam, done: true } } : r))}>Завершить Day Run</Button>
+                  <div className="cabinet-v2-task-item cabinet-v2-stage-panel">
+                    <div style={{ width: "100%" }}>
+                      <strong>Мини-экзамен</strong>
+                      <p className="small">Вопрос: {EXAM_QUESTIONS[(activeDay - 1) % EXAM_QUESTIONS.length]}</p>
+                      <textarea
+                        className="cabinet-v2-input"
+                        value={activeDayRun.exam.answers[0] || ""}
+                        onChange={(e) =>
+                          setDayRuns((prev) =>
+                            prev.map((r) =>
+                              r.day === activeDay ? { ...r, exam: { ...r.exam, answers: [e.target.value] } } : r,
+                            ),
+                          )
+                        }
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          setDayRuns((prev) =>
+                            prev.map((r) => (r.day === activeDay ? { ...r, exam: { ...r.exam, done: true } } : r)),
+                          )
+                        }
+                      >
+                        Завершить Day Run
+                      </Button>
+                    </div>
                   </div>
-                </div>
                 ) : null}
               </div>
             </div>
@@ -443,15 +566,40 @@ export default function DashboardPage() {
           <h2 className="h3">Сессии курса</h2>
           <div className="cabinet-v2-task-list">
             {sessions.map((s) => (
-              <div key={s.id} className="cabinet-v2-task-item" style={{ alignItems: "center", justifyContent: "space-between" }}>
+              <div
+                key={s.id}
+                className="cabinet-v2-task-item"
+                style={{ alignItems: "center", justifyContent: "space-between" }}
+              >
                 <div>
-                  <strong>Сессия {s.id}: {s.title}</strong>
+                  <strong>
+                    Сессия {s.id}: {s.title}
+                  </strong>
                   <p className="small">Цель: {s.goal}</p>
                   <p className="small">Результат: {s.result}</p>
                 </div>
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                  <span className="badge">{s.status === "done" ? "done" : s.status === "in_progress" ? "in progress" : "not started"}</span>
-                  <Button size="sm" onClick={() => setSessions((prev) => prev.map((x) => x.id === s.id ? { ...x, status: x.status === "done" ? "done" : x.status === "not_started" ? "in_progress" : "done" } : x))}>{s.status === "not_started" ? "Начать" : s.status === "in_progress" ? "Завершить" : "Готово"}</Button>
+                  <span className="badge">
+                    {s.status === "done" ? "done" : s.status === "in_progress" ? "in progress" : "not started"}
+                  </span>
+                  <Button
+                    size="sm"
+                    onClick={() =>
+                      setSessions((prev) =>
+                        prev.map((x) =>
+                          x.id === s.id
+                            ? {
+                                ...x,
+                                status:
+                                  x.status === "done" ? "done" : x.status === "not_started" ? "in_progress" : "done",
+                              }
+                            : x,
+                        ),
+                      )
+                    }
+                  >
+                    {s.status === "not_started" ? "Начать" : s.status === "in_progress" ? "Завершить" : "Готово"}
+                  </Button>
                 </div>
               </div>
             ))}
@@ -462,19 +610,35 @@ export default function DashboardPage() {
       {view === "exam" ? (
         <section className="cabinet-v2-block">
           <h2 className="h3">Экзамен</h2>
-          <p className="small">Прогресс: {examHistory.length}/{EXAM_QUESTIONS.length * 3} · Тип: {examIndex % 4 === 0 ? "provocation" : "core"}</p>
-          <div className="cabinet-v2-task-item" style={{ marginTop: 10 }}><span>Вопрос: {EXAM_QUESTIONS[examIndex % EXAM_QUESTIONS.length]}</span></div>
+          <p className="small">
+            Прогресс: {examHistory.length}/{EXAM_QUESTIONS.length * 3} · Тип: {examIndex % 4 === 0 ? "provocation" : "core"}
+          </p>
+          <div className="cabinet-v2-task-item" style={{ marginTop: 10 }}>
+            <span>Вопрос: {EXAM_QUESTIONS[examIndex % EXAM_QUESTIONS.length]}</span>
+          </div>
           <div className="cabinet-v2-input-wrap">
-            <textarea className="cabinet-v2-input" value={examAnswer} onChange={(e) => setExamAnswer(e.target.value)} placeholder="Ваш ответ" />
+            <textarea
+              className="cabinet-v2-input"
+              value={examAnswer}
+              onChange={(e) => setExamAnswer(e.target.value)}
+              placeholder="Ваш ответ"
+            />
             <Button onClick={submitExam}>Отправить</Button>
           </div>
           <div className="cabinet-v2-task-list" style={{ marginTop: 10 }}>
-            {examHistory.slice(-5).reverse().map((r, idx) => (
-              <div key={idx} className="cabinet-v2-task-item" style={{ display: "block" }}>
-                <p className="small"><strong>Оценка:</strong> {r.score}/100</p>
-                <p className="small"><strong>Исправить:</strong> {r.fix}</p>
-              </div>
-            ))}
+            {examHistory
+              .slice(-5)
+              .reverse()
+              .map((r, idx) => (
+                <div key={idx} className="cabinet-v2-task-item" style={{ display: "block" }}>
+                  <p className="small">
+                    <strong>Оценка:</strong> {r.score}/100
+                  </p>
+                  <p className="small">
+                    <strong>Исправить:</strong> {r.fix}
+                  </p>
+                </div>
+              ))}
           </div>
         </section>
       ) : null}
@@ -483,11 +647,36 @@ export default function DashboardPage() {
         <section className="cabinet-v2-block">
           <h2 className="h3">Досье</h2>
           <div className="cabinet-v2-input-wrap">
-            <textarea className="cabinet-v2-input" placeholder="Причина MPU (2–4 предложения)" value={dossier.reason} onChange={(e) => setDossier((d) => ({ ...d, reason: e.target.value }))} />
-            <textarea className="cabinet-v2-input" placeholder="Ответственность без оправданий" value={dossier.responsibility} onChange={(e) => setDossier((d) => ({ ...d, responsibility: e.target.value }))} />
-            <textarea className="cabinet-v2-input" placeholder="Что изменилось в действиях" value={dossier.changes} onChange={(e) => setDossier((d) => ({ ...d, changes: e.target.value }))} />
-            <textarea className="cabinet-v2-input" placeholder="История 90 секунд" value={dossier.shortStory} onChange={(e) => setDossier((d) => ({ ...d, shortStory: e.target.value }))} />
-            <textarea className="cabinet-v2-input" placeholder="Опасные зоны формулировок" value={dossier.redZones} onChange={(e) => setDossier((d) => ({ ...d, redZones: e.target.value }))} />
+            <textarea
+              className="cabinet-v2-input"
+              placeholder="Причина MPU (2–4 предложения)"
+              value={dossier.reason}
+              onChange={(e) => setDossier((d) => ({ ...d, reason: e.target.value }))}
+            />
+            <textarea
+              className="cabinet-v2-input"
+              placeholder="Ответственность без оправданий"
+              value={dossier.responsibility}
+              onChange={(e) => setDossier((d) => ({ ...d, responsibility: e.target.value }))}
+            />
+            <textarea
+              className="cabinet-v2-input"
+              placeholder="Что изменилось в действиях"
+              value={dossier.changes}
+              onChange={(e) => setDossier((d) => ({ ...d, changes: e.target.value }))}
+            />
+            <textarea
+              className="cabinet-v2-input"
+              placeholder="История 90 секунд"
+              value={dossier.shortStory}
+              onChange={(e) => setDossier((d) => ({ ...d, shortStory: e.target.value }))}
+            />
+            <textarea
+              className="cabinet-v2-input"
+              placeholder="Опасные зоны формулировок"
+              value={dossier.redZones}
+              onChange={(e) => setDossier((d) => ({ ...d, redZones: e.target.value }))}
+            />
           </div>
         </section>
       ) : null}
@@ -496,22 +685,36 @@ export default function DashboardPage() {
         <section className="cabinet-v2-block">
           <h2 className="h3">Доказательства</h2>
           <div className="cabinet-v2-task-list">
-            <label className="cabinet-v2-task-item">Abstinenznachweis
+            <label className="cabinet-v2-task-item">
+              Abstinenznachweis
               <select value={evidence.abstinence} onChange={(e) => setEvidence((v) => ({ ...v, abstinence: e.target.value as Evidence["abstinence"] }))}>
-                <option value="none">нет</option><option value="in_progress">в процессе</option><option value="ready">готово</option>
+                <option value="none">нет</option>
+                <option value="in_progress">в процессе</option>
+                <option value="ready">готово</option>
               </select>
             </label>
-            <label className="cabinet-v2-task-item">Therapienachweis
+            <label className="cabinet-v2-task-item">
+              Therapienachweis
               <select value={evidence.therapy} onChange={(e) => setEvidence((v) => ({ ...v, therapy: e.target.value as Evidence["therapy"] }))}>
-                <option value="none">нет</option><option value="in_progress">в процессе</option><option value="ready">готово</option>
+                <option value="none">нет</option>
+                <option value="in_progress">в процессе</option>
+                <option value="ready">готово</option>
               </select>
             </label>
-            <label className="cabinet-v2-task-item">Arztbericht
+            <label className="cabinet-v2-task-item">
+              Arztbericht
               <select value={evidence.doctor} onChange={(e) => setEvidence((v) => ({ ...v, doctor: e.target.value as Evidence["doctor"] }))}>
-                <option value="none">нет</option><option value="in_progress">в процессе</option><option value="ready">готово</option>
+                <option value="none">нет</option>
+                <option value="in_progress">в процессе</option>
+                <option value="ready">готово</option>
               </select>
             </label>
-            <textarea className="cabinet-v2-input" placeholder="Комментарий по слабым местам" value={evidence.notes} onChange={(e) => setEvidence((v) => ({ ...v, notes: e.target.value }))} />
+            <textarea
+              className="cabinet-v2-input"
+              placeholder="Комментарий по слабым местам"
+              value={evidence.notes}
+              onChange={(e) => setEvidence((v) => ({ ...v, notes: e.target.value }))}
+            />
           </div>
         </section>
       ) : null}
@@ -528,15 +731,25 @@ export default function DashboardPage() {
         </div>
         <div className="cabinet-v2-input-wrap">
           <textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder="Введите сообщение" className="cabinet-v2-input" />
-          <Button onClick={() => void send()} disabled={sending || !input.trim()}>{sending ? "Идет проверка..." : "Отправить"}</Button>
-          {error ? <p className="help" style={{ color: "#9a4040" }}>{error}</p> : null}
+          <Button onClick={() => void send()} disabled={sending || !input.trim()}>
+            {sending ? "Идет проверка..." : "Отправить"}
+          </Button>
+          {error ? (
+            <p className="help" style={{ color: "#9a4040" }}>
+              {error}
+            </p>
+          ) : null}
         </div>
       </section>
 
       <section className="cabinet-v2-status">
         <h2 className="h3">Сегодня выполнено</h2>
-        <div className="cabinet-v2-progress"><div style={{ width: `${Math.round((completedTasks / Math.max(tasks.length, 1)) * 100)}%` }} /></div>
-        <p className="small">{completedTasks}/{tasks.length} шага дневного протокола.</p>
+        <div className="cabinet-v2-progress">
+          <div style={{ width: `${Math.round((completedTasks / Math.max(tasks.length, 1)) * 100)}%` }} />
+        </div>
+        <p className="small">
+          {completedTasks}/{tasks.length} шага дневного протокола.
+        </p>
       </section>
     </main>
   );

@@ -3047,3 +3047,4 @@ body:has(.diagnostic-page) .header-actions a[href="/diagnostic"]{
   .cabinet-v2-route-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .cabinet-v2-inline-fields { grid-template-columns: 1fr; }
 }
+
